@@ -1,0 +1,18 @@
+[build]
+  # Site files (institute-prototype.html, about.html, styles.css, etc.) live at
+  # the repo root, so that's what gets published as-is — no build step needed.
+  publish = "."
+  functions = "netlify/functions"
+
+# The frontend calls /api/health, /api/chat, /api/lead — route those straight
+# through to the matching serverless function, so no frontend code has to change.
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+# There's no index.html at the root — send bare domain visits to the homepage.
+[[redirects]]
+  from = "/"
+  to = "/institute-prototype.html"
+  status = 200

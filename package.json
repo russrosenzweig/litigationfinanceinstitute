@@ -1,0 +1,17 @@
+{
+  "name": "institute-for-litigation-finance-prototype",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local server that activates the AI Concierge on the Institute for Litigation Finance concept prototype with a real Claude backend.",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "dotenv": "^16.4.5",
+    "nodemailer": "^6.9.14"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meet the Financiers — Institute for Litigation Finance</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="badge-proto">Concept Prototype</div>
+
+<header class="site">
+  <div class="wrap">
+    <nav>
+      <a class="brand" href="institute-prototype.html">INSTITUTE FOR LITIGATION FINANCE</a>
+      <div class="navlinks">
+        <a href="about.html">About</a>
+        <a href="research.html">Research Library</a>
+        <a href="financiers.html" class="active">Meet the Financiers</a>
+        <a href="academy.html">Academy</a>
+        <a href="about.html#exchange">The Exchange</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<div style="padding-top:44px;"></div>
+<section id="financiers" style="background:var(--paper); border-top:1px solid var(--line); border-bottom:1px solid var(--line);">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Meet the Financiers</div>
+      <h2>38 litigation funders, in one place.</h2>
+      <p>Compiled against the Association of Litigation Funders (England &amp; Wales), the International Legal Finance Association's member list, Chambers &amp; Partners rankings, the Lawdragon 100 Global Leaders in Litigation Finance, Westfleet Advisors' industry Buyer's Guide, and the third-party-funding.org global directory. Profiles built strictly from what each firm and independent reporting have made public. Not an endorsement, and not the curated matching of the Exchange below &mdash; just the field, laid out plainly.</p>
+    </div>
+    <div class="fin-grid" id="finGrid"></div>
+    <div class="fin-note">This is a large, real market &mdash; likely 60&ndash;100+ active funders worldwide once every small and regional shop is counted &mdash; and firms consolidate or restructure faster than any directory can track (see the Fortress&ndash;Therium entry in the Research Library for a recent example). Some entries above are thin because independent public reporting on that firm is thin; that's disclosed rather than papered over. Corrections welcome.</div>
+  </div>
+</section>
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div><a href="about.html">About</a><a href="research.html">Research Library</a><a href="financiers.html">Meet the Financiers</a><a href="academy.html">Academy</a><a href="about.html#exchange">The Exchange</a></div>
+      <div class="sans">Institute for Litigation Finance</div>
+    </div>
+    <div class="disclaimer">
+      The Institute for Litigation Finance provides independent educational content, research, and AI-assisted matching services. Nothing on this site constitutes legal advice, investment advice, or a guarantee of funding or case outcome. Assessments, scores, and match percentages are illustrative and educational, generated from information self-reported by users, and do not represent an offer, commitment, or evaluation by any funder. Financier and article content is drawn from public sources believed reliable as of mid-2026 and is cited where used; it may not reflect subsequent changes. Litigation finance arrangements are complex and regulated differently across jurisdictions; consult qualified independent counsel before entering into any funding agreement. &copy; Institute for Litigation Finance. Concept prototype &mdash; not a live product.
+    </div>
+  </div>
+</footer>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-card">
+    <button class="modal-close" id="modalClose">Close &times;</button>
+    <div class="tag" id="modalTag"></div>
+    <h3 id="modalTitle"></h3>
+    <div class="abody" id="modalBody"></div>
+    <div class="modal-sources">
+      <div class="st">Sources</div>
+      <div id="modalSources"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const financiers = [
+{name:"Burford Capital", meta:"Public (NYSE/LSE: BUR) &middot; Founded 2009 &middot; New York", desc:"The largest publicly traded litigation finance company. Founded by Christopher Bogart and Jonathan Molot; ~$1.79B market cap and ~$399M trailing revenue as of early 2026. Two segments: Principal Finance and Asset Management.", src:[["Burford Capital — Wikipedia","https://en.wikipedia.org/wiki/Burford_Capital"],["About Us — Burford Capital","https://www.burfordcapital.com/about-us/"]]},
+{name:"Omni Bridgeway", meta:"Public (ASX) &middot; Roots to 1986 &middot; Global", desc:"Formed from IMF Bentham's 2019 acquisition of Omni Bridgeway; traces origins to Netherlands-based funding activity beginning in 1986. Widely described as the largest and most experienced dispute funding and enforcement/recovery specialist globally; Chambers Band 1 for Litigation Funding and Global Asset Tracing, 2026.", src:[["About Us — Omni Bridgeway","https://omnibridgeway.com/about/overview"]]},
+{name:"Fortress Investment Group (Legal Finance)", meta:"~$70B AUM alternative manager &middot; Legal finance arm since 2013", desc:"Deployed over $4B into litigation finance since 2013; roughly $6.8B in legal-asset exposure. In June 2025 assumed operational control of Therium Capital's global litigation portfolio (40+ active matters) following Therium's restructuring.", src:[["Fortress Takes Over Therium's Litigation Portfolio","https://paradiseprovince.com/fortress-investment-group-takes-over-theriums-litigation-portfolio-in-major-industry-shake-up/"],["Fortress Targets $1B for Latest Litigation Finance Fund — Insurance Journal","https://www.insurancejournal.com/news/national/2025/01/30/810160.htm"]]},
+{name:"Parabellum Capital", meta:"New York", desc:"One of the more experienced U.S. commercial litigation funders; a founding member of the International Legal Finance Association, the industry's global trade group.", src:[["Litigation funders form global association — Global Legal Post","https://www.globallegalpost.com/news/litigation-funders-with-10bn-firepower-form-global-association-56646936"]]},
+{name:"Longford Capital", meta:"Illinois", desc:"Well-capitalized commercial funder especially known for intellectual property matters, alongside general commercial and antitrust disputes. ILFA founding member.", src:[["Patent Litigation Funding: Everything You Need to Know","https://www.dilworthip.com/resources/news/patent-litigation-funding-overview/"]]},
+{name:"Validity Finance", meta:"New York", desc:"U.S. commercial litigation funder and ILFA founding member; active across general commercial disputes.", src:[["Litigation funders form global association — Global Legal Post","https://www.globallegalpost.com/news/litigation-funders-with-10bn-firepower-form-global-association-56646936"]]},
+{name:"GLS Capital", meta:"Philadelphia", desc:"Funds commercial litigation, arbitration, and complex intellectual property matters.", src:[["Patent Litigation Funding — Dilworth IP","https://www.dilworthip.com/resources/news/patent-litigation-funding-overview/"]]},
+{name:"Bench Walk Advisors", meta:"Global", desc:"Team of litigators and investors credited with over $30B in settlements and judgments across funded matters; named Litigation Funder of the Year by Chambers &amp; Partners in 2025.", src:[["Bench Walk Advisors","https://benchwalk.com/"]]},
+{name:"Curiam Capital", meta:"New York", desc:"Private investment firm focused on litigation financing for businesses and law firms; majority externally funded by investor Michael Platt.", src:[["About — Curiam Capital","https://www.curiam.com/about/"]]},
+{name:"LexShares", meta:"Boston", desc:"Litigation finance firm operating both a dedicated fund and an online funding marketplace; typically invests $1M+ per matter, with mid-market deals from $200,000.", src:[["LexShares — Commercial Litigation Finance","https://www.lexshares.com/"]]},
+{name:"Legalist", meta:"San Francisco", desc:"Focuses on mid-market cases requiring under $1M in funding; manages over $110M in assets.", src:[["Litigation Funding — Ensun directory","https://ensun.io/search/litigation-funding"]]},
+{name:"Therium Capital Management", meta:"UK &middot; Founded 2009 &mdash; portfolio absorbed 2025", desc:"One of the UK's founding litigation funders and an original Association of Litigation Funders member. In June 2025, its global litigation portfolio was taken over by Fortress Investment Group following internal restructuring — treat current standalone status with caution.", src:[["Inside the Fortress: Capital, Control, and the Quiet Collapse of Therium","https://knowsulu.ph/the-untold-sulu-story/inside-the-fortress-capital-control-and-the-quiet-collapse-of-therium"]]},
+{name:"Woodsford", meta:"UK", desc:"Association of Litigation Funders (England &amp; Wales) member; active across commercial and group litigation funding.", src:[["A Practical Guide to Litigation Funding — Woodsford","https://woodsford.com/wp-content/uploads/2022/09/A-Practical-Guide-Litigation-Funding.pdf"]]},
+{name:"Augusta Ventures", meta:"UK", desc:"ALF member with a stated focus on infrastructure, construction, and energy disputes alongside general commercial funding.", src:[["Infrastructure, Construction & Energy — Augusta Ventures","https://www.augustaventures.com/expertise/infrastructure-construction-and-energy/"]]},
+{name:"Harbour Litigation Funding", meta:"UK", desc:"One of the longest-established members of the UK's Association of Litigation Funders.", src:[["A Time of Change in the Global Litigation Funding Market — Lexology","https://www.lexology.com/library/detail.aspx?g=b0899260-18e8-4d36-9624-57bf85898cf2"]]},
+{name:"Litigation Capital Management (LCM)", meta:"AIM-listed (LIT) &middot; Founded 1998 &middot; Sydney", desc:"One of the longest-running dispute funders globally, with offices in Sydney, London, Singapore, Brisbane, and Melbourne. Funds single-case and portfolio matters, class actions, international arbitration, and insolvency-linked claims.", src:[["Litigation Capital Management — homepage","https://lcmfinance.com/"]]},
+{name:"Deminor", meta:"Founded 1990 &middot; Brussels, global offices", desc:"One of Europe's oldest litigation funders, originally focused on minority shareholder recovery. Helped secure two of Europe's largest securities settlements (Steinhoff, ~€1.4B; Fortis/Ageas, ~€1.3B); Band 1, Chambers Europe Litigation Support, 2024.", src:[["Deminor DNA","https://www.deminor.com/en/about/deminor-dna/"]]},
+{name:"Innsworth", meta:"UK &middot; Funded by Elliott Management", desc:"Funds commercial litigation and arbitration claims above roughly $100M, including shareholder and class actions, insolvency claims, and investor-state arbitration. Formerly Bentham Europe, a joint venture of IMF Bentham and Elliott Management.", src:[["Homepage — Innsworth","https://innsworth.com/"]]},
+{name:"Balance Legal Capital", meta:"UK", desc:"Funds commercial disputes and class actions; team includes senior lawyers from major City of London firms.", src:[["Balance Legal Capital — Chambers Litigation Support Profile","https://chambers.com/department/balance-legal-capital-litigation-funding-litigation-support-58:2816:11805:1:22985302"]]},
+{name:"Asertis", meta:"UK", desc:"Specializes in commercial dispute funding with an emphasis on group actions, enforcement, and insolvency; provides portfolio facilities to law firms.", src:[["Litigation funders with $10bn firepower form global association — Global Legal Post","https://www.globallegalpost.com/news/litigation-funders-with-10bn-firepower-form-global-association-56646936"]]},
+{name:"Certum Group", meta:"Formerly Risk Settlements &middot; ILFA member", desc:"Provides non-recourse capital to cover legal fees and expenses for Am Law 100 firms, corporate counsel, and plaintiff-side practices. Became ILFA's 30th member company.", src:[["ILFA Adds Certum to Mark 30 Member Companies","https://www.certumgroup.com/blog/company-news/international-legal-finance-association-adds-certum-to-mark-30-member-companies"]]},
+{name:"Arcadia Finance", meta:"ILFA member", desc:"Commercial litigation funder; team recognized in the Lawdragon 100 Global Leaders in Litigation Finance for 2026.", src:[["Arcadia Team Selected for Lawdragon 100 List","https://www.arcadiafin.com/news/arcadia-team-again-selected-for-inclusion-in-lawdragon-100-global-leaders-in-litigation-finance-list"]]},
+{name:"IVO Capital Partners", meta:"ILFA member", desc:"Litigation funder admitted as a new member of the International Legal Finance Association.", src:[["ILFA Adds IVO Capital Partners as New Member — Legal Funding Journal","https://legalfundingjournal.com/international-legal-finance-association-adds-ivo-capital-partners-as-new-member/"]]},
+{name:"Nivalion", meta:"Zug/Steinhausen, Switzerland", desc:"European commercial litigation funder; principal Dr. Isabelle Berger named among the 2025 Lawdragon 100 Global Leaders in Litigation Finance.", src:[["The 2025 Lawdragon 100 Global Leaders in Litigation Finance","https://www.lawdragon.com/guides/2025-04-11-the-2025-lawdragon-100-global-leaders-in-litigation-finance"]]},
+{name:"Statera Capital", meta:"U.S. middle market", desc:"Deploys capital across breach of contract, business tort, fraud, IP, environmental, insolvency, unfair competition, and qui tam claims for the U.S. commercial middle market.", src:[["Litigation Finance — Certum Group (industry context)","https://www.certumgroup.com/litigation-finance"]]},
+{name:"Pravati Capital", meta:"Scottsdale, Arizona", desc:"Provides non-recourse capital advances, with a focus on mature personal injury and mass tort cases with an established settlement precedent, alongside law firm portfolio financing.", src:[["Pravati Capital — homepage","https://pravaticapital.com/"]]},
+{name:"Delta Capital Partners Management", meta:"Chicago &middot; SEC-registered investment adviser", desc:"Provides equity capital, credit, and bespoke financing for litigation finance, judgment enforcement, and asset recovery. CEO Christopher DeLise is a repeat Lawdragon 100 Global Leaders in Litigation Finance honoree.", src:[["Delta Capital Partners Management — Chambers Profile","https://chambers.com/law-firm/delta-capital-partners-management-llc-litigation-support-58:22767871"]]},
+{name:"Soryn IP Group", meta:"New York &middot; IP-focused", desc:"Patent-focused finance and advisory firm founded by Michael Gulliford, a former Kirkland &amp; Ellis patent litigator. Has closed more than $150M in patent-centric financings, including funding for universities, law firms, and NPEs pursuing enforcement.", src:[["Soryn IP Capital — IP Finance","https://www.sorynipgroup.com/ip-finance/"]]},
+{name:"Lake Whillans", meta:"New York", desc:"Commercial litigation finance firm; frequently cited in commentary on early landmark U.S. funding disputes, including Miller UK v. Caterpillar.", src:[["Litigation Finance: A Success Story — Lake Whillans","https://www.lakewhillans.com/articles/litigation-finance-a-success-story/"]]},
+{name:"Litigation Lending Services", meta:"Founded 1999 &middot; Sydney, Australia", desc:"One of the earliest litigation funders in the world; has funded 150+ completed insolvency claims, commercial disputes, and class actions, including landmark First Nations justice and environmental cases in Australia.", src:[["About Us — Litigation Lending","https://litigationlending.com.au/about-us/"]]},
+{name:"Vannin Capital", meta:"Historic UK/US funder &mdash; now part of Fortress", desc:"Formerly an independent, ALF-member commercial litigation funder; acquired by Fortress Investment Group and folded into Fortress's legal finance arm.", src:[["The Emerging Market for Litigation Funding — The Hedge Fund Journal","https://thehedgefundjournal.com/the-emerging-market-for-litigation-funding/"]]},
+{name:"IMF Bentham", meta:"Historic funder &mdash; now Omni Bridgeway", desc:"Longstanding Australian-founded funder that acquired Omni Bridgeway in November 2019; the combined entity now operates under the Omni Bridgeway name.", src:[["About Us — Omni Bridgeway","https://omnibridgeway.com/about/overview"]]},
+{name:"Orchard Global Asset Management", meta:"Global", desc:"Alternative asset manager with a litigation funding practice, ranked by Chambers across multiple years.", src:[["A Time of Change in the Global Litigation Funding Market — Lexology","https://www.lexology.com/library/detail.aspx?g=b0899260-18e8-4d36-9624-57bf85898cf2"]]},
+{name:"1624", meta:"U.S. commercial funder", desc:"Listed among active participants in Westfleet Advisors' industry-wide U.S. commercial litigation finance Buyer's Guide.", src:[["Westfleet Advisors Litigation Finance Buyer's Guide","https://www.westfleetadvisors.com/wp-content/uploads/2021/12/Westfleet_Buyers_Guide_2020-01-30.pdf"]]},
+{name:"Arrowhead Capital", meta:"U.S. commercial funder", desc:"Listed among active participants in Westfleet Advisors' industry-wide U.S. commercial litigation finance Buyer's Guide.", src:[["Westfleet Advisors Litigation Finance Buyer's Guide","https://www.westfleetadvisors.com/wp-content/uploads/2021/12/Westfleet_Buyers_Guide_2020-01-30.pdf"]]},
+{name:"BlueWhite Legal Capital", meta:"U.S. commercial funder", desc:"Listed among active participants in Westfleet Advisors' industry-wide U.S. commercial litigation finance Buyer's Guide.", src:[["Westfleet Advisors Litigation Finance Buyer's Guide","https://www.westfleetadvisors.com/wp-content/uploads/2021/12/Westfleet_Buyers_Guide_2020-01-30.pdf"]]},
+{name:"Lawstreet Capital", meta:"Global directory listing", desc:"Listed in the third-party-funding.org global directory of litigation and arbitration funders.", src:[["List of Third-Party Funders","https://third-party-funding.org/list-of-funders/"]]},
+{name:"Leste", meta:"Global directory listing", desc:"Investment group with litigation finance activity; listed in the third-party-funding.org global directory of funders.", src:[["List of Third-Party Funders","https://third-party-funding.org/list-of-funders/"]]},
+{name:"Lumius Capital", meta:"Global directory listing", desc:"Listed in the third-party-funding.org global directory of litigation and arbitration funders.", src:[["List of Third-Party Funders","https://third-party-funding.org/list-of-funders/"]]},
+];
+const finGrid = document.getElementById('finGrid');
+financiers.forEach(f=>{
+  const el = document.createElement('div');
+  el.className = 'fin-card';
+  el.innerHTML = `<div class="fname">${f.name}</div><div class="fmeta">${f.meta}</div><p>${f.desc}</p><div class="fsrc">${f.src.map(s=>`<a href="${s[1]}" target="_blank" rel="noopener">${s[0]}</a>`).join('')}</div>`;
+  finGrid.appendChild(el);
+});
+</script>
+</body></html>

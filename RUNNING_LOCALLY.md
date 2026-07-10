@@ -34,23 +34,21 @@ This is meant for local testing and demos, not production. Before this became a 
 
 ## Optional: email notifications
 
-If you want chat transcripts and "request a follow-up" submissions emailed to you, fill in the email section of `.env`. If you leave it blank, everything still works — the AI Concierge and the "Request a follow-up" form just won't send anything anywhere, and will say so honestly if someone tries.
+If you want chat transcripts and "request a follow-up" submissions emailed to you, set a couple of values in `.env`. If you leave them blank, everything still works — the AI Concierge and the "Request a follow-up" form just won't send anything anywhere, and will say so honestly if someone tries.
 
-Any SMTP provider works. The simplest option if you already have a Gmail account:
+Email is sent through [Resend](https://resend.com)'s HTTPS API rather than traditional SMTP. This is deliberate: many hosts (Render's free tier included) block outbound SMTP ports (25/465/587) entirely as an anti-spam measure, which causes sends to silently time out no matter how correctly SMTP is configured. A normal HTTPS API call isn't affected by that block, so this approach works everywhere without needing a paid hosting tier.
 
-1. Turn on 2-Step Verification on your Google account (required for the next step): https://myaccount.google.com/security
-2. Create an "App Password" at https://myaccount.google.com/apppasswords — choose "Mail" as the app. Google gives you a 16-character password. This is not your regular Gmail password, and it only works for this one purpose.
+1. Sign up at resend.com using the same address you want notifications sent to (e.g. `you@yourcompany.com`). Without verifying a custom domain, Resend's free "sandbox" mode only delivers to that same signup address — which is exactly what we want here.
+2. Create an API key: Dashboard → API Keys → Create API Key. Copy it immediately; it's only shown once.
 3. In `.env`, set:
    ```
-   OWNER_EMAIL=you@gmail.com
-   SMTP_HOST=smtp.gmail.com
-   SMTP_PORT=587
-   SMTP_SECURE=false
-   SMTP_USER=you@gmail.com
-   SMTP_PASS=the-16-character-app-password
+   OWNER_EMAIL=you@yourcompany.com
+   SMTP_PASS=re_your_resend_api_key
+   SMTP_FROM=onboarding@resend.dev
    ```
+   (The variable is still named `SMTP_PASS` for compatibility with the original setup — it just holds your Resend API key now. `RESEND_API_KEY` works too if you'd rather name it that.)
 4. Restart the server. The startup log will confirm whether email is configured.
 
 Every AI Concierge conversation gets emailed to `OWNER_EMAIL` as it progresses (each reply re-sends the running transcript, tagged with a session ID, so your inbox naturally threads a single visitor's conversation together). Anyone who fills out "Request a follow-up" in the chat widget also triggers an immediate email with their name, email, phone, and the conversation so far.
 
-If you'd rather use a dedicated transactional email service instead of Gmail (Resend, Postmark, SendGrid's SMTP relay, etc. — better for anything beyond casual personal use), just swap in the SMTP host/port/credentials they give you; the rest of the setup is identical.
+Once you're ready to send to more than just your own inbox (e.g. a real team distribution list), verify a domain at resend.com/domains and update `SMTP_FROM` to an address on that domain.

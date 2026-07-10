@@ -82,6 +82,29 @@ nav{display:flex; align-items:center; justify-content:space-between; padding:18p
 .concierge-hero{
   background:var(--navy); border-radius:12px; max-width:760px; margin:0 auto; overflow:hidden;
 }
+
+/* FLOATING AI CONCIERGE (every page except the homepage hero) */
+.concierge-bubble{
+  position:fixed; bottom:22px; right:22px; z-index:999;
+  width:54px; height:54px; border-radius:50%; background:var(--navy); border:none;
+  color:var(--gold-light); display:flex; align-items:center; justify-content:center;
+  font-family:Georgia,serif; font-weight:700; font-size:17px; letter-spacing:.5px; cursor:pointer;
+  box-shadow:0 10px 28px rgba(0,0,0,.28);
+}
+.concierge-bubble .dot{
+  position:absolute; top:0px; right:0px; width:12px; height:12px; border-radius:50%;
+  background:#3E7A4E; border:2px solid var(--paper); display:none;
+}
+.concierge-bubble.has-convo .dot{ display:block; }
+.concierge-panel{
+  position:fixed; bottom:88px; right:22px; z-index:999;
+  width:340px; max-width:calc(100vw - 32px);
+  background:var(--navy); border-radius:12px; overflow:hidden;
+  box-shadow:0 24px 64px rgba(0,0,0,.38);
+  display:none; flex-direction:column; max-height:min(560px, 74vh);
+}
+.concierge-panel.open{ display:flex; }
+.concierge-panel .ch-log{ max-height:280px; }
 .ch-head{padding:22px 28px 4px 28px; font-family:-apple-system,sans-serif; color:#fff; text-align:left;}
 .ch-head .who{font-size:13px; font-weight:700; letter-spacing:.3px;}
 .ch-head .sub{font-size:12.5px; color:#9FAAC0; margin-top:2px;}

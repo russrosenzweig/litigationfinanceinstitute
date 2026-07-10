@@ -24,29 +24,38 @@ const MODEL = process.env.CLAUDE_MODEL || "claude-sonnet-5";
 const API_KEY = process.env.ANTHROPIC_API_KEY;
 const OWNER_EMAIL = process.env.OWNER_EMAIL;
 
-// --- Email (optional). If SMTP settings aren't configured, email features
-// --- silently no-op instead of breaking the chat. See RUNNING_LOCALLY.md.
-let mailer = null;
-try {
-  const nodemailer = require("nodemailer");
-  if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS && OWNER_EMAIL) {
-    mailer = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT) || 587,
-      secure: process.env.SMTP_SECURE === "true",
-      auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
-    });
-  }
-} catch (e) { /* nodemailer not installed — email features stay off */ }
+// --- Email (optional). Sent via Resend's HTTPS API rather than raw SMTP —
+// --- many hosts (including Render's free tier) block outbound SMTP ports
+// --- (25/465/587) entirely as an anti-spam measure, which has no effect on
+// --- a normal HTTPS API call like this one. If not configured, email
+// --- features silently no-op instead of breaking the chat. See RUNNING_LOCALLY.md.
+// --- Reuses the SMTP_PASS / SMTP_FROM env var names from the earlier SMTP
+// --- setup (SMTP_PASS holds the Resend API key) so no reconfiguration is
+// --- needed — RESEND_API_KEY also works if you'd rather set it explicitly.
+const RESEND_API_KEY = process.env.RESEND_API_KEY || process.env.SMTP_PASS;
+const MAIL_FROM = process.env.SMTP_FROM || "onboarding@resend.dev";
+const mailer = Boolean(RESEND_API_KEY && OWNER_EMAIL);
 
-function sendMail(subject, text) {
-  if (!mailer) return Promise.resolve({ skipped: true });
-  return mailer.sendMail({
-    from: process.env.SMTP_FROM || process.env.SMTP_USER,
-    to: OWNER_EMAIL,
-    subject,
-    text
-  }).catch(e => console.error("Email send failed:", e.message));
+async function sendMail(subject, text) {
+  if (!mailer) return { skipped: true };
+  try {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "authorization": `Bearer ${RESEND_API_KEY}`
+      },
+      body: JSON.stringify({ from: MAIL_FROM, to: OWNER_EMAIL, subject, text })
+    });
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error("Email send failed:", res.status, errText);
+    }
+    return { skipped: false };
+  } catch (e) {
+    console.error("Email send failed:", e.message);
+    return { skipped: false };
+  }
 }
 
 function transcriptText(messages) {

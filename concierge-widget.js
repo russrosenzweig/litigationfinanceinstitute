@@ -134,14 +134,14 @@ function buildFloatingShell(hasExistingConvo){
   const bubble = document.createElement('button');
   bubble.className = 'concierge-bubble' + (hasExistingConvo ? ' has-convo' : '');
   bubble.setAttribute('aria-label', 'Open AI Concierge');
-  bubble.innerHTML = 'AI<span class="dot"></span>';
+  bubble.innerHTML = '<span class="icon">AI</span><span class="label">' + (hasExistingConvo ? 'Continue chat' : 'Ask the Concierge') + '</span><span class="dot"></span>';
 
   const panel = document.createElement('div');
   panel.className = 'concierge-panel';
   panel.innerHTML = `
     <div class="ch-head">
       <div class="who">AI Concierge</div>
-      <div class="sub">Director of Case Assessment &mdash; not a salesperson.</div>
+      <div class="sub">Senior Fellow for Litigation Finance &mdash; not a salesperson.</div>
       <div class="sub" id="chStatus" style="color:#7A869E; font-size:11px; margin-top:4px;">Demo mode &mdash; run the local server to activate live answers</div>
     </div>
     <div class="ch-log" id="chLog">

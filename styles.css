@@ -85,17 +85,27 @@ nav{display:flex; align-items:center; justify-content:space-between; padding:18p
 
 /* FLOATING AI CONCIERGE (every page except the homepage hero) */
 .concierge-bubble{
-  position:fixed; bottom:22px; right:22px; z-index:999;
-  width:54px; height:54px; border-radius:50%; background:var(--navy); border:none;
-  color:var(--gold-light); display:flex; align-items:center; justify-content:center;
-  font-family:Georgia,serif; font-weight:700; font-size:17px; letter-spacing:.5px; cursor:pointer;
-  box-shadow:0 10px 28px rgba(0,0,0,.28);
+  position:fixed; bottom:24px; right:24px; z-index:999;
+  height:56px; border-radius:28px; background:var(--navy); border:none;
+  color:#fff; display:flex; align-items:center; gap:10px; padding:0 20px 0 8px; cursor:pointer;
+  box-shadow:0 14px 34px rgba(0,0,0,.34);
+  animation:bubbleIn .3s ease-out, bubblePulse 2.8s ease-in-out infinite;
+}
+.concierge-bubble:hover{ transform:translateY(-2px); box-shadow:0 18px 40px rgba(0,0,0,.4); }
+.concierge-bubble .icon{
+  width:40px; height:40px; border-radius:50%; background:var(--gold-light); color:var(--navy);
+  display:flex; align-items:center; justify-content:center; font-family:Georgia,serif; font-weight:700; font-size:15px; flex-shrink:0;
+}
+.concierge-bubble .label{
+  font-family:-apple-system,sans-serif; font-weight:700; font-size:14px; white-space:nowrap; letter-spacing:.2px;
 }
 .concierge-bubble .dot{
-  position:absolute; top:0px; right:0px; width:12px; height:12px; border-radius:50%;
+  position:absolute; top:-2px; right:-2px; width:14px; height:14px; border-radius:50%;
   background:#3E7A4E; border:2px solid var(--paper); display:none;
 }
 .concierge-bubble.has-convo .dot{ display:block; }
+@keyframes bubbleIn{ from{ opacity:0; transform:translateY(12px) scale(.9); } to{ opacity:1; transform:translateY(0) scale(1); } }
+@keyframes bubblePulse{ 0%,100%{ box-shadow:0 14px 34px rgba(0,0,0,.34); } 50%{ box-shadow:0 14px 34px rgba(0,0,0,.34), 0 0 0 8px rgba(184,146,63,.14); } }
 .concierge-panel{
   position:fixed; bottom:88px; right:22px; z-index:999;
   width:340px; max-width:calc(100vw - 32px);

@@ -181,7 +181,7 @@ section{padding:64px 0;}
 }
 .lib-filter button.active{background:var(--navy); color:#fff; border-color:var(--navy);}
 .lib-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border:1px solid var(--line);}
-.article{background:var(--paper); padding:22px; cursor:pointer; transition:background .15s;}
+.article{display:block; background:var(--paper); padding:22px; cursor:pointer; transition:background .15s; text-decoration:none; color:inherit;}
 .article:hover{background:#FBF9F3;}
 .article .tag{
   font-family:-apple-system,sans-serif; font-size:10px; text-transform:uppercase; letter-spacing:1px;

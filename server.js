@@ -182,7 +182,7 @@ app.use(express.json({ limit: "2mb" }));
 app.use(express.static(__dirname));
 
 app.get("/", (req, res) => {
-  res.redirect("/institute-prototype.html");
+  res.redirect(301, "/institute-prototype.html");
 });
 
 app.get("/api/health", (req, res) => {

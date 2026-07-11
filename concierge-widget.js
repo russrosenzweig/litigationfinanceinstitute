@@ -7,6 +7,23 @@
    between pages within the same browser tab/session — closing the tab
    clears it, matching how a normal chat session should behave.
    ==================================================================== */
+
+/* ---- Google Analytics (GA4) ----
+   Loaded here rather than pasted into every individual HTML file, since
+   this script already runs on all 5 core pages plus all 72 generated
+   research/financier detail pages — one change here covers the whole site. */
+(function(){
+  var gaScript = document.createElement("script");
+  gaScript.async = true;
+  gaScript.src = "https://www.googletagmanager.com/gtag/js?id=G-T8XNM16PZ6";
+  document.head.appendChild(gaScript);
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  window.gtag = gtag;
+  gtag('js', new Date());
+  gtag('config', 'G-T8XNM16PZ6');
+})();
+
 (function(){
 
 const WELCOME_HTML = "Welcome. Whether you're a business owner, a lawyer, an investor, or just curious, I'm here to help you understand a matter &mdash; not to sell you anything. To tailor this conversation, which best describes you today?";

@@ -54,7 +54,7 @@ nav{display:flex; align-items:center; justify-content:space-between; padding:18p
 /* PREMIUM FULL-BLEED HERO (homepage) */
 .hero-shell{
   position:relative; background:linear-gradient(180deg, var(--navy) 0%, var(--navy-2) 100%);
-  overflow:hidden; padding:88px 0 96px 0;
+  overflow:hidden; padding:60px 0 56px 0;
 }
 .hero-shell::before, .hero-shell::after{
   content:''; position:absolute; border-radius:50%; filter:blur(90px); opacity:.28; pointer-events:none; z-index:0;
@@ -65,8 +65,8 @@ nav{display:flex; align-items:center; justify-content:space-between; padding:18p
 @keyframes auraFloat2{ 0%,100%{transform:translate(0,0) scale(1);} 50%{transform:translate(-40px,-30px) scale(1.06);} }
 .hero-shell .wrap-narrow{position:relative; z-index:1; text-align:center;}
 .hero-shell .kicker{color:var(--gold-light); justify-content:center;}
-.hero-shell h1{color:#fff; font-size:38px; line-height:1.28; max-width:680px; margin:0 auto 18px auto;}
-.hero-shell p.lead{color:#CBD3E0; font-size:16px; max-width:500px; margin:0 auto 40px auto;}
+.hero-shell h1{color:#fff; font-size:34px; line-height:1.28; max-width:680px; margin:0 auto 12px auto;}
+.hero-shell p.lead{color:#CBD3E0; font-size:15px; max-width:500px; margin:0 auto 24px auto;}
 .hero-shell .concierge-hero{box-shadow:0 34px 90px rgba(0,0,0,.4);}
 
 .teaser-row{display:grid; grid-template-columns:repeat(5,1fr); gap:1px; background:var(--line); border:1px solid var(--line);}
@@ -115,20 +115,20 @@ nav{display:flex; align-items:center; justify-content:space-between; padding:18p
 }
 .concierge-panel.open{ display:flex; }
 .concierge-panel .ch-log{ max-height:280px; }
-.ch-head{padding:22px 28px 4px 28px; font-family:-apple-system,sans-serif; color:#fff; text-align:left;}
+.ch-head{padding:16px 28px 2px 28px; font-family:-apple-system,sans-serif; color:#fff; text-align:left;}
 .ch-head .who{font-size:13px; font-weight:700; letter-spacing:.3px;}
 .ch-head .sub{font-size:12.5px; color:#9FAAC0; margin-top:2px;}
-.ch-log{padding:18px 28px; max-height:340px; overflow-y:auto; text-align:left;}
+.ch-log{padding:14px 28px; max-height:200px; overflow-y:auto; text-align:left;}
 .msg{max-width:82%; margin-bottom:14px; font-size:14.5px; line-height:1.55; font-family:-apple-system,sans-serif;}
 .msg.user{margin-left:auto; background:rgba(255,255,255,.12); color:#fff; padding:11px 15px; border-radius:12px 12px 2px 12px;}
 .msg.ai{background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); padding:11px 15px; border-radius:12px 12px 12px 2px; color:#EDEFF3;}
-.prompts{padding:6px 28px 20px 28px; display:flex; flex-wrap:wrap; gap:8px; text-align:left;}
+.prompts{padding:4px 28px 14px 28px; display:flex; flex-wrap:wrap; gap:8px; text-align:left;}
 .prompt-chip{
   font-family:-apple-system,sans-serif; font-size:12.5px; padding:8px 14px; border-radius:20px;
   background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14); color:#EDEFF3; cursor:pointer;
 }
 .prompt-chip:hover{background:rgba(255,255,255,.14);}
-.ch-input{border-top:1px solid rgba(255,255,255,.12); padding:14px 20px; display:flex; gap:10px; background:rgba(0,0,0,.12);}
+.ch-input{border-top:1px solid rgba(255,255,255,.12); padding:10px 20px; display:flex; gap:10px; background:rgba(0,0,0,.12);}
 .ch-input input{
   flex:1; border:1px solid rgba(255,255,255,.18); border-radius:6px; padding:11px 14px; font-family:-apple-system,sans-serif;
   font-size:14px; background:rgba(255,255,255,.06); color:#fff;
@@ -146,7 +146,7 @@ nav{display:flex; align-items:center; justify-content:space-between; padding:18p
 .hero-links{margin-top:22px; font-family:-apple-system,sans-serif; font-size:13px; color:var(--muted);}
 .hero-links a{color:var(--navy); text-decoration:underline; text-decoration-color:var(--line); text-underline-offset:3px; margin:0 10px;}
 
-.ch-followup{padding:12px 20px 18px 20px; background:rgba(0,0,0,.12); border-top:1px solid rgba(255,255,255,.08);}
+.ch-followup{padding:8px 20px 12px 20px; background:rgba(0,0,0,.12); border-top:1px solid rgba(255,255,255,.08);}
 .ch-followup #followupToggle{
   background:none; border:none; color:#9FAAC0; font-family:-apple-system,sans-serif; font-size:12.5px; cursor:pointer; padding:0;
   text-decoration:underline; text-decoration-color:rgba(159,170,192,.4); text-underline-offset:3px;

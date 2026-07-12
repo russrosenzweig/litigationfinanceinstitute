@@ -1,6 +1,6 @@
 // Institute for Litigation Finance — local AI Concierge server
 //
-// This is a small local server that lets the AI Concierge in institute-prototype.html
+// This is a small local server that lets the AI Concierge in index.html
 // give real, grounded answers instead of the scripted demo responses. It runs entirely
 // on your own machine, using your own Anthropic API key. Nothing is deployed anywhere.
 //
@@ -192,8 +192,11 @@ const app = express();
 app.use(express.json({ limit: "2mb" }));
 app.use(express.static(__dirname));
 
-app.get("/", (req, res) => {
-  res.redirect(301, "/institute-prototype.html");
+// The site root now serves index.html directly (via express.static above) —
+// no redirect needed. This route just catches old bookmarks/links to the
+// previous filename and sends them to the clean root URL permanently.
+app.get("/institute-prototype.html", (req, res) => {
+  res.redirect(301, "/");
 });
 
 app.get("/api/health", (req, res) => {

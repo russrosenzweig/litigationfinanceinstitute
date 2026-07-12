@@ -21,8 +21,16 @@ try { require("dotenv").config(); } catch (e) { /* no .env support, that's fine 
 
 const PORT = process.env.PORT || 3000;
 const MODEL = process.env.CLAUDE_MODEL || "claude-sonnet-5";
+// Insight extraction runs on every message, so it defaults to a cheaper/faster
+// model than the main conversation — this is a small structured-tagging task,
+// not a place that needs the flagship model.
+const INSIGHTS_MODEL = process.env.INSIGHTS_MODEL || "claude-haiku-4-5-20251001";
 const API_KEY = process.env.ANTHROPIC_API_KEY;
 const OWNER_EMAIL = process.env.OWNER_EMAIL;
+// Optional: a Google Apps Script Web App URL that appends/updates a row in a
+// Google Sheet per conversation. If not set, insights are still captured to a
+// local file (data/insights.jsonl) so nothing is lost — see RUNNING_LOCALLY.md.
+const INSIGHTS_WEBHOOK_URL = process.env.INSIGHTS_WEBHOOK_URL || null;
 
 // --- Email (optional). Sent via Resend's HTTPS API rather than raw SMTP —
 // --- many hosts (including Render's free tier) block outbound SMTP ports
@@ -60,6 +68,134 @@ async function sendMail(subject, text) {
 
 function transcriptText(messages) {
   return messages.map(m => `[${m.role.toUpperCase()}] ${m.content}`).join("\n\n");
+}
+
+// ============================================================================
+// CONVERSATION INSIGHTS — structured, aggregate-friendly tagging of each
+// conversation, kept deliberately separate from the raw transcript emails.
+// This is what lets the Institute eventually report real aggregate patterns
+// ("X% of matters were commercial disputes between $2M-$10M") instead of just
+// accumulating individual emails. Two hard rules for this layer:
+//   1. No names, emails, phone numbers, or verbatim identifying quotes — only
+//      categorical/topical tags. This is meant to stay consistent with the
+//      Privacy Policy's "aggregated, anonymized insights" language.
+//   2. It never blocks or slows down the actual chat response to the user.
+// ============================================================================
+
+const INSIGHTS_DIR = path.join(__dirname, "data");
+const INSIGHTS_FILE = path.join(INSIGHTS_DIR, "insights.jsonl");
+
+const INSIGHTS_SCHEMA_PROMPT = `You are a data-tagging function, not a conversational assistant. You will be shown a conversation between a user and the Institute for Litigation Finance's AI Concierge. Read it and output ONLY a single JSON object (no prose, no markdown fences, no commentary) with exactly these fields:
+
+{
+  "audience": one of "claimant" | "lawyer" | "funder" | "researcher" | "other" | "unknown",
+  "matter_category": a short category string (e.g. "commercial dispute", "IP/patent", "mass tort", "construction", "securities", "portfolio financing", "not yet known") — infer from the taxonomy of a litigation finance research library if possible, otherwise "not yet known",
+  "claim_size_bucket": one of "<$250k" | "$250k-$2M" | "$2M-$10M" | "$10M+" | "unknown",
+  "jurisdiction": a short jurisdiction string if mentioned (e.g. "New York", "UK", "federal - 7th Circuit") or "unknown",
+  "funder_criteria_summary": if audience is "funder", a short (<25 word) neutral summary of the investment criteria they described, else empty string "",
+  "key_topics": an array of up to 5 short lowercase tags (e.g. ["champerty", "settlement authority", "disclosure"]),
+  "exchange_mentioned": true or false — whether the Exchange or Middle-Market Placement Service came up,
+  "stage": one of "early" | "mid" | "assessment given" | "closing" — how far the conversation got.
+
+Never include names, email addresses, phone numbers, company names of claimants, or any verbatim quotes that could identify a real person or specific real dispute. Funder names (e.g. "Burford", "Legalist") are fine since those are public companies, not private individuals. If information for a field genuinely isn't present, use the "unknown"/"not yet known"/empty-string/false default shown above rather than guessing.`;
+
+async function extractInsights(messages, audience) {
+  if (!API_KEY) return null;
+  try {
+    const convoText = transcriptText(messages).slice(0, 12000); // cap input size
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-api-key": API_KEY,
+        "anthropic-version": "2023-06-01"
+      },
+      body: JSON.stringify({
+        model: INSIGHTS_MODEL,
+        max_tokens: 400,
+        temperature: 0,
+        system: INSIGHTS_SCHEMA_PROMPT,
+        messages: [{
+          role: "user",
+          content: `Known audience (if any): ${audience || "unknown"}\n\nConversation:\n${convoText}`
+        }]
+      })
+    });
+    if (!response.ok) return null;
+    const data = await response.json();
+    const text = (data.content || []).map(b => b.text || "").join("").trim();
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) return null;
+    return JSON.parse(jsonMatch[0]);
+  } catch (e) {
+    console.error("Insight extraction failed (non-fatal):", e.message);
+    return null;
+  }
+}
+
+async function recordInsight(session, audience, messages) {
+  const tags = await extractInsights(messages, audience);
+  if (!tags) return;
+
+  const record = {
+    session,
+    timestamp: new Date().toISOString(),
+    message_count: messages.length,
+    ...tags
+  };
+
+  // Local backup copy — always written, regardless of webhook status.
+  try {
+    if (!fs.existsSync(INSIGHTS_DIR)) fs.mkdirSync(INSIGHTS_DIR, { recursive: true });
+    fs.appendFileSync(INSIGHTS_FILE, JSON.stringify(record) + "\n");
+  } catch (e) {
+    console.error("Failed to write local insights file (non-fatal):", e.message);
+  }
+
+  // Optional: push the same record to a Google Sheet via an Apps Script
+  // webhook, so it's viewable/sortable without needing server file access.
+  if (INSIGHTS_WEBHOOK_URL) {
+    try {
+      await fetch(INSIGHTS_WEBHOOK_URL, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(record)
+      });
+    } catch (e) {
+      console.error("Failed to POST insight to webhook (non-fatal):", e.message);
+    }
+  }
+}
+
+function summarizeInsights() {
+  if (!fs.existsSync(INSIGHTS_FILE)) {
+    return { totalConversations: 0, note: "No insights recorded yet." };
+  }
+  const lines = fs.readFileSync(INSIGHTS_FILE, "utf8").split("\n").filter(Boolean);
+  const bySession = new Map();
+  for (const line of lines) {
+    try {
+      const r = JSON.parse(line);
+      bySession.set(r.session, r); // keep only the latest record per session
+    } catch (e) { /* skip malformed lines */ }
+  }
+  const records = [...bySession.values()];
+  const count = (field) => {
+    const counts = {};
+    for (const r of records) {
+      const v = r[field] || "unknown";
+      counts[v] = (counts[v] || 0) + 1;
+    }
+    return counts;
+  };
+  return {
+    totalConversations: records.length,
+    byAudience: count("audience"),
+    byMatterCategory: count("matter_category"),
+    byClaimSizeBucket: count("claim_size_bucket"),
+    byJurisdiction: count("jurisdiction"),
+    exchangeMentionedCount: records.filter(r => r.exchange_mentioned).length
+  };
 }
 
 const RESEARCH_PATH = path.join(__dirname, "research.html");
@@ -204,11 +340,20 @@ app.get("/api/health", (req, res) => {
     ok: true,
     hasApiKey: Boolean(API_KEY),
     hasEmail: Boolean(mailer),
+    hasInsightsWebhook: Boolean(INSIGHTS_WEBHOOK_URL),
     articles: corpus.articles.length,
     financiers: corpus.financiers.length,
     disputes: corpus.disputes.length,
     model: MODEL
   });
+});
+
+// Quick aggregate view of everything the AI Concierge has tagged so far.
+// This reads the local backup file, so it works even without the Google
+// Sheet webhook configured. Not linked from anywhere in the site nav —
+// visit it directly when you want a pulse check.
+app.get("/api/insights-summary", (req, res) => {
+  res.json(summarizeInsights());
 });
 
 app.post("/api/chat", async (req, res) => {
@@ -255,13 +400,16 @@ app.post("/api/chat", async (req, res) => {
     res.json({ reply });
 
     // Fire-and-forget: keep the owner's inbox updated with this session's running
-    // transcript. Doesn't block or affect the response already sent above.
+    // transcript, and separately update the structured insights record for this
+    // session (upserted by session id — see summarizeInsights()). Neither of
+    // these blocks or affects the response already sent above.
     const session = typeof req.body.session === "string" ? req.body.session : "unknown-session";
     const fullTranscript = [...messages, { role: "assistant", content: reply }];
     sendMail(
       `Institute chat transcript — session ${session}`,
       `Audience: ${audience || "not yet identified"}\n\n${transcriptText(fullTranscript)}`
     );
+    recordInsight(session, audience, fullTranscript);
   } catch (e) {
     console.error("Chat request failed:", e);
     res.status(500).json({ error: "Request to Anthropic API failed: " + e.message });

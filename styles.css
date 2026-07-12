@@ -69,7 +69,7 @@ nav{display:flex; align-items:center; justify-content:space-between; padding:18p
 .hero-shell p.lead{color:#CBD3E0; font-size:16px; max-width:500px; margin:0 auto 40px auto;}
 .hero-shell .concierge-hero{box-shadow:0 34px 90px rgba(0,0,0,.4);}
 
-.teaser-row{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line);}
+.teaser-row{display:grid; grid-template-columns:repeat(5,1fr); gap:1px; background:var(--line); border:1px solid var(--line);}
 .teaser-card{background:var(--paper); padding:30px 24px; text-decoration:none; color:inherit; display:block; transition:background .15s;}
 .teaser-card:hover{background:#FBF9F3;}
 .teaser-card .tmark{
@@ -367,7 +367,7 @@ footer{background:var(--navy); color:#B9C3D6; padding:44px 0 26px 0; font-family
 .about-cta p{font-family:-apple-system,sans-serif; color:var(--muted); font-size:14.5px; margin-bottom:24px;}
 
 @media (max-width:880px){
-  .lib-grid, .fin-grid, .academy-grid, .funder-grid, .tier-row, .pillar-grid, .stat-row{grid-template-columns:1fr;}
+  .lib-grid, .fin-grid, .academy-grid, .funder-grid, .tier-row, .pillar-grid, .stat-row, .teaser-row{grid-template-columns:1fr;}
   .navlinks{display:none;}
   .modal-card{padding:30px 22px;}
   .report-mock{grid-template-columns:1fr;}

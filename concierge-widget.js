@@ -49,7 +49,7 @@ const ROLES = {
   },
   funder: {
     audience: "a representative of a litigation finance firm or funder, here to share investment criteria",
-    demoReply: "Wonderful. The Institute's goal is to improve how capital and meritorious legal claims find one another. I'd love to learn about your investment philosophy so we can better understand the marketplace and, where appropriate, identify matters that may align with your interests. To start: how long has your firm been investing, and roughly how many matters do you evaluate versus ultimately fund each year?",
+    demoReply: "Welcome &mdash; it's good to have you here. How can I help you today? (And whenever you're ready: one thing we do is try to send funders matters that actually fit what they're looking for, rather than shopping every deal to everyone. If you have about five minutes, I'd love to ask a few questions about your investment criteria so we can flag genuine fits for your firm &mdash; entirely up to you.)",
     followups: [
       {label:"What industries do you focus on?", demo:"funderIndustries"},
       {label:"Tell me about your risk appetite instead", demo:"funderRisk"}

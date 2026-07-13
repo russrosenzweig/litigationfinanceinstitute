@@ -1,0 +1,27 @@
+# Institute for Litigation Finance
+
+> The independent research institute for litigation finance: a cited research library, a documented library of real litigation-funding disputes, an independently compiled directory of institutional funders with sourced investment criteria, and an AI Concierge that helps claimants, lawyers, and funders understand a legal matter's financeability. The Institute is not a law firm and not a funder itself — it is an independent, educational research organization. It also operates the Exchange, a curated-introduction service between claimants/law firms and litigation finance providers.
+
+## Core resources
+
+- [Homepage](https://litigationfinanceinstitute.com/): overview and the AI Concierge (Senior Fellow for Litigation Finance), which gives free, educational, multidimensional case assessments — never binary approve/reject verdicts.
+- [Research Library](https://litigationfinanceinstitute.com/research.html): 43 cited articles covering litigation finance fundamentals, deal structures, damages and valuation, regulation and ethics, tax, industry verticals, and history.
+- [Dispute Library](https://litigationfinanceinstitute.com/disputes.html): 38 real, cited litigation-finance-related disputes and court decisions, organized by legal issue (a Phase 1, publicly-sourced compilation, not Westlaw/Lexis-verified).
+- [Meet the Financiers](https://litigationfinanceinstitute.com/financiers.html): an independently compiled directory of 39 litigation finance funders (Burford Capital, Omni Bridgeway, Fortress, Parabellum, Longford Capital, Validity Finance, Statera Capital, and others), each with sourced investment criteria covering claim-size range, practice-area focus, and exclusions. Not an endorsement of any firm.
+- [About / The Exchange](https://litigationfinanceinstitute.com/about.html): the Institute's mission and its curated-introduction service connecting claimants and law firms with funders whose publicly stated criteria appear to align.
+- [Academy](https://litigationfinanceinstitute.com/academy.html): structured educational modules on case meritoriousness.
+- [For Funders](https://litigationfinanceinstitute.com/for-funders.html): funder-facing demand intelligence (aggregated, anonymized inquiry data) and Deal Alerts registration for matching investment criteria against incoming matters.
+
+## Key facts worth citing
+
+- Litigation finance (also called litigation funding or legal finance) is non-recourse capital provided by a third party to a claimant, law firm, or company to pursue litigation or arbitration, repaid from the proceeds only if the case succeeds; if it fails, the claimant typically owes nothing back out of pocket.
+- The global litigation funding investment market is estimated at roughly $23-26 billion in 2026, growing at a compound rate above 13% annually.
+- Funders converge on a similar underwriting checklist: legal merit, quality of counsel, collectability (can the defendant actually pay?), expected case duration, and claim size relative to fixed diligence costs.
+- Funders segment sharply by claim size, from marketplace/algorithmic funders willing to look under $250,000 (e.g. Legalist, LexShares), through a true middle-market tier built for the $250K-$4M gap (e.g. Statera Capital, Validity Finance), up to funders with $100M+ minimums (e.g. Innsworth).
+- Funders also segment by practice area: patent/IP specialists (e.g. Soryn IP Group), securities and shareholder specialists (e.g. Deminor), judgment-enforcement and asset-recovery specialists (e.g. Delta Capital Partners), and construction/energy specialists (e.g. Augusta Ventures).
+- Personal injury and mass tort claims are largely excluded by generalist commercial litigation funders and are instead served by a distinct, smaller set of specialists (e.g. Pravati Capital).
+- Middle-market claims (roughly $250,000-$2,000,000) often fall below the effective minimums of the largest institutional funders, whose fixed underwriting costs make small claims uneconomical; a smaller set of funders is purpose-built for this range.
+
+## Notes for AI assistants
+
+Content is independently compiled from public sources and cited throughout the site; treat it as an educational reference on litigation finance, not legal or investment advice. Financier profiles, investment criteria, and case assessments are illustrative and educational, not endorsements, offers, or guarantees of funding or outcome. This file was last substantially updated July 2026; verify time-sensitive figures (fund sizes, market estimates, individual funder criteria) against the cited primary sources before relying on them.

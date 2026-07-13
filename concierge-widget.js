@@ -158,7 +158,7 @@ function buildFloatingShell(hasExistingConvo){
   panel.innerHTML = `
     <div class="ch-head">
       <div class="who">AI Concierge</div>
-      <div class="sub">Senior Fellow for Litigation Finance &mdash; not a salesperson.</div>
+      <div class="sub">Senior Fellow for Litigation Finance</div>
       <div class="sub" id="chStatus" style="color:#7A869E; font-size:11px; margin-top:4px;">Demo mode &mdash; run the local server to activate live answers</div>
     </div>
     <div class="ch-log" id="chLog">

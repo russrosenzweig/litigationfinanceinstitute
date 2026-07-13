@@ -44,8 +44,9 @@ const RESEND_API_KEY = process.env.RESEND_API_KEY || process.env.SMTP_PASS;
 const MAIL_FROM = process.env.SMTP_FROM || "onboarding@resend.dev";
 const mailer = Boolean(RESEND_API_KEY && OWNER_EMAIL);
 
-async function sendMail(subject, text) {
-  if (!mailer) return { skipped: true };
+async function sendMail(subject, text, to) {
+  const recipient = to || OWNER_EMAIL;
+  if (!RESEND_API_KEY || !recipient) return { skipped: true };
   try {
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -53,7 +54,7 @@ async function sendMail(subject, text) {
         "content-type": "application/json",
         "authorization": `Bearer ${RESEND_API_KEY}`
       },
-      body: JSON.stringify({ from: MAIL_FROM, to: OWNER_EMAIL, subject, text })
+      body: JSON.stringify({ from: MAIL_FROM, to: recipient, subject, text })
     });
     if (!res.ok) {
       const errText = await res.text();
@@ -144,6 +145,10 @@ async function recordInsight(session, audience, messages) {
     ...tags
   };
 
+  // Fire-and-forget: check this conversation's tags against registered
+  // funder Deal Alerts. Non-blocking and never affects the chat response.
+  matchAndNotifyFunders(session, tags);
+
   // Local backup copy — always written, regardless of webhook status.
   try {
     if (!fs.existsSync(INSIGHTS_DIR)) fs.mkdirSync(INSIGHTS_DIR, { recursive: true });
@@ -196,6 +201,158 @@ function summarizeInsights() {
     byJurisdiction: count("jurisdiction"),
     exchangeMentionedCount: records.filter(r => r.exchange_mentioned).length
   };
+}
+
+// ============================================================================
+// DEMAND BRIEF — a funder-facing, narrative-ready version of the same insights
+// data, ranked and windowed rather than just raw counts. This is what powers
+// the "State of Demand" brief on for-funders.html. Read-only, computed fresh
+// on each request — cheap given the expected data volume.
+// ============================================================================
+
+function loadInsightRecords() {
+  if (!fs.existsSync(INSIGHTS_FILE)) return [];
+  const lines = fs.readFileSync(INSIGHTS_FILE, "utf8").split("\n").filter(Boolean);
+  const bySession = new Map();
+  for (const line of lines) {
+    try {
+      const r = JSON.parse(line);
+      bySession.set(r.session, r); // latest record per session only
+    } catch (e) { /* skip malformed lines */ }
+  }
+  return [...bySession.values()];
+}
+
+function rankedCounts(records, field, opts = {}) {
+  const { excludeValues = ["unknown", "not yet known", ""], limit = 8 } = opts;
+  const counts = {};
+  for (const r of records) {
+    const v = (r[field] || "").toString().trim();
+    if (!v || excludeValues.includes(v.toLowerCase())) continue;
+    counts[v] = (counts[v] || 0) + 1;
+  }
+  const total = Object.values(counts).reduce((a, b) => a + b, 0);
+  return Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, limit)
+    .map(([label, n]) => ({ label, count: n, pct: total ? Math.round((n / total) * 100) : 0 }));
+}
+
+function buildDemandBrief() {
+  const records = loadInsightRecords();
+  const total = records.length;
+  const now = Date.now();
+  const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
+  const recent = records.filter(r => {
+    const t = Date.parse(r.timestamp || "");
+    return !isNaN(t) && (now - t) <= THIRTY_DAYS;
+  });
+
+  // Key topics are stored as a joined array field on each record.
+  const topicCounts = {};
+  for (const r of records) {
+    const topics = Array.isArray(r.key_topics) ? r.key_topics : [];
+    for (const t of topics) {
+      const key = (t || "").toString().trim().toLowerCase();
+      if (!key) continue;
+      topicCounts[key] = (topicCounts[key] || 0) + 1;
+    }
+  }
+  const topTopics = Object.entries(topicCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 10)
+    .map(([label, n]) => ({ label, count: n }));
+
+  const claimantOrLawyer = records.filter(r => r.audience === "claimant" || r.audience === "lawyer");
+
+  return {
+    generatedAt: new Date().toISOString(),
+    totalConversations: total,
+    conversationsLast30Days: recent.length,
+    hasEnoughData: total >= 8,
+    matterCategories: rankedCounts(claimantOrLawyer, "matter_category"),
+    claimSizeBuckets: rankedCounts(claimantOrLawyer, "claim_size_bucket", { limit: 6 }),
+    jurisdictions: rankedCounts(claimantOrLawyer, "jurisdiction"),
+    topTopics,
+    exchangeMentionedCount: records.filter(r => r.exchange_mentioned).length,
+    exchangeMentionedPct: total ? Math.round((records.filter(r => r.exchange_mentioned).length / total) * 100) : 0
+  };
+}
+
+// ============================================================================
+// FUNDER DEAL ALERTS — funders register the kinds of matters they're looking
+// for; when a claimant/lawyer conversation is tagged with matching criteria,
+// the funder gets a short, anonymized email notice. No claimant contact
+// details are ever included — an actual introduction still runs through the
+// Institute (the Exchange), consistent with how the AI Concierge already
+// describes matching to both sides.
+// ============================================================================
+
+const FUNDER_ALERTS_FILE = path.join(INSIGHTS_DIR, "funder-alerts.jsonl");
+
+function loadFunderAlerts() {
+  if (!fs.existsSync(FUNDER_ALERTS_FILE)) return [];
+  return fs.readFileSync(FUNDER_ALERTS_FILE, "utf8")
+    .split("\n")
+    .filter(Boolean)
+    .map(line => { try { return JSON.parse(line); } catch (e) { return null; } })
+    .filter(Boolean)
+    .filter(a => a.active !== false);
+}
+
+function saveFunderAlert(alert) {
+  if (!fs.existsSync(INSIGHTS_DIR)) fs.mkdirSync(INSIGHTS_DIR, { recursive: true });
+  fs.appendFileSync(FUNDER_ALERTS_FILE, JSON.stringify(alert) + "\n");
+}
+
+// In-memory guard so a single long conversation (re-tagged on every message)
+// doesn't re-notify the same funder repeatedly. Resets on server restart,
+// which is an acceptable tradeoff for this scale.
+const notifiedPairs = new Set();
+
+function normalize(str) {
+  return (str || "").toString().trim().toLowerCase();
+}
+
+function alertMatchesTags(alert, tags) {
+  const matterOk = alert.categories.length === 0 || alert.categories.some(c =>
+    normalize(tags.matter_category).includes(normalize(c)) || normalize(c).includes(normalize(tags.matter_category))
+  );
+  const sizeOk = alert.claimSizeBuckets.length === 0 || alert.claimSizeBuckets.includes(tags.claim_size_bucket);
+  const jurisdictionOk = alert.jurisdictions.length === 0 || alert.jurisdictions.some(j =>
+    normalize(tags.jurisdiction).includes(normalize(j)) || normalize(j).includes(normalize(tags.jurisdiction))
+  );
+  return matterOk && sizeOk && jurisdictionOk;
+}
+
+async function matchAndNotifyFunders(session, tags) {
+  if (!tags) return;
+  if (tags.audience !== "claimant" && tags.audience !== "lawyer") return;
+  if (!tags.matter_category || tags.matter_category === "not yet known") return;
+
+  const alerts = loadFunderAlerts();
+  for (const alert of alerts) {
+    const pairKey = `${session}::${alert.id}`;
+    if (notifiedPairs.has(pairKey)) continue;
+    if (!alertMatchesTags(alert, tags)) continue;
+    notifiedPairs.add(pairKey);
+
+    const body = [
+      `A new matter tagged at the Institute appears to match your stated Deal Alert criteria.`,
+      ``,
+      `Matter category: ${tags.matter_category}`,
+      `Estimated claim size: ${tags.claim_size_bucket || "unknown"}`,
+      `Jurisdiction: ${tags.jurisdiction || "unknown"}`,
+      `Topics: ${(tags.key_topics || []).join(", ") || "none noted"}`,
+      ``,
+      `No identifying details are included in this notice by design. If you'd like the Institute to explore whether an introduction makes sense through the Exchange, just reply to this email.`,
+      ``,
+      `— Institute for Litigation Finance`,
+      `To stop receiving Deal Alerts, reply "unsubscribe" and we'll remove ${alert.email}.`
+    ].join("\n");
+
+    sendMail(`Deal Alert: ${tags.matter_category} matter matching your criteria`, body, alert.email);
+  }
 }
 
 const RESEARCH_PATH = path.join(__dirname, "research.html");
@@ -253,7 +410,7 @@ function buildSystemPrompt() {
   ).join("\n\n");
 
   const financierBlock = corpus.financiers.map(f =>
-    `- ${decodeEntities(f.name)} — ${decodeEntities(f.meta)}: ${decodeEntities(f.desc)}`
+    `- ${decodeEntities(f.name)} — ${decodeEntities(f.meta)}: ${decodeEntities(f.desc)}${f.criteria ? ` Investment criteria: ${decodeEntities(f.criteria)}` : ""}`
   ).join("\n");
 
   const disputeBlock = corpus.disputes.map(d =>
@@ -318,6 +475,7 @@ ${articleBlock}
 ${disputeBlock}
 
 === FINANCIER DIRECTORY (for context on the market only — do not claim to have live availability data) ===
+Where a directory entry includes "Investment criteria," you may use it to give a claimant a concrete, educational sense of fit — e.g., "a $2M commercial contract dispute is below Woodsford's stated £5M threshold but within the range Statera Capital and GLS Capital describe publicly." This is illustrative pattern-matching against publicly stated criteria, not a live-availability check or a commitment from any funder — always say so. Criteria and thresholds shift; note that anything cited should be independently verified before relying on it, and that only the Exchange conversation itself can determine genuine, current interest.
 ${financierBlock}
 `;
 }
@@ -354,6 +512,58 @@ app.get("/api/health", (req, res) => {
 // visit it directly when you want a pulse check.
 app.get("/api/insights-summary", (req, res) => {
   res.json(summarizeInsights());
+});
+
+// Funder-facing "State of Demand" brief — ranked, percented, windowed. Powers
+// for-funders.html. Read-only; safe to call as often as the page loads.
+app.get("/api/demand-brief", (req, res) => {
+  try {
+    res.json(buildDemandBrief());
+  } catch (e) {
+    console.error("Failed to build demand brief:", e.message);
+    res.status(500).json({ error: "Failed to build demand brief." });
+  }
+});
+
+// Funder registers Deal Alert criteria — matter categories, claim size
+// buckets, jurisdictions (any of these left empty means "any"). Stored
+// locally and matched against every subsequent tagged conversation.
+app.post("/api/funder-alert-signup", async (req, res) => {
+  const { name, firm, email, categories, claimSizeBuckets, jurisdictions, notes } = req.body || {};
+  if (!email || !firm) {
+    return res.status(400).json({ error: "Firm name and email are required." });
+  }
+  const alert = {
+    id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    name: (name || "").toString().slice(0, 200),
+    firm: firm.toString().slice(0, 200),
+    email: email.toString().slice(0, 200),
+    categories: Array.isArray(categories) ? categories.map(c => c.toString().slice(0, 80)).slice(0, 20) : [],
+    claimSizeBuckets: Array.isArray(claimSizeBuckets) ? claimSizeBuckets.map(c => c.toString().slice(0, 40)).slice(0, 10) : [],
+    jurisdictions: Array.isArray(jurisdictions) ? jurisdictions.map(j => j.toString().slice(0, 80)).slice(0, 20) : [],
+    notes: (notes || "").toString().slice(0, 1000),
+    active: true,
+    createdAt: new Date().toISOString()
+  };
+
+  try {
+    saveFunderAlert(alert);
+  } catch (e) {
+    console.error("Failed to save funder alert (non-fatal):", e.message);
+    return res.status(500).json({ error: "Could not save your Deal Alert. Please try again." });
+  }
+
+  sendMail(
+    `New Deal Alert signup — ${alert.firm}`,
+    `Name: ${alert.name || "(not provided)"}\nFirm: ${alert.firm}\nEmail: ${alert.email}\nCategories: ${alert.categories.join(", ") || "any"}\nClaim size buckets: ${alert.claimSizeBuckets.join(", ") || "any"}\nJurisdictions: ${alert.jurisdictions.join(", ") || "any"}\nNotes: ${alert.notes || "(none)"}`
+  );
+  sendMail(
+    `You're set up for Institute Deal Alerts`,
+    `Thanks for registering, ${alert.name || "there"} — you're now set up to receive Deal Alerts from the Institute for Litigation Finance for matters matching:\n\nCategories: ${alert.categories.join(", ") || "any"}\nClaim size: ${alert.claimSizeBuckets.join(", ") || "any"}\nJurisdictions: ${alert.jurisdictions.join(", ") || "any"}\n\nEach alert is anonymized — no claimant names or contact details — and any introduction still runs through the Institute. Reply "unsubscribe" at any time to stop.\n\n— Institute for Litigation Finance`,
+    alert.email
+  );
+
+  res.json({ ok: true });
 });
 
 app.post("/api/chat", async (req, res) => {

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For Funders | Institute for Litigation Finance</title>
+<meta name="description" content="Funder-only resources from the Institute for Litigation Finance: a live demand brief drawn from real inbound inquiries, and Deal Alerts matched to your stated investment criteria.">
+<link rel="canonical" href="https://litigationfinanceinstitute.com/for-funders.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Institute for Litigation Finance">
+<meta property="og:title" content="For Funders | Institute for Litigation Finance">
+<meta property="og:description" content="A live demand brief and Deal Alerts, built for litigation finance funders.">
+<meta property="og:url" content="https://litigationfinanceinstitute.com/for-funders.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="For Funders | Institute for Litigation Finance">
+<meta name="robots" content="noindex, follow">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .brief-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:1px; background:var(--line); border:1px solid var(--line); margin-top:8px;}
+  .brief-card{background:var(--paper); padding:22px 24px;}
+  .brief-card h4{font-family:-apple-system,sans-serif; font-size:12px; text-transform:uppercase; letter-spacing:.6px; color:var(--muted); margin-bottom:14px; font-weight:700;}
+  .rank-row{display:flex; align-items:center; justify-content:space-between; font-family:-apple-system,sans-serif; font-size:13.5px; padding:7px 0; border-bottom:1px solid var(--line);}
+  .rank-row:last-child{border-bottom:none;}
+  .rank-row .rlabel{color:var(--ink);}
+  .rank-row .rcount{color:var(--muted); font-size:12.5px; white-space:nowrap; margin-left:12px;}
+  .stat-strip{display:flex; gap:1px; background:var(--line); border:1px solid var(--line); margin-top:8px;}
+  .stat-box{flex:1; background:var(--paper); padding:20px 22px; font-family:-apple-system,sans-serif; text-align:center;}
+  .stat-box .num{font-family:Georgia,serif; font-size:28px; color:var(--navy);}
+  .stat-box .lbl{font-size:11.5px; color:var(--muted); margin-top:4px; text-transform:uppercase; letter-spacing:.4px;}
+  .brief-note{font-family:-apple-system,sans-serif; font-size:12.5px; color:var(--muted); margin-top:14px; font-style:italic;}
+  .empty-state{font-family:-apple-system,sans-serif; font-size:13.5px; color:var(--muted); padding:26px; background:var(--cream); border:1px dashed var(--line); border-radius:8px; margin-top:8px;}
+  .alert-form{background:var(--paper); border:1px solid var(--line); border-radius:10px; padding:30px 32px; margin-top:10px;}
+  .alert-form .frow{margin-bottom:18px;}
+  .alert-form label{font-family:-apple-system,sans-serif; font-size:13px; font-weight:600; color:var(--navy); display:block; margin-bottom:8px;}
+  .alert-form input[type=text], .alert-form input[type=email], .alert-form textarea{
+    width:100%; font-family:-apple-system,sans-serif; font-size:13.5px; padding:11px 13px;
+    border:1px solid var(--line); border-radius:6px; background:var(--paper); color:var(--ink); box-sizing:border-box;
+  }
+  .alert-form textarea{min-height:70px; resize:vertical;}
+  .alert-form .hint{font-family:-apple-system,sans-serif; font-size:11.5px; color:var(--muted); margin-top:6px;}
+  .alert-form .two-col{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
+  .alert-status{font-family:-apple-system,sans-serif; font-size:13.5px; margin-top:16px; display:none;}
+  .alert-status.show{display:block;}
+  .alert-status.ok{color:var(--green);}
+  .alert-status.err{color:#B5432E;}
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap">
+    <nav>
+      <a class="brand" href="/">INSTITUTE FOR LITIGATION FINANCE</a>
+      <div class="navlinks">
+        <a href="research.html">Research Library</a>
+        <a href="disputes.html">Dispute Library</a>
+        <a href="financiers.html">Meet the Financiers</a>
+        <a href="academy.html">Academy</a>
+        <a href="about.html#exchange">The Exchange</a>
+        <a href="about.html">About</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<div style="padding-top:44px;"></div>
+
+<section style="padding-top:56px; padding-bottom:10px;">
+  <div class="wrap-narrow" style="text-align:center;">
+    <div class="eyebrow" style="justify-content:center;">For Funders Only</div>
+    <h1 style="font-family:Georgia,serif; font-size:32px; color:var(--navy); line-height:1.3; max-width:600px; margin:0 auto 14px auto;">Two resources built specifically for institutional funders.</h1>
+    <p style="font-family:-apple-system,sans-serif; font-size:15px; color:var(--muted); max-width:560px; margin:0 auto; line-height:1.7;">Below: a live, anonymized read on what's actually coming through the Institute right now, and a way to register your current investment criteria so we can flag matters that fit before they're shopped broadly elsewhere.</p>
+  </div>
+</section>
+
+<section style="background:var(--paper); border-top:1px solid var(--line); border-bottom:1px solid var(--line); padding:50px 0;">
+  <div class="wrap">
+    <div class="section-head" style="margin-bottom:20px;">
+      <div class="eyebrow">Live &middot; Updated Continuously</div>
+      <h2>The State of Demand</h2>
+      <p>Aggregated and anonymized from real AI Concierge conversations &mdash; no names, no contact details, no identifiable case facts. Categorical tags only, consistent with our <a href="privacy.html">Privacy Policy</a>.</p>
+    </div>
+    <div id="briefLoading" style="font-family:-apple-system,sans-serif; font-size:13.5px; color:var(--muted);">Loading current data&hellip;</div>
+    <div id="briefContent" style="display:none;"></div>
+  </div>
+</section>
+
+<section style="padding:56px 0;">
+  <div class="wrap">
+    <div class="section-head" style="margin-bottom:20px;">
+      <div class="eyebrow">Published &middot; Independently Compiled</div>
+      <h2>What Funders Say They Want</h2>
+      <p>Ahead of having a large enough sample of live inquiries to report, here is what we found by reading the publicly stated investment criteria of all 39 funders in our <a href="financiers.html">directory</a> directly from their own websites and public materials. Each individual funder's criteria are cited on its own <a href="financiers.html">profile page</a>.</p>
+    </div>
+    <div class="brief-grid">
+      <div class="brief-card">
+        <h4>Size Segments Are Real</h4>
+        <div style="font-family:-apple-system,sans-serif; font-size:13px; color:var(--ink); line-height:1.7;">
+          Thresholds vary by how each funder measures size (claim value, investment amount, or damages), but the tiers are consistent: ultra-large generalists want minimum claims of $10M&ndash;$100M+ (Innsworth, Woodsford, Harbour, Vannin); most institutional funders cluster around a $1M&ndash;$25M investment range (Burford, Omni Bridgeway, GLS Capital, Longford, Arcadia); and a distinct middle-market tier exists specifically for the $250K&ndash;$4M gap the majors won't touch (Statera Capital, Validity Finance, Orchard Global). Below that, only algorithmic or marketplace models (Legalist, LexShares) will look at matters under $250K.
+        </div>
+      </div>
+      <div class="brief-card">
+        <h4>Specialization Runs Deeper Than It Looks</h4>
+        <div style="font-family:-apple-system,sans-serif; font-size:13px; color:var(--ink); line-height:1.7;">
+          Several funders are genuinely narrow despite broad-sounding names: Soryn IP Group and much of 1624's book are patent/IP-only; Deminor has particular depth in securities and shareholder claims; Delta Capital Partners is built around judgment enforcement and asset recovery specifically, not new litigation; Augusta Ventures stands out in construction, energy, and infrastructure disputes.
+        </div>
+      </div>
+      <div class="brief-card">
+        <h4>Personal Injury Is a Hard Line</h4>
+        <div style="font-family:-apple-system,sans-serif; font-size:13px; color:var(--ink); line-height:1.7;">
+          Most commercial funders explicitly exclude personal injury, mass tort, and individual consumer claims (Omni Bridgeway, Validity Finance, Curiam Capital, Harbour, and Balance Legal Capital all say so directly). Pravati Capital and Lawstreet Capital are among the few institutional funders built specifically around that category instead &mdash; a real structural line, not a gap in the data.
+        </div>
+      </div>
+      <div class="brief-card">
+        <h4>Underwriting Logic Converges</h4>
+        <div style="font-family:-apple-system,sans-serif; font-size:13px; color:var(--ink); line-height:1.7;">
+          Regardless of niche, nearly every funder's public materials converge on the same four questions: are the legal merits strong, can the defendant actually pay, does the expected recovery justify the investment (commonly cited around a 5&ndash;10x multiple), and is the litigation team experienced. Worth knowing if you're benchmarking your own criteria against the field.
+        </div>
+      </div>
+    </div>
+    <div class="brief-note">Compiled from each funder's own website and public statements as of mid-2026; criteria shift, and figures should be independently verified before relying on them. Not an endorsement of any firm.</div>
+  </div>
+</section>
+
+<section style="padding:0 0 56px 0;">
+  <div class="wrap">
+    <div class="section-head" style="margin-bottom:20px;">
+      <div class="eyebrow">Register Your Criteria</div>
+      <h2>Deal Alerts</h2>
+      <p>Tell us what you're looking for. When a claimant matter is tagged with characteristics matching your stated criteria, you'll get a short, anonymized email &mdash; before deciding whether to pursue an introduction through the Exchange. No cost, no obligation, unsubscribe anytime.</p>
+    </div>
+
+    <form class="alert-form" id="alertForm">
+      <div class="frow two-col">
+        <div>
+          <label for="af-name">Your name</label>
+          <input type="text" id="af-name" name="name" placeholder="Jane Smith">
+        </div>
+        <div>
+          <label for="af-firm">Firm *</label>
+          <input type="text" id="af-firm" name="firm" placeholder="Firm name" required>
+        </div>
+      </div>
+      <div class="frow">
+        <label for="af-email">Email *</label>
+        <input type="email" id="af-email" name="email" placeholder="you@yourfirm.com" required>
+      </div>
+      <div class="frow">
+        <label>Matter categories</label>
+        <div class="chip-row" id="af-categories">
+          <div class="chip" data-value="commercial dispute">Commercial dispute</div>
+          <div class="chip" data-value="IP/patent">IP / patent</div>
+          <div class="chip" data-value="mass tort">Mass tort</div>
+          <div class="chip" data-value="construction">Construction</div>
+          <div class="chip" data-value="securities">Securities</div>
+          <div class="chip" data-value="antitrust">Antitrust</div>
+          <div class="chip" data-value="international arbitration">International arbitration</div>
+          <div class="chip" data-value="portfolio financing">Portfolio financing</div>
+        </div>
+        <div class="hint">Leave all unselected to receive alerts for any category.</div>
+      </div>
+      <div class="frow">
+        <label>Claim size range</label>
+        <div class="chip-row" id="af-sizes">
+          <div class="chip" data-value="<$250k">&lt;$250k</div>
+          <div class="chip" data-value="$250k-$2M">$250k&ndash;$2M</div>
+          <div class="chip" data-value="$2M-$10M">$2M&ndash;$10M</div>
+          <div class="chip" data-value="$10M+">$10M+</div>
+        </div>
+        <div class="hint">Leave unselected to receive alerts for any claim size.</div>
+      </div>
+      <div class="frow">
+        <label for="af-jurisdictions">Jurisdictions (comma-separated)</label>
+        <input type="text" id="af-jurisdictions" name="jurisdictions" placeholder="e.g. New York, federal, UK &mdash; leave blank for any">
+      </div>
+      <div class="frow">
+        <label for="af-notes">Anything else worth knowing about your current appetite?</label>
+        <textarea id="af-notes" name="notes" placeholder="Optional — risk tolerance, deal structure preferences, exclusions, etc."></textarea>
+      </div>
+      <div class="concierge-cta">
+        <button type="submit" class="btn btn-primary" id="af-submit">Register for Deal Alerts</button>
+      </div>
+      <div class="alert-status" id="af-status"></div>
+    </form>
+
+    <p class="fin-note">Prefer to talk it through instead? The <a href="/">AI Concierge</a> can capture your investment criteria conversationally and summarize it back to you as a Living Investment Profile — just tell it you represent a litigation finance firm.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div><a href="research.html">Research Library</a><a href="disputes.html">Dispute Library</a><a href="financiers.html">Meet the Financiers</a><a href="academy.html">Academy</a><a href="about.html#exchange">The Exchange</a><a href="about.html">About</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a></div>
+      <div class="sans">Institute for Litigation Finance</div>
+    </div>
+    <div class="disclaimer">
+      The Institute for Litigation Finance provides independent educational content, research, and AI-assisted matching services. Nothing on this site constitutes legal advice, investment advice, or a guarantee of funding or case outcome. Assessments, scores, and match percentages are illustrative and educational, generated from information self-reported by users, and do not represent an offer, commitment, or evaluation by any funder. Deal Alerts and the State of Demand brief are derived from aggregated, anonymized conversation tags and are directional, not a comprehensive market census. Financier and article content is drawn from public sources believed reliable as of mid-2026 and is cited where used; it may not reflect subsequent changes. Litigation finance arrangements are complex and regulated differently across jurisdictions; consult qualified independent counsel before entering into any funding agreement. &copy; 2026 Institute for Litigation Finance.
+    </div>
+  </div>
+</footer>
+
+<script src="concierge-widget.js"></script>
+<script>
+(function() {
+  function esc(s) {
+    return (s || "").toString().replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+  }
+
+  function rankList(title, items) {
+    if (!items || items.length === 0) {
+      return `<div class="brief-card"><h4>${esc(title)}</h4><div style="font-family:-apple-system,sans-serif; font-size:13px; color:var(--muted);">No data yet.</div></div>`;
+    }
+    const rows = items.map(it => `<div class="rank-row"><span class="rlabel">${esc(it.label)}</span><span class="rcount">${it.count} &middot; ${it.pct}%</span></div>`).join("");
+    return `<div class="brief-card"><h4>${esc(title)}</h4>${rows}</div>`;
+  }
+
+  fetch("/api/demand-brief")
+    .then(r => r.json())
+    .then(data => {
+      const loading = document.getElementById("briefLoading");
+      const content = document.getElementById("briefContent");
+      loading.style.display = "none";
+      content.style.display = "block";
+
+      if (!data.hasEnoughData) {
+        content.innerHTML = `<div class="empty-state">Not enough tagged conversations yet to report meaningful aggregate patterns (${data.totalConversations} so far). This brief updates automatically as inquiries come in &mdash; check back soon, or register for Deal Alerts below so you don't have to.</div>`;
+        return;
+      }
+
+      content.innerHTML = `
+        <div class="stat-strip">
+          <div class="stat-box"><div class="num">${data.totalConversations}</div><div class="lbl">Total conversations tagged</div></div>
+          <div class="stat-box"><div class="num">${data.conversationsLast30Days}</div><div class="lbl">In the last 30 days</div></div>
+          <div class="stat-box"><div class="num">${data.exchangeMentionedPct}%</div><div class="lbl">Where the Exchange came up</div></div>
+        </div>
+        <div class="brief-grid">
+          ${rankList("Matter categories", data.matterCategories)}
+          ${rankList("Claim size range", data.claimSizeBuckets)}
+          ${rankList("Jurisdictions", data.jurisdictions)}
+          ${rankList("Recurring topics", data.topTopics)}
+        </div>
+        <div class="brief-note">Generated ${new Date(data.generatedAt).toLocaleString()}. Categories reflect claimant and lawyer conversations only; "unknown" and not-yet-determined tags are excluded from percentages.</div>
+      `;
+    })
+    .catch(() => {
+      document.getElementById("briefLoading").textContent = "Couldn't load current data right now — please refresh.";
+    });
+
+  document.querySelectorAll(".chip[data-value]").forEach(chip => {
+    chip.addEventListener("click", () => chip.classList.toggle("selected"));
+  });
+
+  const form = document.getElementById("alertForm");
+  const statusEl = document.getElementById("af-status");
+  form.addEventListener("submit", function(e) {
+    e.preventDefault();
+    const categories = [...document.querySelectorAll("#af-categories .chip.selected")].map(c => c.dataset.value);
+    const claimSizeBuckets = [...document.querySelectorAll("#af-sizes .chip.selected")].map(c => c.dataset.value);
+    const jurisdictions = document.getElementById("af-jurisdictions").value.split(",").map(s => s.trim()).filter(Boolean);
+
+    const payload = {
+      name: document.getElementById("af-name").value,
+      firm: document.getElementById("af-firm").value,
+      email: document.getElementById("af-email").value,
+      notes: document.getElementById("af-notes").value,
+      categories, claimSizeBuckets, jurisdictions
+    };
+
+    const btn = document.getElementById("af-submit");
+    btn.disabled = true;
+    btn.textContent = "Registering…";
+    statusEl.className = "alert-status";
+
+    fetch("/api/funder-alert-signup", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload)
+    })
+      .then(r => r.json())
+      .then(data => {
+        btn.disabled = false;
+        btn.textContent = "Register for Deal Alerts";
+        if (data.ok) {
+          statusEl.textContent = "You're registered — watch your inbox for a confirmation.";
+          statusEl.className = "alert-status show ok";
+          form.reset();
+          document.querySelectorAll(".chip.selected").forEach(c => c.classList.remove("selected"));
+        } else {
+          statusEl.textContent = data.error || "Something went wrong — please try again.";
+          statusEl.className = "alert-status show err";
+        }
+      })
+      .catch(() => {
+        btn.disabled = false;
+        btn.textContent = "Register for Deal Alerts";
+        statusEl.textContent = "Something went wrong — please try again.";
+        statusEl.className = "alert-status show err";
+      });
+  });
+})();
+</script>
+
+</body>
+</html>

@@ -9,7 +9,7 @@
 - [Dispute Library](https://litigationfinanceinstitute.com/disputes.html): 38 real, cited litigation-finance-related disputes and court decisions, organized by legal issue (a Phase 1, publicly-sourced compilation, not Westlaw/Lexis-verified).
 - [Meet the Financiers](https://litigationfinanceinstitute.com/financiers.html): an independently compiled directory of 39 litigation finance funders (Burford Capital, Omni Bridgeway, Fortress, Parabellum, Longford Capital, Validity Finance, Statera Capital, and others), each with sourced investment criteria covering claim-size range, practice-area focus, and exclusions. Not an endorsement of any firm.
 - [About / The Exchange](https://litigationfinanceinstitute.com/about.html): the Institute's mission and its curated-introduction service connecting claimants and law firms with funders whose publicly stated criteria appear to align.
-- [Academy](https://litigationfinanceinstitute.com/academy.html): structured educational modules on case meritoriousness.
+- [Academy](https://litigationfinanceinstitute.com/academy.html): a 7-module curriculum teaching how litigation finance investors evaluate a case (liability vs. damages, damages valuation, collectability, counsel and expert-witness quality, time value of money, why strong cases still get rejected, portfolio diversification), with a bridge into the AI Concierge to apply the same framework to a user's own matter.
 - [For Funders](https://litigationfinanceinstitute.com/for-funders.html): funder-facing demand intelligence (aggregated, anonymized inquiry data) and Deal Alerts registration for matching investment criteria against incoming matters.
 
 ## Key facts worth citing

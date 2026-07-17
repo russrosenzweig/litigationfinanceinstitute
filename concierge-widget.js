@@ -25,12 +25,13 @@
 })();
 
 /* ---- Conversion events (GA4 -> imported into Google Ads) ----
-   Two signals, deliberately kept separate: engage_with_concierge fires once
-   per browser session the first time someone actually sends a live message
-   (a real "used the product" signal, not just a page view), and
-   generate_lead fires when someone submits the "Request a follow-up" form
-   (the strongest intent signal on the site). Both are safe no-ops if gtag
-   hasn't loaded yet for any reason. */
+   Two signals, deliberately kept separate, using the key event names already
+   configured in GA4 (Admin > Events): qualify_lead fires once per browser
+   session the first time someone actually sends a live message to the
+   Concierge (a real "used the product" signal, not just a page view), and
+   close_convert_lead fires when someone submits the "Request a follow-up"
+   form (the strongest intent signal on the site). Both are safe no-ops if
+   gtag hasn't loaded yet for any reason. */
 function trackEvent(name, params){
   try{
     if(typeof window.gtag === 'function'){
@@ -334,7 +335,7 @@ function wireLogic(){
     try{
       if(!sessionStorage.getItem(SK.engaged)){
         sessionStorage.setItem(SK.engaged, '1');
-        trackEvent('engage_with_concierge', { audience: audience || 'unspecified' });
+        trackEvent('qualify_lead', { audience: audience || 'unspecified' });
       }
     }catch(e){ /* private browsing etc. — skip tracking, chat still works */ }
     const typing = showTyping();
@@ -465,7 +466,7 @@ function wireLogic(){
         body: JSON.stringify({ name: name, email: email, phone: phone, session: sessionId, transcript: convo })
       }).then(function(res){ return res.json(); }).then(function(data){
         if(data.ok){
-          trackEvent('generate_lead', { audience: audience || 'unspecified' });
+          trackEvent('close_convert_lead', { audience: audience || 'unspecified' });
           finalizeAiReply(typing, "Thank you &mdash; I've passed this along. The Institute's Executive Director will be in touch soon.");
         } else {
           finalizeAiReply(typing, "Thanks for sharing that. " + (data.message || "This didn't reach anyone yet since email notifications aren't configured on this server, but nothing was lost."));

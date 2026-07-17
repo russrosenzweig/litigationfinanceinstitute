@@ -24,6 +24,21 @@
   gtag('config', 'G-T8XNM16PZ6');
 })();
 
+/* ---- Conversion events (GA4 -> imported into Google Ads) ----
+   Two signals, deliberately kept separate: engage_with_concierge fires once
+   per browser session the first time someone actually sends a live message
+   (a real "used the product" signal, not just a page view), and
+   generate_lead fires when someone submits the "Request a follow-up" form
+   (the strongest intent signal on the site). Both are safe no-ops if gtag
+   hasn't loaded yet for any reason. */
+function trackEvent(name, params){
+  try{
+    if(typeof window.gtag === 'function'){
+      window.gtag('event', name, params || {});
+    }
+  }catch(e){ /* never let analytics break the page */ }
+}
+
 (function(){
 
 const WELCOME_HTML = "Welcome. Whether you're a business owner, a lawyer, an investor, or just curious, I'm here to help you understand a matter &mdash; not to sell you anything. To tailor this conversation, which best describes you today?";
@@ -120,7 +135,7 @@ function findDemoMatch(text){
 }
 
 /* ---------------- PERSISTENCE (sessionStorage) ---------------- */
-const SK = { role:'lfi_role_key', convo:'lfi_convo', display:'lfi_display', session:'lfi_session_id' };
+const SK = { role:'lfi_role_key', convo:'lfi_convo', display:'lfi_display', session:'lfi_session_id', engaged:'lfi_engaged_tracked' };
 
 function loadState(){
   try{
@@ -316,6 +331,12 @@ function wireLogic(){
     convo.push({ role:'user', content: userText });
     persist();
     resetIdleTimer();
+    try{
+      if(!sessionStorage.getItem(SK.engaged)){
+        sessionStorage.setItem(SK.engaged, '1');
+        trackEvent('engage_with_concierge', { audience: audience || 'unspecified' });
+      }
+    }catch(e){ /* private browsing etc. — skip tracking, chat still works */ }
     const typing = showTyping();
     return fetch('/api/chat', {
       method:'POST',
@@ -444,6 +465,7 @@ function wireLogic(){
         body: JSON.stringify({ name: name, email: email, phone: phone, session: sessionId, transcript: convo })
       }).then(function(res){ return res.json(); }).then(function(data){
         if(data.ok){
+          trackEvent('generate_lead', { audience: audience || 'unspecified' });
           finalizeAiReply(typing, "Thank you &mdash; I've passed this along. The Institute's Executive Director will be in touch soon.");
         } else {
           finalizeAiReply(typing, "Thanks for sharing that. " + (data.message || "This didn't reach anyone yet since email notifications aren't configured on this server, but nothing was lost."));

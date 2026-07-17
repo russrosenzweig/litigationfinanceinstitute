@@ -42,7 +42,7 @@ function trackEvent(name, params){
 
 (function(){
 
-const WELCOME_HTML = "Welcome. Whether you're a business owner, a lawyer, an investor, or just curious, I'm here to help you understand a matter &mdash; not to sell you anything. To tailor this conversation, which best describes you today?";
+const WELCOME_HTML = "Welcome. Whether you're a business owner, a lawyer, an investor, or just curious, I'm here to help you understand a matter. To tailor this conversation, which best describes you today?";
 
 const ROLES = {
   claimant: {

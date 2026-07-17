@@ -47,7 +47,7 @@ const WELCOME_HTML = "Welcome. Whether you're a business owner, a lawyer, an inv
 const ROLES = {
   claimant: {
     audience: "a business owner, claimant, or law firm with a legal matter seeking assessment",
-    demoReply: "Thank you &mdash; I have a few questions that will help me understand the legal and financial characteristics of this matter. Tell me what happened: who's involved, roughly when, and what you're hoping to resolve. There's no form to fill out &mdash; just tell me the story, and I'll ask follow-ups as we go.",
+    demoReply: "Thank you &mdash; my job is to help you assess the likelihood of securing litigation financing, and where it fits, help connect you with the most suitable financier. I have a few questions that will help me understand the legal and financial characteristics of this matter. Tell me what happened: who's involved, roughly when, and what you're hoping to resolve. There's no form to fill out &mdash; just tell me the story, and I'll ask follow-ups as we go.",
     followups: [
       {label:"We won arbitration. The defendant won't pay.", demo:"manufacturing"},
       {label:"Why does collectability matter more than liability?", demo:"collectability"},

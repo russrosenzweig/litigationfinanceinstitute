@@ -4,22 +4,45 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Meritoriousness Academy — Learn to Think Like a Litigation Investor | Institute for Litigation Finance</title>
-<meta name="description" content="Six modules that teach how sophisticated litigation finance investors actually evaluate a case, from liability versus damages to portfolio diversification — useful whether or not you ever seek funding.">
+<meta name="description" content="Seven modules that teach how sophisticated litigation finance investors actually evaluate a case, from liability versus damages to portfolio diversification — useful whether or not you ever seek funding.">
 <link rel="canonical" href="https://litigationfinanceinstitute.com/academy.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Institute for Litigation Finance">
 <meta property="og:title" content="The Meritoriousness Academy | Institute for Litigation Finance">
-<meta property="og:description" content="Learn to think like a litigation finance investor, in six modules.">
+<meta property="og:description" content="Learn to think like a litigation finance investor, in seven modules.">
 <meta property="og:url" content="https://litigationfinanceinstitute.com/academy.html">
 <meta property="og:image" content="https://litigationfinanceinstitute.com/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://litigationfinanceinstitute.com/og-image.png">
 <meta name="twitter:title" content="The Meritoriousness Academy | Institute for Litigation Finance">
-<meta name="twitter:description" content="Learn to think like a litigation finance investor, in six modules.">
+<meta name="twitter:description" content="Learn to think like a litigation finance investor, in seven modules.">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="stylesheet" href="styles.css">
+<style>
+.academy-concierge-bridge{background:var(--navy); color:#fff; padding:28px 30px; margin:8px 0 32px;}
+.academy-concierge-bridge .acb-eyebrow{font-family:-apple-system,sans-serif; font-size:11px; letter-spacing:1px; color:var(--gold-light); text-transform:uppercase; margin-bottom:8px;}
+.academy-concierge-bridge h3{font-family:Georgia,serif; font-size:21px; margin:0 0 10px;}
+.academy-concierge-bridge p{font-family:-apple-system,sans-serif; font-size:14px; color:#D8DEE9; line-height:1.65; margin:0 0 18px; max-width:600px;}
+.academy-concierge-bridge button{background:var(--gold-light); color:var(--navy); border:none; padding:12px 22px; font-family:-apple-system,sans-serif; font-size:13.5px; font-weight:600; cursor:pointer;}
+.academy-concierge-bridge button:hover{opacity:.88;}
+.academy-modules{display:flex; flex-direction:column; gap:1px; background:var(--line); border:1px solid var(--line);}
+.amod-lesson{background:var(--paper);}
+.amod-lesson summary{list-style:none; cursor:pointer; background:var(--navy); color:#fff; padding:18px 20px; font-family:-apple-system,sans-serif; display:flex; align-items:center; gap:16px;}
+.amod-lesson summary::-webkit-details-marker{display:none;}
+.amod-lesson summary .n{font-size:11px; color:var(--gold-light); letter-spacing:1px; min-width:20px;}
+.amod-lesson summary .t{font-size:14.5px; flex:1; line-height:1.4;}
+.amod-lesson summary .arrow{font-size:19px; color:var(--gold-light); transition:transform .15s; line-height:1;}
+.amod-lesson[open] summary .arrow{transform:rotate(45deg);}
+.amod-body{padding:26px 28px 30px;}
+.amod-body p{font-family:Georgia,serif; font-size:15.5px; color:var(--ink); line-height:1.75; margin:0 0 16px;}
+.amod-takeaway{font-family:-apple-system,sans-serif; font-size:13.5px; color:var(--navy); background:#F4EFE3; border-left:3px solid var(--gold-light); padding:12px 16px; margin:18px 0;}
+.amod-more{font-family:-apple-system,sans-serif; font-size:13.5px; margin-top:8px;}
+.amod-more a{color:var(--navy);}
+.academy-footer-cta{margin-top:32px; text-align:center;}
+.academy-footer-cta a{font-family:-apple-system,sans-serif; font-size:14px; color:var(--navy); font-weight:600;}
+</style>
 </head>
 <body>
 
@@ -48,14 +71,92 @@
       <h2>Learn to think like a litigation finance investor.</h2>
       <p>Not about funding &mdash; about analysis. Useful whether or not you ever seek capital. Each module distills how sophisticated investors actually reason through a dispute, in plain language.</p>
     </div>
-    <div class="academy-grid">
-      <div class="amod"><div class="n">01</div><div class="t">Liability versus damages</div></div>
-      <div class="amod"><div class="n">02</div><div class="t">Merits versus collectability</div></div>
-      <div class="amod"><div class="n">03</div><div class="t">Why a strong case can still be unfinanceable</div></div>
-      <div class="amod"><div class="n">04</div><div class="t">Time value of money in litigation</div></div>
-      <div class="amod"><div class="n">05</div><div class="t">Why jurisdiction and enforcement risk matter</div></div>
-      <div class="amod"><div class="n">06</div><div class="t">Portfolio diversification in litigation finance</div></div>
+
+    <div class="academy-concierge-bridge">
+      <div class="acb-eyebrow">Prefer to talk it through?</div>
+      <h3>Walk through your own claim with the AI Concierge</h3>
+      <p>These seven lessons work as a hypothetical, or you can apply them to something real. Tell the AI Concierge about your matter and we'll assess it step by step &mdash; in lockstep with these same lessons, applied to your actual facts instead of an example.</p>
+      <button id="academyConciergeCta" type="button">Talk to the AI Concierge about your claim &rarr;</button>
     </div>
+
+    <div class="academy-modules">
+
+      <details class="amod-lesson" open>
+        <summary><span class="n">01</span><span class="t">Liability versus damages</span><span class="arrow">+</span></summary>
+        <div class="amod-body">
+          <p>These are two different questions, and conflating them is the single most common mistake claimants make when sizing up their own case. Liability asks: are you legally right? Did the other side breach the contract, infringe the patent, act negligently? Damages asks a completely separate question: assuming you're right, what is that actually worth in dollars? A claimant can be nearly certain to win on liability and still have a weak investment case, because the damages are small, speculative, or hard to prove &mdash; and a claimant can have a genuinely messy liability picture and still attract serious funder interest, because the damages at stake are enormous and well-documented.</p>
+          <p>Funders weigh both, but they often weigh damages more heavily than claimants expect, for a simple reason: damages set the ceiling on the entire pie. A funder's return comes out of the eventual recovery, so a claim that's certain to win but worth very little is frequently a worse investment than a claim that's 60% likely to win but worth ten times as much. This is why the first real question in any serious case assessment isn't "will I win" &mdash; it's "if I win, how much is that actually worth, and can I prove it."</p>
+          <div class="amod-takeaway"><strong>Key idea:</strong> Winning matters less than what you win. A strong liability story with a weak damages story is a weak investment.</div>
+          <p class="amod-more"><a href="/research/understanding-damages.html">Go deeper: Understanding Damages &rarr;</a></p>
+        </div>
+      </details>
+
+      <details class="amod-lesson">
+        <summary><span class="n">02</span><span class="t">How damages actually get valued and stress-tested</span><span class="arrow">+</span></summary>
+        <div class="amod-body">
+          <p>A damages figure a claimant cites off the top of their head &mdash; "this cost us $5 million" &mdash; is not the same thing as a damages figure a funder can underwrite. Between those two things sits a substantial amount of work: a damages expert building a model (lost profits, unjust enrichment, a reasonable royalty in a patent case, diminished value in a commercial dispute), testing that model against the specific facts of the case, and producing a number that can survive cross-examination, not just sound plausible in conversation.</p>
+          <p>Sophisticated investors don't take a single damages number at face value &mdash; they stress-test it across a range: a best case, an expected case, and a conservative case, then apply a probability-weighted view across that range rather than anchoring on the headline figure. They also scrutinize who built the model. A damages theory built by a credible, experienced expert who has survived Daubert challenges before carries real underwriting weight; the identical number produced without independent expert analysis is treated as, at best, a starting hypothesis.</p>
+          <div class="amod-takeaway"><strong>Key idea:</strong> A damages number nobody has independently modeled and stress-tested isn't a damages number &mdash; it's a guess with a dollar sign in front of it.</div>
+          <p class="amod-more"><a href="/research/how-investors-think-underwriting-a-legal-claim.html">Go deeper: How Investors Think: Underwriting a Legal Claim &rarr;</a></p>
+        </div>
+      </details>
+
+      <details class="amod-lesson">
+        <summary><span class="n">03</span><span class="t">Merits versus collectability</span><span class="arrow">+</span></summary>
+        <div class="amod-body">
+          <p>Here's a scenario that trips up almost everyone outside the industry: a claimant wins a $10 million judgment against a defendant who is, by the time judgment is entered, functionally insolvent. Legally, that's a complete victory. Financially, it may be worth close to zero &mdash; a judgment is only as valuable as the ability to actually collect on it. This is collectability, and funders treat it as a screening factor every bit as important as the strength of the underlying legal claim.</p>
+          <p>Collectability analysis asks: is the defendant solvent, and will they still be solvent by the time a judgment is enforceable? Is there insurance coverage that will actually respond? Are there identifiable, reachable assets, and in what jurisdiction? A funder will often pass on a near-certain win against a judgment-proof defendant and take real interest in a messier liability picture against a defendant with clear, liquid assets &mdash; not because the merits don't matter, but because merits without collectability produce a moral victory, not a financial one.</p>
+          <div class="amod-takeaway"><strong>Key idea:</strong> A judgment you can't collect on is a piece of paper. Collectability is what turns a legal win into an actual return.</div>
+          <p class="amod-more"><a href="/research/collectability-matters-more-than-liability.html">Go deeper: Collectability Matters More Than Liability &rarr;</a></p>
+        </div>
+      </details>
+
+      <details class="amod-lesson">
+        <summary><span class="n">04</span><span class="t">Why counsel and expert quality matter as much as the facts</span><span class="arrow">+</span></summary>
+        <div class="amod-body">
+          <p>A funder cannot independently re-litigate every case before deciding whether to fund it, so they rely heavily on proxies for case quality &mdash; and two of the strongest proxies are who is trying the case and who is explaining it. Experienced litigators self-select into matters they genuinely believe in, know how to build a clean record, negotiate more effectively, and are far less likely to make the procedural missteps that quietly sink otherwise strong claims. Track record and resourcing become a real, if imperfect, signal of case quality itself.</p>
+          <p>On technical and damages questions &mdash; which in patent, IP, and complex commercial litigation frequently decide the case outright &mdash; the expert witness matters just as much as counsel, arguably more. The December 2023 amendments to Federal Rule of Evidence 702 strengthened trial courts' obligation to police expert testimony before it ever reaches a jury. An expert who cannot survive that gatekeeping doesn't just weaken a case; they can end it before trial, regardless of how strong the underlying facts are. Sophisticated funders increasingly ask not just "has an expert been retained," but "is this expert credible enough to survive a Daubert challenge, and persuasive enough to actually move a jury."</p>
+          <div class="amod-takeaway"><strong>Key idea:</strong> Funders aren't just underwriting the case. They're underwriting the people who will have to prove it in front of a judge and jury &mdash; the lawyer and the expert both.</div>
+          <p class="amod-more"><a href="/research/what-makes-a-case-financeable.html">Go deeper: What Makes a Case Financeable? &rarr;</a></p>
+        </div>
+      </details>
+
+      <details class="amod-lesson">
+        <summary><span class="n">05</span><span class="t">Time value of money and duration risk</span><span class="arrow">+</span></summary>
+        <div class="amod-body">
+          <p>A dollar recovered next year is worth more than the same dollar recovered in five years &mdash; a basic finance principle that gets underweighted in most conversations about case merit, because claimants naturally focus on whether they'll win, not on how long winning will take. Litigation duration is genuinely uncertain and routinely extends through appeals, and every additional year a matter is outstanding is a year of capital tied up, unable to be redeployed, with the underlying risk of the case still live.</p>
+          <p>This is a large part of why funders target internal rates of return in the 30% range rather than something closer to a typical lending rate: the target isn't just compensating for the risk of losing outright, it's compensating for years of illiquidity on capital that can't be touched until the case resolves. It's also why funding agreements are frequently structured with tranched capital releases tied to procedural milestones, rather than a single upfront payment &mdash; a way of managing duration risk by only committing more capital as the case actually progresses.</p>
+          <div class="amod-takeaway"><strong>Key idea:</strong> A great case that takes eight years to resolve is a mediocre investment, no matter how strong the merits look on paper.</div>
+          <p class="amod-more"><a href="/research/how-funders-actually-perform-returns-and-risk.html">Go deeper: How Funders Actually Perform: Returns and Risk &rarr;</a></p>
+        </div>
+      </details>
+
+      <details class="amod-lesson">
+        <summary><span class="n">06</span><span class="t">Why a strong case can still be unfinanceable</span><span class="arrow">+</span></summary>
+        <div class="amod-body">
+          <p>Underwriting a single matter has real fixed costs &mdash; diligence, expert review, ongoing monitoring &mdash; and those costs don't scale down proportionally for smaller claims. That's why most institutional funders have effective minimum claim sizes, often in the $1&ndash;5 million range: below that threshold, even a genuinely strong case frequently can't generate enough expected return to justify the underwriting cost, no matter how favorable the liability and damages picture looks. A smaller, purpose-built tier of the market exists specifically to serve claims below that floor, but pricing there tends to be less favorable, reflecting the same fixed-cost economics at a smaller scale.</p>
+          <p>Claim size isn't the only reason a strong case gets declined. A funder may already be overexposed to a particular sector, defendant, or geography and be managing concentration risk at the portfolio level, entirely independent of any individual case's merits. Reputational or publicity concerns, potential conflicts with other matters in the funder's book, or simply a mismatch with a fund's stated investment thesis can all produce a pass on a case that, evaluated purely on the facts, would score well.</p>
+          <div class="amod-takeaway"><strong>Key idea:</strong> Financeability is a function of economics and portfolio fit, not merit alone &mdash; the best case in the world is unfinanceable if it's too small, or too concentrated a risk, to be worth taking on.</div>
+          <p class="amod-more"><a href="/research/why-cases-get-rejected.html">Go deeper: Why Cases Get Rejected &rarr;</a></p>
+        </div>
+      </details>
+
+      <details class="amod-lesson">
+        <summary><span class="n">07</span><span class="t">Zooming out: portfolio diversification</span><span class="arrow">+</span></summary>
+        <div class="amod-body">
+          <p>Everything up to this point has been about evaluating one case in isolation &mdash; the vantage point of a claimant looking at their own matter. Zoom out to how a fund actually operates, and the picture changes. Litigation outcomes are close to binary at the individual-case level &mdash; you tend to win big or recover little, with less middle ground than in most asset classes &mdash; and any single case genuinely is closer to a coin flip than most claimants are comfortable admitting.</p>
+          <p>Funders manage that the way venture investors manage individual startup risk: not by trying to make every single case a winner, but by diversifying across many matters and accepting that a meaningful share &mdash; commonly cited in the 20&ndash;40% range &mdash; will produce little or no recovery, relying on a smaller number of outsized wins to carry the portfolio's overall return. That's also, notably, a genuine institutional selling point: litigation outcomes are largely uncorrelated with broader financial markets, which is part of why endowments, pensions, and hedge funds have been drawn to the asset class as a diversifier.</p>
+          <div class="amod-takeaway"><strong>Key idea:</strong> No single case should be judged the way a diversified portfolio is judged. That cuts both ways &mdash; it's why funders can rationally take real risk on individual matters, and why claimants shouldn't assume a funder's pass on their case means the case is bad.</div>
+          <p class="amod-more"><a href="/research/portfolio-financing.html">Go deeper: Portfolio Financing &rarr;</a></p>
+        </div>
+      </details>
+
+    </div>
+
+    <div class="academy-footer-cta">
+      <a href="#" id="academyConciergeCta2">Ready to apply this to your own matter? Talk to the AI Concierge &rarr;</a>
+    </div>
+
   </div>
 </section>
 
@@ -71,19 +172,24 @@
   </div>
 </footer>
 
-<div class="modal-overlay" id="modalOverlay">
-  <div class="modal-card">
-    <button class="modal-close" id="modalClose">Close &times;</button>
-    <div class="tag" id="modalTag"></div>
-    <h3 id="modalTitle"></h3>
-    <div class="abody" id="modalBody"></div>
-    <div class="modal-sources">
-      <div class="st">Sources</div>
-      <div id="modalSources"></div>
-    </div>
-  </div>
-</div>
-
 <script src="concierge-widget.js"></script>
+<script>
+function openConciergeForClaim(e){
+  if(e) e.preventDefault();
+  var panel = document.querySelector('.concierge-panel');
+  if(panel){ panel.classList.add('open'); }
+  setTimeout(function(){
+    var chip = document.querySelector('.prompt-chip[data-role="claimant"]');
+    if(chip){ chip.click(); }
+    var input = document.getElementById('chInput');
+    if(input){ input.focus(); }
+  }, 60);
+}
+var cta1 = document.getElementById('academyConciergeCta');
+var cta2 = document.getElementById('academyConciergeCta2');
+if(cta1) cta1.addEventListener('click', openConciergeForClaim);
+if(cta2) cta2.addEventListener('click', openConciergeForClaim);
+</script>
 
-</body></html>
+</body>
+</html>

@@ -5,7 +5,7 @@
 ## Core resources
 
 - [Homepage](https://litigationfinanceinstitute.com/): overview and the AI Concierge (Senior Fellow for Litigation Finance), which gives free, educational, multidimensional case assessments — never binary approve/reject verdicts.
-- [Research Library](https://litigationfinanceinstitute.com/research.html): 43 cited articles covering litigation finance fundamentals, deal structures, damages and valuation, regulation and ethics, tax, industry verticals, and history.
+- [Research Library](https://litigationfinanceinstitute.com/research.html): 46 cited articles covering litigation finance fundamentals, deal structures, damages and valuation, regulation and ethics, tax, industry verticals, and history.
 - [Dispute Library](https://litigationfinanceinstitute.com/disputes.html): 38 real, cited litigation-finance-related disputes and court decisions, organized by legal issue (a Phase 1, publicly-sourced compilation, not Westlaw/Lexis-verified).
 - [Meet the Financiers](https://litigationfinanceinstitute.com/financiers.html): an independently compiled directory of 39 litigation finance funders (Burford Capital, Omni Bridgeway, Fortress, Parabellum, Longford Capital, Validity Finance, Statera Capital, and others), each with sourced investment criteria covering claim-size range, practice-area focus, and exclusions. Not an endorsement of any firm.
 - [About / The Exchange](https://litigationfinanceinstitute.com/about.html): the Institute's mission and its curated-introduction service connecting claimants and law firms with funders whose publicly stated criteria appear to align.

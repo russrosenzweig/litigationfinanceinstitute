@@ -280,9 +280,42 @@ function wireLogic(){
     }
   }).catch(function(){ /* no server running — stay in demo mode, silently */ });
 
+  /* ---------------- END-OF-CONVERSATION TRANSCRIPT EMAIL ----------------
+     Rather than emailing a running transcript on every single turn (which
+     got noisy fast on any real conversation), the Institute now gets ONE
+     consolidated transcript email when a conversation actually appears to
+     be over: the tab is hidden or closed, or the user goes idle for a
+     while. Only meaningful in live mode — demo-mode conversations aren't
+     sent anywhere, same as before. */
+  const IDLE_MS = 8 * 60 * 1000; // 8 minutes of inactivity = conversation over
+  let idleTimer = null;
+
+  function sendEndSession(useBeacon){
+    if(!convo || convo.length === 0) return;
+    const payload = JSON.stringify({ session: sessionId, audience: audience, transcript: convo });
+    try{
+      if(useBeacon && navigator.sendBeacon){
+        navigator.sendBeacon('/api/end-session', new Blob([payload], {type:'application/json'}));
+      } else {
+        fetch('/api/end-session', { method:'POST', headers:{'content-type':'application/json'}, body: payload, keepalive:true }).catch(function(){});
+      }
+    }catch(e){ /* best-effort — never let this break the page */ }
+  }
+
+  function resetIdleTimer(){
+    if(idleTimer) clearTimeout(idleTimer);
+    idleTimer = setTimeout(function(){ sendEndSession(false); }, IDLE_MS);
+  }
+
+  document.addEventListener('visibilitychange', function(){
+    if(document.visibilityState === 'hidden'){ sendEndSession(true); }
+  });
+  window.addEventListener('pagehide', function(){ sendEndSession(true); });
+
   function askLive(userText){
     convo.push({ role:'user', content: userText });
     persist();
+    resetIdleTimer();
     const typing = showTyping();
     return fetch('/api/chat', {
       method:'POST',

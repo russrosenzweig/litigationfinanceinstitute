@@ -1,4 +1,5 @@
-const { API_KEY, MODEL, SYSTEM_PROMPT, sendMail, transcriptText, JSON_HEADERS } = require("./_shared");
+const { API_KEY, MODEL, SYSTEM_PROMPT, JSON_HEADERS } = require("./_shared");
+const { recordInsight } = require("./_insights");
 
 exports.handler = async (event) => {
   if (event.httpMethod !== "POST") {
@@ -61,18 +62,22 @@ exports.handler = async (event) => {
     const data = await response.json();
     const reply = (data.content || []).map(block => block.text || "").join("");
 
-    // Unlike the local Express server, a Netlify Function's execution environment
-    // can freeze the moment the handler returns — so, unlike server.js, we await
-    // the transcript email here instead of firing it and moving on, or it might
-    // never actually finish sending.
+    // Note: unlike the old version of this function, we no longer email a
+    // running transcript on every single turn — that got noisy fast on any
+    // real conversation. Instead, the client calls /api/end-session once,
+    // when the conversation actually wraps up (see concierge-widget.js), and
+    // that's what sends the one consolidated transcript email. We do keep
+    // the lightweight structured-insights tagging here, since it's cheap,
+    // non-identifying, and powers the funder demand brief / Deal Alerts.
+    // Like the old sendMail call, this is awaited rather than fire-and-forget
+    // — a Netlify Function's execution environment can freeze the moment the
+    // handler returns, so a truly "fire and forget" promise risks never
+    // actually finishing.
     const session = typeof body.session === "string" ? body.session : "unknown-session";
     const fullTranscript = [...messages, { role: "assistant", content: reply }];
     try {
-      await sendMail(
-        `Institute chat transcript — session ${session}`,
-        `Audience: ${audience || "not yet identified"}\n\n${transcriptText(fullTranscript)}`
-      );
-    } catch (e) { /* email is best-effort — never fail the chat response over it */ }
+      await recordInsight(session, audience, fullTranscript);
+    } catch (e) { /* insights tagging is best-effort — never fail the chat response over it */ }
 
     return { statusCode: 200, headers: JSON_HEADERS, body: JSON.stringify({ reply }) };
   } catch (e) {

@@ -613,21 +613,54 @@ app.post("/api/chat", async (req, res) => {
     const reply = (data.content || []).map(block => block.text || "").join("");
     res.json({ reply });
 
-    // Fire-and-forget: keep the owner's inbox updated with this session's running
-    // transcript, and separately update the structured insights record for this
-    // session (upserted by session id — see summarizeInsights()). Neither of
-    // these blocks or affects the response already sent above.
+    // Fire-and-forget: update the structured insights record for this session
+    // (upserted by session id — see summarizeInsights()). This never blocks or
+    // affects the response already sent above. Note: we deliberately no longer
+    // email a running transcript on every single turn here — that got noisy
+    // fast on any real conversation. See /api/end-session below, which the
+    // client calls once, when the conversation actually wraps up.
     const session = typeof req.body.session === "string" ? req.body.session : "unknown-session";
     const fullTranscript = [...messages, { role: "assistant", content: reply }];
-    sendMail(
-      `Institute chat transcript — session ${session}`,
-      `Audience: ${audience || "not yet identified"}\n\n${transcriptText(fullTranscript)}`
-    );
     recordInsight(session, audience, fullTranscript);
   } catch (e) {
     console.error("Chat request failed:", e);
     res.status(500).json({ error: "Request to Anthropic API failed: " + e.message });
   }
+});
+
+// A dedupe guard so a slow network retry or multiple end-of-session signals
+// firing close together (see concierge-widget.js) can't send the transcript
+// email twice for the same session. Resets on server restart — an acceptable
+// tradeoff at this scale, same as the notifiedPairs guard above.
+const sessionEmailsSent = new Set();
+
+// Called once by the client when a chat conversation actually wraps up — the
+// tab closes/hides, or the user goes idle — rather than on every turn. Sends
+// ONE consolidated transcript email per session.
+app.post("/api/end-session", async (req, res) => {
+  const session = typeof req.body.session === "string" ? req.body.session : null;
+  const audience = typeof req.body.audience === "string" ? req.body.audience : null;
+  const transcript = Array.isArray(req.body.transcript) ? req.body.transcript : [];
+
+  if (!session || transcript.length === 0) {
+    return res.json({ ok: false, message: "Nothing to send." });
+  }
+  // Keyed on transcript length, not just session id, so a conversation that
+  // resumes after an idle-triggered send (rare, but possible) still gets a
+  // follow-up email covering the new tail — while two near-simultaneous
+  // signals for the same final state (e.g. visibilitychange + beforeunload)
+  // still only send once.
+  const dedupeKey = `${session}::${transcript.length}`;
+  if (sessionEmailsSent.has(dedupeKey)) {
+    return res.json({ ok: true, message: "Already sent." });
+  }
+  sessionEmailsSent.add(dedupeKey);
+
+  await sendMail(
+    `Institute chat transcript — session ${session}`,
+    `Audience: ${audience || "not yet identified"}\n\n${transcriptText(transcript)}`
+  );
+  res.json({ ok: true });
 });
 
 // A visitor has explicitly asked for a human follow-up and shared contact details.

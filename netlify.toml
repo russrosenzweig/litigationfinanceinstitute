@@ -1,18 +1,17 @@
 [build]
-  # Site files (institute-prototype.html, about.html, styles.css, etc.) live at
-  # the repo root, so that's what gets published as-is — no build step needed.
+  # Site files (index.html, about.html, styles.css, etc.) live at the repo
+  # root and are published as-is. The one build step regenerates
+  # netlify/functions/corpus-data.json from research.html/financiers.html/
+  # disputes.html, so the AI Concierge's corpus can never silently drift out
+  # of sync with the actual site content the way it did under manual deploys.
+  command = "node scripts/build-corpus.js"
   publish = "."
   functions = "netlify/functions"
 
-# The frontend calls /api/health, /api/chat, /api/lead — route those straight
-# through to the matching serverless function, so no frontend code has to change.
+# The frontend calls /api/health, /api/chat, /api/lead, /api/end-session,
+# /api/demand-brief, /api/funder-alert-signup — route those straight through
+# to the matching serverless function, so no frontend code has to change.
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
-  status = 200
-
-# There's no index.html at the root — send bare domain visits to the homepage.
-[[redirects]]
-  from = "/"
-  to = "/institute-prototype.html"
   status = 200

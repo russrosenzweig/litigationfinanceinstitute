@@ -4,18 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Meritoriousness Academy — Learn to Think Like a Litigation Investor | Institute for Litigation Finance</title>
-<meta name="description" content="Seven modules that teach how sophisticated litigation finance investors actually evaluate a case, from liability versus damages to portfolio diversification — useful whether or not you ever seek funding.">
+<meta name="description" content="Seven modules that teach how sophisticated litigation finance investors actually evaluate a case, from liability versus damages to portfolio diversification, plus a real $16 billion case study and an interactive self-scoring tool — useful whether or not you ever seek funding.">
 <link rel="canonical" href="https://litigationfinanceinstitute.com/academy.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Institute for Litigation Finance">
 <meta property="og:title" content="The Meritoriousness Academy | Institute for Litigation Finance">
-<meta property="og:description" content="Learn to think like a litigation finance investor, in seven modules.">
+<meta property="og:description" content="Learn to think like a litigation finance investor, in seven modules and a real case study.">
 <meta property="og:url" content="https://litigationfinanceinstitute.com/academy.html">
 <meta property="og:image" content="https://litigationfinanceinstitute.com/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://litigationfinanceinstitute.com/og-image.png">
 <meta name="twitter:title" content="The Meritoriousness Academy | Institute for Litigation Finance">
-<meta name="twitter:description" content="Learn to think like a litigation finance investor, in seven modules.">
+<meta name="twitter:description" content="Learn to think like a litigation finance investor, in seven modules and a real case study.">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -42,6 +42,44 @@
 .amod-more a{color:var(--navy);}
 .academy-footer-cta{margin-top:32px; text-align:center;}
 .academy-footer-cta a{font-family:-apple-system,sans-serif; font-size:14px; color:var(--navy); font-weight:600;}
+
+.academy-progress{display:flex; align-items:center; gap:14px; margin:-8px 0 28px;}
+.ap-bar{flex:1; height:6px; background:var(--line); border-radius:3px; overflow:hidden;}
+.ap-fill{height:100%; background:var(--gold-light); transition:width .3s;}
+.ap-label{font-family:-apple-system,sans-serif; font-size:12px; color:var(--muted); white-space:nowrap;}
+
+.amod-lesson summary .check{display:none; font-size:14px; color:var(--gold-light); margin-right:2px;}
+.amod-lesson.amod-read summary .check{display:inline;}
+
+.academy-case-divider{text-align:center; margin:34px 0 14px; font-family:-apple-system,sans-serif; font-size:12px; letter-spacing:.5px; text-transform:uppercase; color:var(--muted);}
+.amod-case summary{background:#2A2118;}
+.amod-lesson .n.case{font-size:10.5px; letter-spacing:1px; min-width:auto; padding:2px 7px; border:1px solid var(--gold-light); border-radius:3px;}
+
+.academy-quiz{background:var(--paper); border:1px solid var(--line); padding:32px 30px; margin-top:36px;}
+.quiz-q{margin-bottom:22px;}
+.quiz-q .qq-text{font-family:-apple-system,sans-serif; font-size:14.5px; font-weight:600; color:var(--ink); margin-bottom:10px;}
+.quiz-q label{display:block; font-family:-apple-system,sans-serif; font-size:13.5px; color:var(--ink); margin-bottom:6px; cursor:pointer;}
+.quiz-q input[type="radio"]{margin-right:8px;}
+.quiz-result{margin-top:24px; padding-top:22px; border-top:1px solid var(--line);}
+.qr-row{display:flex; align-items:center; gap:12px; margin-bottom:8px;}
+.qr-label{width:230px; flex-shrink:0; font-family:-apple-system,sans-serif; font-size:12.5px; color:var(--ink);}
+.qr-bar{flex:1; height:8px; background:var(--line); border-radius:4px; overflow:hidden;}
+.qr-fill{height:100%; background:var(--navy);}
+.qr-summary{margin-top:18px; font-family:Georgia,serif; font-size:15px; color:var(--ink); line-height:1.65;}
+
+.academy-download{margin-top:32px; padding:26px 30px; border:1px solid var(--line); background:var(--paper);}
+.academy-download .ad-eyebrow{font-family:-apple-system,sans-serif; font-size:11px; letter-spacing:1px; color:var(--muted); text-transform:uppercase; margin-bottom:6px;}
+.academy-download h3{font-family:Georgia,serif; font-size:19px; margin:0 0 8px;}
+.academy-download p{font-family:-apple-system,sans-serif; font-size:13.5px; color:var(--muted); margin:0 0 16px; max-width:520px;}
+.academy-download .btn-primary{background:var(--navy); color:#fff;}
+.download-form{display:flex; gap:10px; margin-top:16px; flex-wrap:wrap;}
+.download-form input{padding:10px 12px; border:1px solid var(--line); font-family:-apple-system,sans-serif; font-size:13.5px; min-width:180px;}
+.download-form .btn-primary{background:var(--navy); color:#fff;}
+
+@media (max-width:640px){
+  .qr-row{flex-wrap:wrap;}
+  .qr-label{width:100%;}
+}
 </style>
 </head>
 <body>
@@ -69,7 +107,12 @@
     <div class="section-head">
       <div class="eyebrow">The Meritoriousness Academy</div>
       <h2>Learn to think like a litigation finance investor.</h2>
-      <p>Not about funding &mdash; about analysis. Useful whether or not you ever seek capital. Each module distills how sophisticated investors actually reason through a dispute, in plain language.</p>
+      <p>Not about funding &mdash; about analysis. Useful whether or not you ever seek capital. Seven core lessons, plus a real case study that ties them all together, distilling how sophisticated investors actually reason through a dispute, in plain language.</p>
+    </div>
+
+    <div class="academy-progress" id="academyProgress">
+      <div class="ap-bar"><div class="ap-fill" id="academyProgressFill" style="width:0%;"></div></div>
+      <div class="ap-label" id="academyProgressLabel">0 of 8 read</div>
     </div>
 
     <div class="academy-concierge-bridge">
@@ -81,8 +124,8 @@
 
     <div class="academy-modules">
 
-      <details class="amod-lesson" open>
-        <summary><span class="n">01</span><span class="t">Liability versus damages</span><span class="arrow">+</span></summary>
+      <details class="amod-lesson" data-id="m1" open>
+        <summary><span class="n">01</span><span class="t">Liability versus damages</span><span class="check" title="Read">&#10003;</span><span class="arrow">+</span></summary>
         <div class="amod-body">
           <p>These are two different questions, and conflating them is the single most common mistake claimants make when sizing up their own case. Liability asks: are you legally right? Did the other side breach the contract, infringe the patent, act negligently? Damages asks a completely separate question: assuming you're right, what is that actually worth in dollars? A claimant can be nearly certain to win on liability and still have a weak investment case, because the damages are small, speculative, or hard to prove &mdash; and a claimant can have a genuinely messy liability picture and still attract serious funder interest, because the damages at stake are enormous and well-documented.</p>
           <p>Funders weigh both, but they often weigh damages more heavily than claimants expect, for a simple reason: damages set the ceiling on the entire pie. A funder's return comes out of the eventual recovery, so a claim that's certain to win but worth very little is frequently a worse investment than a claim that's 60% likely to win but worth ten times as much. This is why the first real question in any serious case assessment isn't "will I win" &mdash; it's "if I win, how much is that actually worth, and can I prove it."</p>
@@ -91,8 +134,8 @@
         </div>
       </details>
 
-      <details class="amod-lesson">
-        <summary><span class="n">02</span><span class="t">How damages actually get valued and stress-tested</span><span class="arrow">+</span></summary>
+      <details class="amod-lesson" data-id="m2">
+        <summary><span class="n">02</span><span class="t">How damages actually get valued and stress-tested</span><span class="check" title="Read">&#10003;</span><span class="arrow">+</span></summary>
         <div class="amod-body">
           <p>A damages figure a claimant cites off the top of their head &mdash; "this cost us $5 million" &mdash; is not the same thing as a damages figure a funder can underwrite. Between those two things sits a substantial amount of work: a damages expert building a model (lost profits, unjust enrichment, a reasonable royalty in a patent case, diminished value in a commercial dispute), testing that model against the specific facts of the case, and producing a number that can survive cross-examination, not just sound plausible in conversation.</p>
           <p>Sophisticated investors don't take a single damages number at face value &mdash; they stress-test it across a range: a best case, an expected case, and a conservative case, then apply a probability-weighted view across that range rather than anchoring on the headline figure. They also scrutinize who built the model. A damages theory built by a credible, experienced expert who has survived Daubert challenges before carries real underwriting weight; the identical number produced without independent expert analysis is treated as, at best, a starting hypothesis.</p>
@@ -101,8 +144,8 @@
         </div>
       </details>
 
-      <details class="amod-lesson">
-        <summary><span class="n">03</span><span class="t">Merits versus collectability</span><span class="arrow">+</span></summary>
+      <details class="amod-lesson" data-id="m3">
+        <summary><span class="n">03</span><span class="t">Merits versus collectability</span><span class="check" title="Read">&#10003;</span><span class="arrow">+</span></summary>
         <div class="amod-body">
           <p>Here's a scenario that trips up almost everyone outside the industry: a claimant wins a $10 million judgment against a defendant who is, by the time judgment is entered, functionally insolvent. Legally, that's a complete victory. Financially, it may be worth close to zero &mdash; a judgment is only as valuable as the ability to actually collect on it. This is collectability, and funders treat it as a screening factor every bit as important as the strength of the underlying legal claim.</p>
           <p>Collectability analysis asks: is the defendant solvent, and will they still be solvent by the time a judgment is enforceable? Is there insurance coverage that will actually respond? Are there identifiable, reachable assets, and in what jurisdiction? A funder will often pass on a near-certain win against a judgment-proof defendant and take real interest in a messier liability picture against a defendant with clear, liquid assets &mdash; not because the merits don't matter, but because merits without collectability produce a moral victory, not a financial one.</p>
@@ -111,8 +154,8 @@
         </div>
       </details>
 
-      <details class="amod-lesson">
-        <summary><span class="n">04</span><span class="t">Why counsel and expert quality matter as much as the facts</span><span class="arrow">+</span></summary>
+      <details class="amod-lesson" data-id="m4">
+        <summary><span class="n">04</span><span class="t">Why counsel and expert quality matter as much as the facts</span><span class="check" title="Read">&#10003;</span><span class="arrow">+</span></summary>
         <div class="amod-body">
           <p>A funder cannot independently re-litigate every case before deciding whether to fund it, so they rely heavily on proxies for case quality &mdash; and two of the strongest proxies are who is trying the case and who is explaining it. Experienced litigators self-select into matters they genuinely believe in, know how to build a clean record, negotiate more effectively, and are far less likely to make the procedural missteps that quietly sink otherwise strong claims. Track record and resourcing become a real, if imperfect, signal of case quality itself.</p>
           <p>On technical and damages questions &mdash; which in patent, IP, and complex commercial litigation frequently decide the case outright &mdash; the expert witness matters just as much as counsel, arguably more. The December 2023 amendments to Federal Rule of Evidence 702 strengthened trial courts' obligation to police expert testimony before it ever reaches a jury. An expert who cannot survive that gatekeeping doesn't just weaken a case; they can end it before trial, regardless of how strong the underlying facts are. Sophisticated funders increasingly ask not just "has an expert been retained," but "is this expert credible enough to survive a Daubert challenge, and persuasive enough to actually move a jury."</p>
@@ -121,8 +164,8 @@
         </div>
       </details>
 
-      <details class="amod-lesson">
-        <summary><span class="n">05</span><span class="t">Time value of money and duration risk</span><span class="arrow">+</span></summary>
+      <details class="amod-lesson" data-id="m5">
+        <summary><span class="n">05</span><span class="t">Time value of money and duration risk</span><span class="check" title="Read">&#10003;</span><span class="arrow">+</span></summary>
         <div class="amod-body">
           <p>A dollar recovered next year is worth more than the same dollar recovered in five years &mdash; a basic finance principle that gets underweighted in most conversations about case merit, because claimants naturally focus on whether they'll win, not on how long winning will take. Litigation duration is genuinely uncertain and routinely extends through appeals, and every additional year a matter is outstanding is a year of capital tied up, unable to be redeployed, with the underlying risk of the case still live.</p>
           <p>This is a large part of why funders target internal rates of return in the 30% range rather than something closer to a typical lending rate: the target isn't just compensating for the risk of losing outright, it's compensating for years of illiquidity on capital that can't be touched until the case resolves. It's also why funding agreements are frequently structured with tranched capital releases tied to procedural milestones, rather than a single upfront payment &mdash; a way of managing duration risk by only committing more capital as the case actually progresses.</p>
@@ -131,8 +174,8 @@
         </div>
       </details>
 
-      <details class="amod-lesson">
-        <summary><span class="n">06</span><span class="t">Why a strong case can still be unfinanceable</span><span class="arrow">+</span></summary>
+      <details class="amod-lesson" data-id="m6">
+        <summary><span class="n">06</span><span class="t">Why a strong case can still be unfinanceable</span><span class="check" title="Read">&#10003;</span><span class="arrow">+</span></summary>
         <div class="amod-body">
           <p>Underwriting a single matter has real fixed costs &mdash; diligence, expert review, ongoing monitoring &mdash; and those costs don't scale down proportionally for smaller claims. That's why most institutional funders have effective minimum claim sizes, often in the $1&ndash;5 million range: below that threshold, even a genuinely strong case frequently can't generate enough expected return to justify the underwriting cost, no matter how favorable the liability and damages picture looks. A smaller, purpose-built tier of the market exists specifically to serve claims below that floor, but pricing there tends to be less favorable, reflecting the same fixed-cost economics at a smaller scale.</p>
           <p>Claim size isn't the only reason a strong case gets declined. A funder may already be overexposed to a particular sector, defendant, or geography and be managing concentration risk at the portfolio level, entirely independent of any individual case's merits. Reputational or publicity concerns, potential conflicts with other matters in the funder's book, or simply a mismatch with a fund's stated investment thesis can all produce a pass on a case that, evaluated purely on the facts, would score well.</p>
@@ -141,8 +184,8 @@
         </div>
       </details>
 
-      <details class="amod-lesson">
-        <summary><span class="n">07</span><span class="t">Zooming out: portfolio diversification</span><span class="arrow">+</span></summary>
+      <details class="amod-lesson" data-id="m7">
+        <summary><span class="n">07</span><span class="t">Zooming out: portfolio diversification</span><span class="check" title="Read">&#10003;</span><span class="arrow">+</span></summary>
         <div class="amod-body">
           <p>Everything up to this point has been about evaluating one case in isolation &mdash; the vantage point of a claimant looking at their own matter. Zoom out to how a fund actually operates, and the picture changes. Litigation outcomes are close to binary at the individual-case level &mdash; you tend to win big or recover little, with less middle ground than in most asset classes &mdash; and any single case genuinely is closer to a coin flip than most claimants are comfortable admitting.</p>
           <p>Funders manage that the way venture investors manage individual startup risk: not by trying to make every single case a winner, but by diversifying across many matters and accepting that a meaningful share &mdash; commonly cited in the 20&ndash;40% range &mdash; will produce little or no recovery, relying on a smaller number of outsized wins to carry the portfolio's overall return. That's also, notably, a genuine institutional selling point: litigation outcomes are largely uncorrelated with broader financial markets, which is part of why endowments, pensions, and hedge funds have been drawn to the asset class as a diversifier.</p>
@@ -151,6 +194,44 @@
         </div>
       </details>
 
+      <div class="academy-case-divider"><span>Now let's see all seven lessons at once, in a real case</span></div>
+
+      <details class="amod-lesson amod-case" data-id="case1">
+        <summary><span class="n case">CASE STUDY</span><span class="t">Petersen Energia v. Argentina &mdash; the YPF expropriation case</span><span class="check" title="Read">&#10003;</span><span class="arrow">+</span></summary>
+        <div class="amod-body">
+          <p>In 2012, Argentina expropriated a controlling stake in YPF, the country's largest oil company, without paying the tender offer the law required minority shareholders. Burford Capital eventually acquired the resulting legal claims &mdash; held by Petersen Energ&iacute;a, a bankrupt former YPF shareholder &mdash; out of a Spanish insolvency proceeding, and funded the case in U.S. federal court for roughly a decade. In September 2023, the Southern District of New York entered judgment for the plaintiffs at $16.1 billion, the largest funder-backed outcome on record. Argentina has resisted paying ever since, and enforcement is still being fought out across multiple jurisdictions today. It's a single real case that happens to touch nearly every lesson above.</p>
+          <p><strong>Liability and damages:</strong> the underlying claim was unusually clean on liability &mdash; Argentina's own bylaws required the tender offer, and it simply never made one &mdash; which is part of why the case attracted funding despite its scale. But the damages side is where the real work happened: three decades of foregone value in a nationalized oil company is not a number you can eyeball, and both sides fought for years over the valuation methodology before the court adopted a figure closer to the plaintiffs' model.</p>
+          <p><strong>Collectability &mdash; the central risk:</strong> this is the lesson this case illustrates best. Winning a $16.1 billion judgment against a sovereign is not the same as collecting it. Argentina is fighting enforcement on multiple fronts, and Burford itself has been candid that collection could take years more and may never reach the full judgment amount. A case can have the strongest liability and damages picture imaginable and still carry serious collectability risk simply because of who the defendant is.</p>
+          <p><strong>Duration and counsel/expert quality:</strong> from claim acquisition to judgment took roughly a decade, with enforcement still ongoing years later &mdash; a real-world illustration of just how long "long-duration" litigation finance can mean. And a valuation this size and this contested does not survive a decade of litigation without a damages case built by top-tier experts able to withstand exactly the kind of scrutiny Module 2 describes.</p>
+          <p><strong>Financeability economics and portfolio context:</strong> almost no funder in the world has the balance sheet to take a position this size &mdash; which is exactly the point of Module 6: financeability is bounded by a funder's own capital and portfolio construction, not just a case's merits. And the size of Burford's eventual return (a large majority of the proceeds, by public reporting) became its own controversy &mdash; a reminder from Module 7 that a single outsized position, even a winning one, carries concentration and reputational risk at the portfolio level, distinct from whether the underlying case was a good bet.</p>
+          <div class="amod-takeaway"><strong>Key idea:</strong> Real cases rarely score identically on every dimension. Petersen/YPF was about as strong as liability and damages get, and its defining risk was collectability &mdash; exactly the kind of profile these seven lessons are built to help you recognize in your own matter.</div>
+          <p class="amod-more"><a href="/disputes/petersen-energia-v-argentine-republic-ypf.html">Go deeper: the Dispute Library entry on Petersen Energia v. Argentine Republic &rarr;</a></p>
+        </div>
+      </details>
+
+    </div>
+
+    <div class="academy-quiz" id="academyQuiz">
+      <div class="section-head" style="margin-bottom:20px;">
+        <div class="eyebrow">Try it yourself</div>
+        <h2 style="font-size:26px;">Score a matter across these seven dimensions.</h2>
+        <p>Answer honestly about a hypothetical &mdash; or your own matter. This is a rough, educational self-check, not an assessment; for a real one, talk to the AI Concierge.</p>
+      </div>
+      <div id="quizQuestions"></div>
+      <button id="quizScoreBtn" type="button" class="btn-primary" style="border:none; cursor:pointer; padding:12px 24px; font-family:-apple-system,sans-serif; font-size:14px;">See my score &rarr;</button>
+      <div id="quizResult" class="quiz-result" style="display:none;"></div>
+    </div>
+
+    <div class="academy-download">
+      <div class="ad-eyebrow">Take it with you</div>
+      <h3>Download the Financeability Checklist</h3>
+      <p>A one-page PDF version of these seven questions, for whenever you're reviewing a matter without your laptop open.</p>
+      <button id="downloadToggle" type="button" class="btn-primary" style="border:none; cursor:pointer; padding:11px 20px; font-family:-apple-system,sans-serif; font-size:13.5px;">Get the PDF &rarr;</button>
+      <div id="downloadForm" class="download-form" style="display:none;">
+        <input id="dlName" type="text" placeholder="Name" />
+        <input id="dlEmail" type="email" placeholder="Email" />
+        <button id="dlSubmit" type="button" class="btn-primary" style="border:none; cursor:pointer;">Send me the PDF &rarr;</button>
+      </div>
     </div>
 
     <div class="academy-footer-cta">
@@ -189,6 +270,167 @@ var cta1 = document.getElementById('academyConciergeCta');
 var cta2 = document.getElementById('academyConciergeCta2');
 if(cta1) cta1.addEventListener('click', openConciergeForClaim);
 if(cta2) cta2.addEventListener('click', openConciergeForClaim);
+
+/* ---------------- Completion tracking ---------------- */
+(function(){
+  var STORAGE_KEY = 'academyProgressV1';
+  var lessons = Array.prototype.slice.call(document.querySelectorAll('.amod-lesson[data-id]'));
+  var total = lessons.length;
+  function loadProgress(){
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch(e){ return {}; }
+  }
+  function saveProgress(p){
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); } catch(e){}
+  }
+  function render(){
+    var p = loadProgress();
+    var readCount = 0;
+    lessons.forEach(function(el){
+      var id = el.getAttribute('data-id');
+      if(p[id]){ el.classList.add('amod-read'); readCount++; }
+    });
+    var pct = total ? Math.round((readCount / total) * 100) : 0;
+    var fill = document.getElementById('academyProgressFill');
+    var label = document.getElementById('academyProgressLabel');
+    if(fill) fill.style.width = pct + '%';
+    if(label) label.textContent = readCount + ' of ' + total + ' read';
+  }
+  lessons.forEach(function(el){
+    el.addEventListener('toggle', function(){
+      if(el.open){
+        var p = loadProgress();
+        p[el.getAttribute('data-id')] = true;
+        saveProgress(p);
+        render();
+      }
+    });
+  });
+  render();
+})();
+
+/* ---------------- Self-scoring quiz ---------------- */
+(function(){
+  var QUESTIONS = [
+    {dim:"Liability vs. damages", text:"How well can you quantify what a win is actually worth?", options:[
+      {label:"I have a rough sense, not modeled", v:1},
+      {label:"I have an estimate but no formal analysis", v:2},
+      {label:"An expert has modeled and can defend the number", v:3}
+    ]},
+    {dim:"Damages valuation", text:"Has the damages number been stress-tested by an expert?", options:[
+      {label:"No expert engaged yet", v:1},
+      {label:"Expert engaged, work still early", v:2},
+      {label:"Expert model complete and defensible", v:3}
+    ]},
+    {dim:"Collectability", text:"Can the defendant actually pay if you win?", options:[
+      {label:"Unknown or uncertain", v:1},
+      {label:"Some assets or insurance identified", v:2},
+      {label:"Clearly solvent, with identifiable reachable assets", v:3}
+    ]},
+    {dim:"Counsel & expert quality", text:"How experienced is your counsel/expert team for this specific type of matter?", options:[
+      {label:"Not yet engaged, or general practice", v:1},
+      {label:"Experienced, but new to this exact issue", v:2},
+      {label:"Deep track record in this exact type of case", v:3}
+    ]},
+    {dim:"Duration", text:"How far along is the matter, and how long until resolution?", options:[
+      {label:"Early — years likely remain", v:1},
+      {label:"Mid-litigation, timeline still uncertain", v:2},
+      {label:"Advanced stage, resolution likely within a year or two", v:3}
+    ]},
+    {dim:"Financeability economics", text:"Roughly how large is the expected recovery?", options:[
+      {label:"Under $1 million", v:1},
+      {label:"$1–5 million", v:2},
+      {label:"$5 million or more", v:3}
+    ]},
+    {dim:"Portfolio fit", text:"Is this matter free of concentration, conflict, or publicity concerns for a funder?", options:[
+      {label:"Not sure, or possible concerns", v:1},
+      {label:"Some overlap, but manageable", v:2},
+      {label:"Clean, no obvious portfolio conflicts", v:3}
+    ]}
+  ];
+  var container = document.getElementById('quizQuestions');
+  if(!container) return;
+  QUESTIONS.forEach(function(q, qi){
+    var div = document.createElement('div');
+    div.className = 'quiz-q';
+    var html = '<div class="qq-text">' + (qi+1) + '. ' + q.text + '</div>';
+    q.options.forEach(function(opt, oi){
+      html += '<label><input type="radio" name="quizq' + qi + '" value="' + opt.v + '"' + (oi===0 ? '' : '') + '> ' + opt.label + '</label>';
+    });
+    div.innerHTML = html;
+    container.appendChild(div);
+  });
+  var scoreBtn = document.getElementById('quizScoreBtn');
+  var resultEl = document.getElementById('quizResult');
+  if(scoreBtn){
+    scoreBtn.addEventListener('click', function(){
+      var scores = [];
+      var answeredAll = true;
+      QUESTIONS.forEach(function(q, qi){
+        var picked = container.querySelector('input[name="quizq' + qi + '"]:checked');
+        if(!picked){ answeredAll = false; scores.push(0); }
+        else { scores.push(parseInt(picked.value, 10)); }
+      });
+      if(!answeredAll){
+        resultEl.style.display = 'block';
+        resultEl.innerHTML = '<p class="qr-summary">Answer all seven questions to see a score — partial pictures make for misleading readouts, same as in a real assessment.</p>';
+        resultEl.scrollIntoView({behavior:'smooth', block:'nearest'});
+        return;
+      }
+      var total = scores.reduce(function(a,b){ return a+b; }, 0);
+      var rows = '';
+      QUESTIONS.forEach(function(q, qi){
+        var pct = Math.round((scores[qi] / 3) * 100);
+        rows += '<div class="qr-row"><div class="qr-label">' + q.dim + '</div><div class="qr-bar"><div class="qr-fill" style="width:' + pct + '%;"></div></div></div>';
+      });
+      var summary;
+      if(total <= 11){
+        summary = "Early stage. Several of the dimensions funders weigh most — damages modeling, collectability, expert engagement — still look open. That's normal well before a matter is ready to seek funding, but it also means any assessment right now would be preliminary in the fullest sense.";
+      } else if(total <= 16){
+        summary = "Developing. This reads like a real matter with real work already done, but with a few open questions — likely around damages support, collectability, or timeline — that would shape how a funder actually underwrites it.";
+      } else {
+        summary = "Strong on paper across most dimensions. That doesn't guarantee funding — portfolio fit and claim size still matter independent of merit — but this is the profile worth a full conversation about.";
+      }
+      resultEl.style.display = 'block';
+      resultEl.innerHTML = rows + '<div class="qr-summary">' + summary + ' This is a rough self-check, not an assessment — for a real one, <a href="#" id="quizConciergeLink">talk to the AI Concierge</a> about the actual matter.</div>';
+      resultEl.scrollIntoView({behavior:'smooth', block:'nearest'});
+      var link = document.getElementById('quizConciergeLink');
+      if(link) link.addEventListener('click', openConciergeForClaim);
+    });
+  }
+})();
+
+/* ---------------- PDF checklist download gate ---------------- */
+(function(){
+  var toggle = document.getElementById('downloadToggle');
+  var form = document.getElementById('downloadForm');
+  if(toggle && form){
+    toggle.addEventListener('click', function(){
+      form.style.display = form.style.display === 'none' ? 'flex' : 'none';
+    });
+  }
+  var submitBtn = document.getElementById('dlSubmit');
+  if(submitBtn){
+    submitBtn.addEventListener('click', function(){
+      var name = document.getElementById('dlName').value.trim();
+      var email = document.getElementById('dlEmail').value.trim();
+      if(!name || !email){ return; }
+      submitBtn.textContent = 'Sending...';
+      fetch('/api/lead', {
+        method:'POST',
+        headers:{'content-type':'application/json'},
+        body: JSON.stringify({
+          name: name,
+          email: email,
+          session: 'academy-pdf-download',
+          transcript: [{role:'user', text:'Requested the Financeability Checklist PDF from the Academy page.'}]
+        })
+      }).catch(function(){ /* still deliver the PDF even if the notification fails */ }).then(function(){
+        window.open('/financeability-checklist.pdf', '_blank');
+        form.innerHTML = '<div style="font-family:-apple-system,sans-serif; font-size:13.5px; color:var(--ink);">Opening the PDF now &mdash; thanks.</div>';
+      });
+    });
+  }
+})();
 </script>
 
 </body>

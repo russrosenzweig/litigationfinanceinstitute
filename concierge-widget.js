@@ -176,16 +176,26 @@ function saveState(state){
    machine). */
 function stripCoverageTag(text){
   const m = text.match(/<!--\s*COVERAGE:([^>]*)-->/i);
-  if(!m) return { clean: text, coverage: null };
-  const clean = text.replace(m[0], '').trim();
-  const coverage = {};
-  m[1].split(',').forEach(function(pair){
-    const kv = pair.split('=');
-    if(kv.length === 2){
-      coverage[kv[0].trim()] = kv[1].trim() === '1';
-    }
-  });
-  return { clean: clean, coverage: coverage };
+  if(m){
+    const clean = text.replace(m[0], '').trim();
+    const coverage = {};
+    m[1].split(',').forEach(function(pair){
+      const kv = pair.split('=');
+      if(kv.length === 2){
+        coverage[kv[0].trim()] = kv[1].trim() === '1';
+      }
+    });
+    return { clean: clean, coverage: coverage };
+  }
+  // Fail-safe: if a reply gets cut off mid-tag (e.g. hit the token limit
+  // right as it started the hidden marker), strip the dangling fragment so
+  // the user never sees a stray "<!--COVERAGE" in their chat. No coverage
+  // update happens that turn — better than leaking interface metadata.
+  const dangling = text.match(/<!--\s*C(O(V(E(R(A(G(E(:.*)?)?)?)?)?)?)?)?$/i);
+  if(dangling){
+    return { clean: text.slice(0, dangling.index).trim(), coverage: null };
+  }
+  return { clean: text, coverage: null };
 }
 
 /* ---------------- FLOATING SHELL (non-homepage pages) ---------------- */

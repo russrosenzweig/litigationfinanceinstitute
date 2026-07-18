@@ -43,7 +43,7 @@ exports.handler = async (event) => {
       },
       body: JSON.stringify({
         model: MODEL,
-        max_tokens: 1000,
+        max_tokens: 1300,
         system: system,
         messages: messages.map(m => ({ role: m.role, content: m.content }))
       })

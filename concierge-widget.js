@@ -136,21 +136,22 @@ function findDemoMatch(text){
 }
 
 /* ---------------- PERSISTENCE (sessionStorage) ---------------- */
-const SK = { role:'lfi_role_key', convo:'lfi_convo', display:'lfi_display', session:'lfi_session_id', engaged:'lfi_engaged_tracked' };
+const SK = { role:'lfi_role_key', convo:'lfi_convo', display:'lfi_display', session:'lfi_session_id', engaged:'lfi_engaged_tracked', coverage:'lfi_coverage' };
 
 function loadState(){
   try{
     const roleKey = sessionStorage.getItem(SK.role) || null;
     const convo = JSON.parse(sessionStorage.getItem(SK.convo) || '[]');
     const displayLog = JSON.parse(sessionStorage.getItem(SK.display) || '[]');
+    const coverage = JSON.parse(sessionStorage.getItem(SK.coverage) || '{}');
     let sessionId = sessionStorage.getItem(SK.session);
     if(!sessionId){
       sessionId = 'session-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
       sessionStorage.setItem(SK.session, sessionId);
     }
-    return { roleKey, convo, displayLog, sessionId };
+    return { roleKey, convo, displayLog, sessionId, coverage };
   }catch(e){
-    return { roleKey:null, convo:[], displayLog:[], sessionId:'session-' + Date.now().toString(36) };
+    return { roleKey:null, convo:[], displayLog:[], sessionId:'session-' + Date.now().toString(36), coverage:{} };
   }
 }
 
@@ -159,7 +160,42 @@ function saveState(state){
     sessionStorage.setItem(SK.role, state.roleKey || '');
     sessionStorage.setItem(SK.convo, JSON.stringify(state.convo));
     sessionStorage.setItem(SK.display, JSON.stringify(state.displayLog));
+    sessionStorage.setItem(SK.coverage, JSON.stringify(state.coverage || {}));
   }catch(e){ /* storage unavailable (private browsing, etc.) — chat still works, just won't persist */ }
+}
+
+/* ---------------- DIMENSION COVERAGE SIGNAL ----------------
+   The live system prompt (see server.js / netlify/functions/_shared.js,
+   "DIMENSION COVERAGE SIGNAL") appends a hidden HTML-comment line to the end
+   of each reply during a claimant/lawyer case conversation, e.g.:
+     <!--COVERAGE:liability=1,damages=0,collectability=1,...-->
+   This is interface metadata, never meant to be shown. We strip it out of
+   the displayed/stored text and use it to light up the coverage chips —
+   once a dimension lights up it stays lit for the rest of the session, even
+   if a later reply's tag omits it (best-effort signal, not a strict state
+   machine). */
+function stripCoverageTag(text){
+  const m = text.match(/<!--\s*COVERAGE:([^>]*)-->/i);
+  if(m){
+    const clean = text.replace(m[0], '').trim();
+    const coverage = {};
+    m[1].split(',').forEach(function(pair){
+      const kv = pair.split('=');
+      if(kv.length === 2){
+        coverage[kv[0].trim()] = kv[1].trim() === '1';
+      }
+    });
+    return { clean: clean, coverage: coverage };
+  }
+  // Fail-safe: if a reply gets cut off mid-tag (e.g. hit the token limit
+  // right as it started the hidden marker), strip the dangling fragment so
+  // the user never sees a stray "<!--COVERAGE" in their chat. No coverage
+  // update happens that turn — better than leaking interface metadata.
+  const dangling = text.match(/<!--\s*C(O(V(E(R(A(G(E(:.*)?)?)?)?)?)?)?)?$/i);
+  if(dangling){
+    return { clean: text.slice(0, dangling.index).trim(), coverage: null };
+  }
+  return { clean: text, coverage: null };
 }
 
 /* ---------------- FLOATING SHELL (non-homepage pages) ---------------- */
@@ -176,6 +212,18 @@ function buildFloatingShell(hasExistingConvo){
       <div class="who">AI Concierge</div>
       <div class="sub">Senior Fellow for Litigation Finance</div>
       <div class="sub" id="chStatus" style="color:#7A869E; font-size:11px; margin-top:4px;">Demo mode &mdash; run the local server to activate live answers</div>
+    </div>
+    <div class="coverage-bar" id="coverageBar">
+      <div class="cov-label">Assessment coverage</div>
+      <div class="cov-chips" id="covChips">
+        <span class="cov-chip" data-dim="liability">Liability</span>
+        <span class="cov-chip" data-dim="damages">Damages</span>
+        <span class="cov-chip" data-dim="collectability">Collectability</span>
+        <span class="cov-chip" data-dim="counsel">Counsel</span>
+        <span class="cov-chip" data-dim="duration">Duration</span>
+        <span class="cov-chip" data-dim="economics">Economics</span>
+        <span class="cov-chip" data-dim="portfolio">Portfolio</span>
+      </div>
     </div>
     <div class="ch-log" id="chLog">
       <div class="msg ai">${WELCOME_HTML}</div>
@@ -222,8 +270,31 @@ function wireLogic(){
   let roleKey = state.roleKey;
   let audience = roleKey && ROLES[roleKey] ? ROLES[roleKey].audience : null;
   const sessionId = state.sessionId;
+  let coverage = state.coverage || {};
 
-  function persist(){ saveState({ roleKey, convo, displayLog }); }
+  function persist(){ saveState({ roleKey, convo, displayLog, coverage }); }
+
+  const coverageBar = document.getElementById('coverageBar');
+
+  function renderCoverage(){
+    if(!coverageBar) return;
+    const anyDone = Object.keys(coverage).some(function(k){ return coverage[k]; });
+    coverageBar.classList.toggle('show', anyDone);
+    coverageBar.querySelectorAll('.cov-chip').forEach(function(chip){
+      chip.classList.toggle('done', Boolean(coverage[chip.dataset.dim]));
+    });
+  }
+
+  function updateCoverage(newCoverage){
+    if(!newCoverage) return;
+    Object.keys(newCoverage).forEach(function(k){
+      // Once a dimension lights up, it stays lit for the session — a later
+      // reply's tag can only add coverage, never remove it.
+      if(newCoverage[k]) coverage[k] = true;
+    });
+    persist();
+    renderCoverage();
+  }
 
   // Resume a previous conversation, if one exists in this browser session.
   if(displayLog.length > 0){
@@ -236,6 +307,7 @@ function wireLogic(){
     });
     chLog.scrollTop = chLog.scrollHeight;
     if(roleKey && ROLES[roleKey]){ setFollowups(ROLES[roleKey].followups); }
+    renderCoverage();
   }
 
   function formatMsg(text){
@@ -346,9 +418,11 @@ function wireLogic(){
     }).then(function(res){
       return res.json().then(function(data){
         if(!res.ok) throw new Error(data.error || 'Request failed');
-        finalizeAiReply(typing, formatMsg(data.reply));
-        convo.push({ role:'assistant', content: data.reply });
+        const parsed = stripCoverageTag(data.reply || '');
+        finalizeAiReply(typing, formatMsg(parsed.clean));
+        convo.push({ role:'assistant', content: parsed.clean });
         persist();
+        if(parsed.coverage) updateCoverage(parsed.coverage);
       });
     }).catch(function(e){
       typing.innerHTML = "Something went wrong reaching the live AI (" + e.message + "). Falling back to demo mode for this message.";

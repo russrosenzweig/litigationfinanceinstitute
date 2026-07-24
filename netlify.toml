@@ -4,10 +4,14 @@
   # netlify/functions/corpus-data.json from research.html/financiers.html/
   # disputes.html, so the AI Concierge's corpus can never silently drift out
   # of sync with the actual site content the way it did under manual deploys.
+<<<<<<< HEAD
   # It then pings IndexNow with every sitemap URL so Bing (and the AI answer
   # engines that lean on Bing's index) picks up changes without waiting on a
   # crawl cycle. The IndexNow step fails soft and never blocks the deploy.
   command = "node scripts/build-corpus.js && node scripts/indexnow-submit.js"
+=======
+  command = "node scripts/build-corpus.js && node scripts/indexnow-submit.js"  
+>>>>>>> 9b3b2e9a900f70445d30281f9a39a774f4fd278a
   publish = "."
   functions = "netlify/functions"
 

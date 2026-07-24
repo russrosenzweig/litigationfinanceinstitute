@@ -4,7 +4,7 @@
   # netlify/functions/corpus-data.json from research.html/financiers.html/
   # disputes.html, so the AI Concierge's corpus can never silently drift out
   # of sync with the actual site content the way it did under manual deploys.
-  command = "node scripts/build-corpus.js"
+  command = "node scripts/build-corpus.js && node scripts/indexnow-submit.js"  
   publish = "."
   functions = "netlify/functions"
 

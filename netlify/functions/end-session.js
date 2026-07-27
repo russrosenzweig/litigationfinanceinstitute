@@ -51,7 +51,7 @@ exports.handler = async (event) => {
 
   try {
     await sendMail(
-      `Institute chat transcript — session ${session}`,
+      `Litigation Finance Institute chat transcript — session ${session}`,
       `Audience: ${audience || "not yet identified"}\n\n${transcriptText(transcript)}`
     );
   } catch (e) {

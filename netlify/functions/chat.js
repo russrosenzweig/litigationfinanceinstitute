@@ -43,7 +43,7 @@ exports.handler = async (event) => {
       },
       body: JSON.stringify({
         model: MODEL,
-        max_tokens: 1300,
+        max_tokens: 2600,
         system: system,
         messages: messages.map(m => ({ role: m.role, content: m.content }))
       })
@@ -60,7 +60,10 @@ exports.handler = async (event) => {
     }
 
     const data = await response.json();
-    const reply = (data.content || []).map(block => block.text || "").join("");
+    let reply = (data.content || []).map(block => block.text || "").join("");
+    reply = (reply || "").trim();
+    if (!reply) console.error("Empty reply from Anthropic API, stop_reason: " + (data.stop_reason || "unknown"));
+    if (!reply) reply = "Sorry - my reply did not come through properly just now. Could you say continue, or ask that again?";
 
     // Note: unlike the old version of this function, we no longer email a
     // running transcript on every single turn — that got noisy fast on any

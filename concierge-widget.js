@@ -419,8 +419,9 @@ function wireLogic(){
       return res.json().then(function(data){
         if(!res.ok) throw new Error(data.error || 'Request failed');
         const parsed = stripCoverageTag(data.reply || '');
-        finalizeAiReply(typing, formatMsg(parsed.clean));
-        convo.push({ role:'assistant', content: parsed.clean });
+          const cleanReply = (parsed.clean || '').trim() ? parsed.clean : "Sorry - my reply did not come through properly just now. Could you say continue, or ask that again?";
+          finalizeAiReply(typing, formatMsg(cleanReply));
+          convo.push({ role:'assistant', content: cleanReply });
         persist();
         if(parsed.coverage) updateCoverage(parsed.coverage);
       });

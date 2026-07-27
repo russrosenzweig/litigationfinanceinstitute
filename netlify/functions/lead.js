@@ -27,7 +27,7 @@ exports.handler = async (event) => {
     Array.isArray(transcript) ? transcriptText(transcript) : "(no transcript provided)"
   ].join("\n");
 
-  const result = await sendMail(`New Institute follow-up request from ${name}`, text);
+  const result = await sendMail(`Litigation Finance Institute follow-up request from ${name}`, text);
   if (result && result.skipped) {
     return {
       statusCode: 200,

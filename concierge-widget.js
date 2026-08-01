@@ -271,6 +271,14 @@ function wireLogic(){
   let audience = roleKey && ROLES[roleKey] ? ROLES[roleKey].audience : null;
   const sessionId = state.sessionId;
   let coverage = state.coverage || {};
+  // Guards against overlapping in-flight requests: without this, a user who
+  // clicks Send twice, presses Enter then clicks Send, or fires several role
+  // chips/messages in quick succession before the first reply lands can end
+  // up with duplicate user turns and/or duplicate AI replies stacking up in
+  // the log — each overlapping call independently hits /api/chat and appends
+  // its own response. Set true the moment a request starts, cleared once it
+  // resolves (success or failure).
+  let sending = false;
 
   function persist(){ saveState({ roleKey, convo, displayLog, coverage }); }
 
@@ -400,7 +408,27 @@ function wireLogic(){
   });
   window.addEventListener('pagehide', function(){ sendEndSession(true); });
 
+  function setSendingUI(isSending){
+    sending = isSending;
+    const inputEl = document.getElementById('chInput');
+    const sendEl = document.getElementById('chSend');
+    if(inputEl) inputEl.disabled = isSending;
+    if(sendEl) sendEl.disabled = isSending;
+    // Inline styles rather than a CSS class, so this doesn't depend on a
+    // matching rule existing in styles.css — guaranteed visual feedback
+    // that a reply is in flight, not just a silently-ignored click.
+    document.querySelectorAll('.prompt-chip').forEach(function(chip){
+      chip.style.pointerEvents = isSending ? 'none' : '';
+      chip.style.opacity = isSending ? '0.5' : '';
+    });
+  }
+
   function askLive(userText){
+    // Defensive guard: every caller below already checks `sending` before
+    // reaching this point, but this stays in place too, since askLive is the
+    // one chokepoint that actually hits the network.
+    if(sending) return Promise.resolve();
+    setSendingUI(true);
     convo.push({ role:'user', content: userText });
     persist();
     resetIdleTimer();
@@ -428,6 +456,8 @@ function wireLogic(){
     }).catch(function(e){
       typing.innerHTML = "Something went wrong reaching the live AI (" + e.message + "). Falling back to demo mode for this message.";
       chLog.scrollTop = chLog.scrollHeight;
+    }).finally(function(){
+      setSendingUI(false);
     });
   }
 
@@ -446,6 +476,7 @@ function wireLogic(){
   }
 
   function selectRole(key, label){
+    if(sending) return;
     const role = ROLES[key];
     if(!role) return;
     roleKey = key;
@@ -461,6 +492,7 @@ function wireLogic(){
   }
 
   function runDemo(key, label){
+    if(sending) return;
     const entry = demos[key];
     if(!entry) return;
     addMsg('user', label || 'Tell me more');
@@ -470,6 +502,7 @@ function wireLogic(){
   }
 
   function startAssessment(){
+    if(sending) return;
     const msg = "I'd like to start my case assessment.";
     addMsg('user', msg);
     if(LIVE){ askLive(msg); return; }
@@ -482,6 +515,7 @@ function wireLogic(){
   function wireChips(){
     document.querySelectorAll('.prompt-chip').forEach(function(btn){
       btn.addEventListener('click', function(){
+        if(sending) return;
         if(btn.dataset.role){ selectRole(btn.dataset.role, btn.textContent); return; }
         if(btn.dataset.action === 'assessment'){ startAssessment(); return; }
         if(btn.dataset.demo){ runDemo(btn.dataset.demo, btn.textContent); return; }
@@ -494,6 +528,7 @@ function wireLogic(){
   const chSend = document.getElementById('chSend');
 
   function sendCustom(){
+    if(sending) return;
     const val = chInput.value.trim();
     if(!val) return;
     addMsg('user', val);
@@ -519,9 +554,11 @@ function wireLogic(){
       followupForm.style.display = followupForm.style.display === 'none' ? 'flex' : 'none';
     });
   }
+  let leadSending = false;
   const fuSubmit = document.getElementById('fuSubmit');
   if(fuSubmit){
     fuSubmit.addEventListener('click', function(){
+      if(leadSending) return; // guard against a double-click firing this twice
       const name = document.getElementById('fuName').value.trim();
       const email = document.getElementById('fuEmail').value.trim();
       const phone = document.getElementById('fuPhone').value.trim();
@@ -529,6 +566,8 @@ function wireLogic(){
         addMsg('ai', "I'll need at least a name and email to pass this along.");
         return;
       }
+      leadSending = true;
+      fuSubmit.disabled = true;
       addMsg('user', "Please have the Institute's Executive Director follow up. Name: " + name + ", Email: " + email + (phone ? ', Phone: ' + phone : '') + ".");
       followupForm.style.display = 'none';
       document.getElementById('fuName').value = '';
@@ -549,6 +588,9 @@ function wireLogic(){
       }).catch(function(e){
         typing.innerHTML = "Thanks for sharing that &mdash; I wasn't able to confirm it sent (" + e.message + "), but your details are noted in this conversation.";
         chLog.scrollTop = chLog.scrollHeight;
+      }).finally(function(){
+        leadSending = false;
+        fuSubmit.disabled = false;
       });
     });
   }

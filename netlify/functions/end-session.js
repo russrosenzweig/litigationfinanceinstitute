@@ -1,8 +1,8 @@
 const { getStore } = require("@netlify/blobs");
 const { sendMail, transcriptText, JSON_HEADERS } = require("./_shared");
 
-// Called once by the client when a chat conversation actually wraps up —
-// the browser tab closes/hides, or the user goes idle for a while — rather
+// Called once by the client when a chat conversation actually wraps up,
+// the browser tab closes/hides, or the user goes idle for a while, rather
 // than on every single turn (see concierge-widget.js). Sends ONE
 // consolidated transcript email per session, and uses a small Blobs store
 // as a dedupe guard so a slow network retry or multiple end-of-session
@@ -31,7 +31,7 @@ exports.handler = async (event) => {
 
   // Keyed on transcript length, not just session id, so a conversation that
   // resumes after an idle-triggered send (rare, but possible) still gets a
-  // follow-up email covering the new tail — while two near-simultaneous
+  // follow-up email covering the new tail, while two near-simultaneous
   // signals for the same final state (e.g. visibilitychange + beforeunload)
   // still only send once.
   const dedupeKey = `${session}::${transcript.length}`;
@@ -51,7 +51,7 @@ exports.handler = async (event) => {
 
   try {
     await sendMail(
-      `Litigation Finance Institute chat transcript — session ${session}`,
+      `Litigation Finance Institute chat transcript, session ${session}`,
       `Audience: ${audience || "not yet identified"}\n\n${transcriptText(transcript)}`
     );
   } catch (e) {

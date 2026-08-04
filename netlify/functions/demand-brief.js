@@ -1,7 +1,7 @@
 const { JSON_HEADERS } = require("./_shared");
 const { buildDemandBrief } = require("./_insights");
 
-// Funder-facing "State of Demand" brief — ranked, percented, windowed. Powers
+// Funder-facing "State of Demand" brief, ranked, percented, windowed. Powers
 // for-funders.html. Read-only; safe to call as often as the page loads.
 exports.handler = async () => {
   try {

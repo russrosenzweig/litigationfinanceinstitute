@@ -32,7 +32,7 @@ exports.handler = async (event) => {
     return {
       statusCode: 200,
       headers: JSON_HEADERS,
-      body: JSON.stringify({ ok: false, message: "Email isn't configured on this site yet (see NETLIFY_DEPLOY.md), so this request wasn't sent anywhere — but nothing broke." })
+      body: JSON.stringify({ ok: false, message: "Email isn't configured on this site yet (see NETLIFY_DEPLOY.md), so this request wasn't sent anywhere, but nothing broke." })
     };
   }
   return { statusCode: 200, headers: JSON_HEADERS, body: JSON.stringify({ ok: true }) };

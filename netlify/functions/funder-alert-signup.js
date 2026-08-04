@@ -1,7 +1,7 @@
 const { JSON_HEADERS, sendMail } = require("./_shared");
 const { saveFunderAlert } = require("./_insights");
 
-// Funder registers Deal Alert criteria — matter categories, claim size
+// Funder registers Deal Alert criteria, matter categories, claim size
 // buckets, jurisdictions (any of these left empty means "any"). Stored in
 // Netlify Blobs and matched against every subsequent tagged conversation
 // (see _insights.js's matchAndNotifyFunders, called from chat.js).
@@ -43,12 +43,12 @@ exports.handler = async (event) => {
   }
 
   await sendMail(
-    `New Deal Alert signup — ${alert.firm}`,
+    `New Deal Alert signup, ${alert.firm}`,
     `Name: ${alert.name || "(not provided)"}\nFirm: ${alert.firm}\nEmail: ${alert.email}\nCategories: ${alert.categories.join(", ") || "any"}\nClaim size buckets: ${alert.claimSizeBuckets.join(", ") || "any"}\nJurisdictions: ${alert.jurisdictions.join(", ") || "any"}\nNotes: ${alert.notes || "(none)"}`
   );
   await sendMail(
     `You're set up for Institute Deal Alerts`,
-    `Thanks for registering, ${alert.name || "there"} — you're now set up to receive Deal Alerts from the Institute for Litigation Finance for matters matching:\n\nCategories: ${alert.categories.join(", ") || "any"}\nClaim size: ${alert.claimSizeBuckets.join(", ") || "any"}\nJurisdictions: ${alert.jurisdictions.join(", ") || "any"}\n\nEach alert is anonymized — no claimant names or contact details — and any introduction still runs through the Institute. Reply "unsubscribe" at any time to stop.\n\n— Institute for Litigation Finance`,
+    `Thanks for registering, ${alert.name || "there"}, you're now set up to receive Deal Alerts from the Institute for Litigation Finance for matters matching:\n\nCategories: ${alert.categories.join(", ") || "any"}\nClaim size: ${alert.claimSizeBuckets.join(", ") || "any"}\nJurisdictions: ${alert.jurisdictions.join(", ") || "any"}\n\nEach alert is anonymized, no claimant names or contact details, and any introduction still runs through the Institute. Reply "unsubscribe" at any time to stop.\n\n, Institute for Litigation Finance`,
     alert.email
   );
 

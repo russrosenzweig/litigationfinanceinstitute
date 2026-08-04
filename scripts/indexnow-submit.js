@@ -6,7 +6,7 @@
 <<<<<<< HEAD
 // This runs automatically as part of the Netlify build (see netlify.toml)
 // on every deploy, so it never needs to be triggered by hand. It fails soft:
-// if the IndexNow API is unreachable or errors, the build still succeeds —
+// if the IndexNow API is unreachable or errors, the build still succeeds,
 =======
 // Runs automatically as part of the Netlify build (see netlify.toml) on
 // every deploy, so it never needs to be triggered by hand. It fails soft:

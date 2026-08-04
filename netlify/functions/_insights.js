@@ -1,10 +1,10 @@
 // Conversation insights + funder Deal Alerts, backed by Netlify Blobs.
 //
 // Netlify Functions don't share a persistent local disk the way server.js's
-// Express process does — writes to /tmp can vanish the moment a function's
+// Express process does, writes to /tmp can vanish the moment a function's
 // execution environment is recycled. Netlify Blobs is Netlify's own durable
 // key/value store, scoped to this site, reachable from any function
-// invocation — so it's the serverless-appropriate equivalent of the local
+// invocation, so it's the serverless-appropriate equivalent of the local
 // data/insights.jsonl and data/funder-alerts.jsonl files server.js uses.
 //
 // Mirrors the logic in server.js as closely as possible so the two stay easy
@@ -23,13 +23,13 @@ const INSIGHTS_SCHEMA_PROMPT = `You are a data-tagging function, not a conversat
 
 {
   "audience": one of "claimant" | "lawyer" | "funder" | "researcher" | "other" | "unknown",
-  "matter_category": a short category string (e.g. "commercial dispute", "IP/patent", "mass tort", "construction", "securities", "portfolio financing", "not yet known") — infer from the taxonomy of a litigation finance research library if possible, otherwise "not yet known",
+  "matter_category": a short category string (e.g. "commercial dispute", "IP/patent", "mass tort", "construction", "securities", "portfolio financing", "not yet known"), infer from the taxonomy of a litigation finance research library if possible, otherwise "not yet known",
   "claim_size_bucket": one of "<$250k" | "$250k-$2M" | "$2M-$10M" | "$10M+" | "unknown",
   "jurisdiction": a short jurisdiction string if mentioned (e.g. "New York", "UK", "federal - 7th Circuit") or "unknown",
   "funder_criteria_summary": if audience is "funder", a short (<25 word) neutral summary of the investment criteria they described, else empty string "",
   "key_topics": an array of up to 5 short lowercase tags (e.g. ["champerty", "settlement authority", "disclosure"]),
-  "exchange_mentioned": true or false — whether the Exchange or Middle-Market Placement Service came up,
-  "stage": one of "early" | "mid" | "assessment given" | "closing" — how far the conversation got.
+  "exchange_mentioned": true or false, whether the Exchange or Middle-Market Placement Service came up,
+  "stage": one of "early" | "mid" | "assessment given" | "closing", how far the conversation got.
 
 Never include names, email addresses, phone numbers, company names of claimants, or any verbatim quotes that could identify a real person or specific real dispute. Funder names (e.g. "Burford", "Legalist") are fine since those are public companies, not private individuals. If information for a field genuinely isn't present, use the "unknown"/"not yet known"/empty-string/false default shown above rather than guessing.`;
 
@@ -121,7 +121,7 @@ async function matchAndNotifyFunders(session, tags) {
       ``,
       `No identifying details are included in this notice by design. If you'd like the Institute to explore whether an introduction makes sense through the Exchange, just reply to this email.`,
       ``,
-      `— Institute for Litigation Finance`,
+      `, Institute for Litigation Finance`,
       `To stop receiving Deal Alerts, reply "unsubscribe" and we'll remove ${alert.email}.`
     ].join("\n");
 
@@ -148,7 +148,7 @@ async function recordInsight(session, audience, messages) {
 
   // Check this conversation's tags against registered funder Deal Alerts.
   // Awaited (not fire-and-forget) since a Netlify Function's execution
-  // environment can freeze the moment its caller returns — see chat.js.
+  // environment can freeze the moment its caller returns, see chat.js.
   try {
     await matchAndNotifyFunders(session, tags);
   } catch (e) { console.error("Deal Alert matching failed (non-fatal):", e.message); }

@@ -617,7 +617,9 @@ app.post("/api/chat", async (req, res) => {
     ? `${SYSTEM_PROMPT}\n\n=== CURRENT CONVERSATION CONTEXT ===\nThe interface already told you this user's role: "${audience}". Do not ask the role-detection question, go directly into the matching flow described above for that constituency.`
     : SYSTEM_PROMPT;
 
-  try {
+  // One API call to the Messages endpoint. Shared by the initial attempt, the
+  // empty-reply retry, and the max_tokens continuation below.
+  const callClaude = async (msgs) => {
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -627,21 +629,58 @@ app.post("/api/chat", async (req, res) => {
       },
       body: JSON.stringify({
         model: MODEL,
-        max_tokens: 2600,
+        max_tokens: 4000,
         system: system,
-        messages: messages.map(m => ({ role: m.role, content: m.content }))
+        messages: msgs.map(m => ({ role: m.role, content: m.content }))
       })
     });
-
     if (!response.ok) {
       const errText = await response.text();
-      console.error("Anthropic API error:", response.status, errText);
-      return res.status(502).json({ error: `Anthropic API error (${response.status}). Check your API key and model name.` });
+      const err = new Error(`Anthropic API error (${response.status})`);
+      err.status = response.status;
+      err.body = errText;
+      throw err;
+    }
+    const data = await response.json();
+    return {
+      text: ((data.content || []).map(block => block.text || "").join("")).trim(),
+      stopReason: data.stop_reason || "unknown"
+    };
+  };
+
+  try {
+    // Initial attempt, with ONE silent retry if the API returns an empty
+    // reply. An empty reply is rare but real (observed in production), and
+    // showing the user an apology when a simple retry usually succeeds is a
+    // worse experience than a moment's extra wait.
+    let result = await callClaude(messages);
+    if (!result.text) {
+      console.error("Empty reply from Anthropic API (stop_reason: " + result.stopReason + "), retrying once");
+      result = await callClaude(messages);
     }
 
-    const data = await response.json();
-    let reply = ((data.content || []).map(block => block.text || "").join("")).trim();
-    if (!reply) console.error("Empty reply from Anthropic API, stop_reason: " + (data.stop_reason || "unknown"));
+    let reply = result.text;
+
+    // If the reply hit the token cap it likely ends mid-sentence (observed in
+    // production: a reply ending "personal-injury-ad"). Ask the model to
+    // continue once, then stitch the two halves together. One continuation is
+    // enough at this cap; if it somehow hits the cap twice we take what we have.
+    if (reply && result.stopReason === "max_tokens") {
+      console.error("Reply hit max_tokens, requesting continuation");
+      try {
+        const continuation = await callClaude([
+          ...messages,
+          { role: "assistant", content: reply }
+        ]);
+        if (continuation.text) reply = reply + continuation.text;
+      } catch (contErr) {
+        // A failed continuation is not fatal, serve the truncated reply
+        // rather than failing a response we already have most of.
+        console.error("Continuation request failed:", contErr.message);
+      }
+    }
+
+    if (!reply) console.error("Empty reply from Anthropic API after retry");
     if (!reply) reply = "Sorry - my reply did not come through properly just now. Could you say continue, or ask that again?";
     res.json({ reply });
 

@@ -40,22 +40,30 @@ compliance section below, this is not a stylistic preference.
 
 ## Repository map
 
-- `server.js` — Express server, the AI Concierge backend, and the system prompt. The most
+- `server.js`, Express server, the AI Concierge backend, and the system prompt. The most
   important file in the repo. See the next section.
-- `concierge-widget.js` — the persistent chat widget injected into every page. Contains
+- `concierge-widget.js`, the persistent chat widget injected into every page. Contains
   the demo-mode fallback replies, the coverage-dimension indicator, the lead-capture
   form, GA4 event firing, and `sending`/`leadSending` duplicate-submit guards.
-- `financiers.html` — 40 funder profiles. `const financiers = [...]` is parsed directly
+- `financiers.html`, 40 funder profiles. `const financiers = [...]` is parsed directly
   out of this file by `server.js` at boot and becomes part of the concierge corpus. Same
   pattern for `research.html` (`const articles`) and `disputes.html` (`const disputes`).
   **Editing these HTML files updates the bot's knowledge. There is no separate corpus.**
-- `research/` — 46 research library articles. `disputes/` — 38 dispute pages.
-  `financiers/` — funder detail pages.
+- `research/`, 51 research library articles. `disputes/`, 38 dispute pages.
+  `financiers/`, funder detail pages.
+- `scholarship.html`, an annotated bibliography of the academic literature, and
+  `primary-sources.html`, the official government/court/bar documents. Both are
+  standalone pages, NOT parsed into the concierge corpus, so the system prompt
+  references them explicitly instead. Update the prompt if either page changes
+  substantially.
 - `index.html`, `about.html`, `academy.html`, `for-funders.html`, `terms.html`,
   `privacy.html`, `russ-rosenzweig-executive-director.html`.
-- `data/` — runtime only, gitignored: `insights.jsonl` (anonymized conversation tags),
+- `data/`, runtime only, gitignored: `insights.jsonl` (anonymized conversation tags),
   `funder-alerts.jsonl` (funder Deal Alert registrations).
-- `scripts/indexnow-submit.js` — IndexNow protocol submissions for Bing/AI-engine indexing.
+- `scripts/indexnow-submit.js`, IndexNow protocol submissions for Bing/AI-engine indexing.
+- `llms.txt` at root is the AI-crawler manifest and carries its own summary of the site,
+  including article and funder counts. It goes stale easily; update it whenever you add
+  a section or change a count.
 - `robots.txt` explicitly allowlists AI crawlers; `llms.txt` exists at root.
 
 ## The system prompt
@@ -96,6 +104,18 @@ Behavioural rules currently encoded:
     never emit it for funders or researchers.
 11. **Naming specific financiers is encouraged**, always framed as educational
     pattern-matching against public criteria, never a live-availability check.
+12. **Reasoning frameworks from the scholarship.** A section teaches the bot to reason
+    with the academic frameworks rather than just cite them: funding as venture capital
+    rather than a loan, staged capital release as a series of call options, separation
+    of ownership from control as the root governance problem, and holding the empirical
+    evidence honestly (funders are measurably selective, but funding's aggregate effect
+    on litigation volume is unsettled). Use the ideas without footnotes for claimants;
+    name sources for lawyers, funders, and academics.
+13. **Regulatory grounding.** The bot knows there is no federal statute specifically
+    regulating funding and no national disclosure rule, that a Rule 26 amendment has been
+    under study since October 2024, and that consumer and commercial funding are distinct
+    businesses whose rules should not be conflated. It points lawyers and funders to
+    `/primary-sources.html` by name.
 
 ## Compliance, non-negotiable
 
@@ -127,8 +147,16 @@ Behavioural rules currently encoded:
 
 ```
 node -c server.js && node -c concierge-widget.js
-grep -rn "—\|–" --include="*.html" --include="*.js" .   # expect only the style rule in server.js
+git ls-files -z | xargs -0 grep -Iln "\xe2\x80\x94\|\xe2\x80\x93"   # dash sweep, ALL tracked text files
 ```
+
+Sweep every tracked text file, not just `*.html` and `*.js`. An earlier narrower version
+of this check missed dashes that had survived in `llms.txt`, the Markdown docs, and
+`netlify/functions/corpus-data.json`. Expect only the style rule in `server.js` (which
+names the forbidden characters) to match. As of August 2026 the Markdown dev docs
+(`GOING_LIVE.md`, `NETLIFY_DEPLOY.md`, `RUNNING_LOCALLY.md`), `.env.example`,
+`netlify.toml`, and the stale `corpus-data.json` still contain dashes; they are not
+site copy or bot output, so they are lower priority, but they are not clean either.
 
 After editing `financiers.html`, `research.html`, or `disputes.html`, confirm the array
 still parses the way `server.js` reads it (find `const X = [`, read to the line that is

@@ -301,9 +301,82 @@ function loadFunderAlerts() {
     .filter(a => a.active !== false);
 }
 
+// Mirror every alert to an external webhook as well as local disk, for the
+// same reason insights are mirrored: see the DURABILITY note below.
+const FUNDER_ALERTS_WEBHOOK_URL = process.env.FUNDER_ALERTS_WEBHOOK_URL || null;
+
 function saveFunderAlert(alert) {
   if (!fs.existsSync(INSIGHTS_DIR)) fs.mkdirSync(INSIGHTS_DIR, { recursive: true });
   fs.appendFileSync(FUNDER_ALERTS_FILE, JSON.stringify(alert) + "\n");
+
+  if (FUNDER_ALERTS_WEBHOOK_URL) {
+    fetch(FUNDER_ALERTS_WEBHOOK_URL, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(alert)
+    }).catch(e => console.error("Failed to mirror funder alert to webhook (non-fatal):", e.message));
+  }
+}
+
+// ============================================================================
+// DURABILITY
+//
+// Render's free tier gives the app an EPHEMERAL filesystem. Everything under
+// data/ is wiped on every deploy and every restart. Two consequences, one of
+// which was a live functional bug:
+//
+//   1. Insights: records are mirrored to a Google Sheet by webhook, so the
+//      data survives, but /api/insights-summary and /api/demand-brief read the
+//      local file, so they reported near-zero while the real history sat in a
+//      spreadsheet nothing on the site could see.
+//
+//   2. Funder Deal Alerts: WORSE. These were written to the local file only,
+//      with no mirror at all. After any deploy loadFunderAlerts() returned an
+//      empty array, so matchAndNotifyFunders() silently matched nothing and no
+//      registered funder was ever notified again. The registration emails were
+//      the only surviving record, and they are not machine readable.
+//
+// The fix is to treat the local files as a CACHE and an external endpoint as
+// the source of truth: mirror on write (above), and rehydrate the cache on
+// boot (below). Both read URLs are optional. If they are unset the app behaves
+// exactly as it does today, so this cannot break anything by being deployed
+// before the endpoints exist. See DURABILITY.md for the Apps Script to paste
+// into the Google Sheet to expose the GET side.
+// ============================================================================
+
+const INSIGHTS_READ_URL = process.env.INSIGHTS_READ_URL || null;
+const FUNDER_ALERTS_READ_URL = process.env.FUNDER_ALERTS_READ_URL || null;
+
+async function rehydrate(url, file, label) {
+  if (!url) return;
+  try {
+    const res = await fetch(url, { headers: { accept: "application/json" } });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const rows = await res.json();
+    if (!Array.isArray(rows)) throw new Error("expected a JSON array");
+    if (!fs.existsSync(INSIGHTS_DIR)) fs.mkdirSync(INSIGHTS_DIR, { recursive: true });
+    fs.writeFileSync(file, rows.map(r => JSON.stringify(r)).join("\n") + (rows.length ? "\n" : ""));
+    console.log(`[durability] restored ${rows.length} ${label} record(s) from remote store`);
+  } catch (e) {
+    // Never fatal. A failed restore leaves the app running on an empty cache,
+    // which is exactly the behaviour it had before this existed.
+    console.error(`[durability] could not restore ${label} (non-fatal):`, e.message);
+  }
+}
+
+async function rehydrateAll() {
+  await Promise.all([
+    rehydrate(INSIGHTS_READ_URL, INSIGHTS_FILE, "insight"),
+    rehydrate(FUNDER_ALERTS_READ_URL, FUNDER_ALERTS_FILE, "funder alert")
+  ]);
+  if (!INSIGHTS_READ_URL || !FUNDER_ALERTS_READ_URL) {
+    console.warn(
+      "[durability] WARNING: " +
+      (!INSIGHTS_READ_URL ? "INSIGHTS_READ_URL " : "") +
+      (!FUNDER_ALERTS_READ_URL ? "FUNDER_ALERTS_READ_URL " : "") +
+      "not set. Data under data/ is wiped on every Render deploy. Funder Deal Alerts will not match until this is configured. See DURABILITY.md."
+    );
+  }
 }
 
 // In-memory guard so a single long conversation (re-tagged on every message)
@@ -514,6 +587,8 @@ Point them to the form rather than relying on them typing details into the chat.
 === ATTORNEY & EXPERT INTRODUCTIONS (BEYOND FINANCING) ===
 The Institute's help does not stop at financing. Whenever it is genuinely appropriate in the conversation, make clear - warmly and briefly - that the Institute can also help the user find suitable litigation counsel and expert witnesses. Natural triggers: the user has no attorney yet, is struggling to find contingency counsel, asks how to find or vet a lawyer or expert, or needs a damages or forensic expert to quantify their claim. In those moments say something like: "This is something the Institute can help with directly - beyond financing, we can help identify suitable counsel for a matter like yours, and we partner with elite expert witness referral firms for damages and technical experts. A quick human follow-up can make the right introduction." Pair this naturally with the human follow-up offer (item 10 above) so the user can act on it in the moment. Expert witness quality is a real factor in both meritoriousness and financeability - funders weigh a credible, Daubert-resistant expert nearly as heavily as a strong liability record, especially on damages and technical questions; discuss this substantively whenever relevant (see the Academy's module on counsel and expert quality, and the Research Library, for grounding). Never name Round Table Group or any other specific vendor. Keep it general, educational, and non-promotional.
 
+IMPORTANT EXCEPTION: this section does NOT apply once you have determined that a matter has no realistic financing path. See "CLAIMANTS IN CRISIS WITH NO FINANCING PATH" below, which overrides this section entirely. Someone you cannot help saying "I can't find a lawyer" is not a trigger to offer the Executive Director; it is a trigger to give them better search terms and the right referral service. Offering a call you cannot make good on is the failure mode this exception exists to prevent.
+
 === CLAIM TYPES WITH NARROWER FINANCING FIT ===
 Some claim types - personal injury, sexual abuse and other institutional abuse claims, and most individual claims inside a mass tort or coordinated state action - are ones most commercial litigation funders explicitly exclude; the market for financing these is narrower and structured differently (consumer/mass-tort pre-settlement funding, not the investment-in-a-commercial-claim model this Institute is otherwise built around). When a user's very first disclosure falls into one of these categories, do not lead with unqualified encouragement like "financing exists to support exactly this kind of claim" - it sets an expectation the rest of the conversation will have to walk back, which is a worse experience than being calibrated from the start, especially for someone who has just disclosed something difficult. Instead, be warm and validating about the claim itself first and always, and be honest in that same early reply, gently, that commercial litigation financing specifically tends not to fit this category - without making that the focus, and without letting it read as dismissive of the claim's seriousness or your willingness to help. You can still be genuinely useful: explain what actually helps here (experienced counsel, documentation of harm, understanding of any coordinated/mass action they may be part of), and note that a narrower category of funders does sometimes work with mature mass-tort claims once there's an established settlement pattern to underwrite against - so it's not never, just not the immediate, primary thing to hold out hope for.
 
@@ -527,6 +602,10 @@ For these conversations, three things change:
 2. Give them actual, usable resources rather than only sympathy. The most useful general pointers, name them plainly and let the user look up their own state's version: their state bar association's lawyer referral service; their local or statewide legal aid organization (many handle probate, housing, and elder matters for people who cannot pay); law school legal clinics in their area; and, for a self-represented person, the self-help or pro se resource center that many courts operate. Where a claim involves real recoverable assets, note that some attorneys take these matters on contingency, so being unable to pay hourly does not always mean being unable to get counsel. If their matter involves a former attorney's conduct, note that every state bar has a grievance or disciplinary process, and that legal malpractice is its own kind of claim some firms take on contingency.
 
 3. Do NOT make the Executive Director follow-up offer in these conversations unless the user specifically asks to speak with someone at the Institute. Offering a human follow-up to someone the Institute cannot actually help raises a hope you cannot honor, which is worse than a warm, well-resourced ending. Close by naming the two or three concrete next steps that would most help them, and make clear they are welcome to come back with questions at any time.
+
+THIS SUPPRESSION OUTRANKS BOTH THE "ATTORNEY & EXPERT INTRODUCTIONS" SECTION ABOVE AND THE "STANDING PRIORITY: NAME & HUMAN FOLLOW-UP" SECTION AT THE END OF THIS PROMPT. Both of those instruct you to offer the Executive Director follow-up, and in a crisis conversation both are wrong; this rule wins. Once you have determined that a matter has no financing path, that determination holds for the rest of the conversation. Do not reverse it a turn or two later because the person then mentions they cannot find a lawyer, cannot afford one, or does not know what to do next. Those statements are the expected consequence of the situation you already assessed, not new information that changes the answer, and they are exactly the moments when the pull to offer a call is strongest. The correct response is more specific practical help: better search terms, the right kind of practitioner to ask for, the particular referral service or clinic to call. Help them without promising them a person.
+
+The narrow exception is a genuine, unambiguous request to speak with someone at the Institute ("can I talk to a person," "have someone call me"). Answering that is honest. Volunteering it is not.
 
 Keep this warm and practical, never clinical, and never let the honest "financing does not fit" become the whole message. The goal is that someone in a hard situation leaves the conversation with somewhere real to go.
 
@@ -552,15 +631,121 @@ Where a directory entry includes "Investment criteria," you may use it to give a
 ${financierBlock}
 
 === STANDING PRIORITY: NAME & HUMAN FOLLOW-UP (APPLIES TO EVERY AUDIENCE, EVERY PHASE, EVERY CONVERSATION) ===
-This rule outranks everything above except honesty and the no-pressure principle. If the conversation has become substantive (roughly four or more user messages) and you still do not know the person's first name, ask for it warmly in your very next reply. If they are discussing a real legal matter, business need, or professional interest and you have not yet offered the Executive Director follow-up (name, email, best phone number), include that offer in the same reply, framed around whatever they most recently needed - counsel, an expert, funder introductions, or simply continuing the conversation with a human. Make the ask once, warmly and without pressure, and do not repeat it if declined. A long, engaged conversation that ends without you ever asking for a name and offering a human follow-up is a failure of hospitality, not an act of politeness.
+This rule outranks everything above except honesty, the no-pressure principle, and the crisis-conversation suppression in "CLAIMANTS IN CRISIS WITH NO FINANCING PATH" (which outranks this section: do not offer the Executive Director to someone you have already concluded the Institute cannot help). If the conversation has become substantive (roughly four or more user messages) and you still do not know the person's first name, ask for it warmly in your very next reply. If they are discussing a real legal matter, business need, or professional interest and you have not yet offered the Executive Director follow-up (name, email, best phone number), include that offer in the same reply, framed around whatever they most recently needed - counsel, an expert, funder introductions, or simply continuing the conversation with a human. Make the ask once, warmly and without pressure, and do not repeat it if declined. A long, engaged conversation that ends without you ever asking for a name and offering a human follow-up is a failure of hospitality, not an act of politeness.
 `;
 }
 
 const SYSTEM_PROMPT = buildSystemPrompt();
 
 const app = express();
+
+// Render terminates TLS at a proxy, so req.ip is the proxy's address unless
+// Express is told to trust the X-Forwarded-For header. Without this line every
+// visitor looks like the same IP and the rate limiter below would lock out the
+// entire site the moment one person had a long conversation.
+app.set("trust proxy", 1);
+
 app.use(express.json({ limit: "2mb" }));
 app.use(express.static(__dirname));
+
+// ============================================================================
+// RATE LIMITING
+//
+// /api/chat costs real money on every call: the system prompt alone is roughly
+// 48k tokens, so an unprotected endpoint is a standing invitation to run up an
+// Anthropic bill. Bot and crawler traffic against this site has already been
+// observed. This is a deliberately small in-process limiter rather than a
+// dependency: the app runs as a single Render instance, so a shared in-memory
+// counter is sufficient, and it avoids adding a package to the supply chain
+// for thirty lines of logic.
+//
+// Two layers:
+//   1. Per-IP fixed window, so one abusive client cannot monopolise the API.
+//   2. A global daily ceiling on chat calls, which is a spend circuit breaker.
+//      It sits far above realistic traffic and exists only to stop a
+//      distributed hammering from becoming an unbounded bill.
+//
+// Both fail OPEN. If anything in here throws, the request proceeds. A bug in
+// rate limiting must never take the concierge offline.
+// ============================================================================
+
+const rateBuckets = new Map(); // key -> { count, resetAt }
+let globalChatDay = { day: null, count: 0 };
+
+const GLOBAL_CHAT_DAILY_CAP = Number(process.env.GLOBAL_CHAT_DAILY_CAP || 1500);
+
+function pruneRateBuckets(now) {
+  if (rateBuckets.size < 5000) return; // only bother when it could actually grow
+  for (const [k, v] of rateBuckets) {
+    if (v.resetAt <= now) rateBuckets.delete(k);
+  }
+}
+
+// max requests per windowMs, per IP, for the given bucket name
+function rateLimit({ name, max, windowMs, message }) {
+  return (req, res, next) => {
+    try {
+      const now = Date.now();
+      const key = `${name}:${req.ip || "unknown"}`;
+      let entry = rateBuckets.get(key);
+      if (!entry || entry.resetAt <= now) {
+        entry = { count: 0, resetAt: now + windowMs };
+        rateBuckets.set(key, entry);
+      }
+      entry.count += 1;
+      pruneRateBuckets(now);
+
+      if (entry.count > max) {
+        const retryAfter = Math.max(1, Math.ceil((entry.resetAt - now) / 1000));
+        res.set("Retry-After", String(retryAfter));
+        console.warn(`[ratelimit] ${name} blocked ip=${req.ip} count=${entry.count}`);
+        return res.status(429).json({ error: message, retryAfter });
+      }
+      return next();
+    } catch (e) {
+      console.error("Rate limiter failed (failing open, request allowed):", e.message);
+      return next();
+    }
+  };
+}
+
+// Spend circuit breaker across all callers, chat only.
+function globalChatCap(req, res, next) {
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    if (globalChatDay.day !== today) globalChatDay = { day: today, count: 0 };
+    globalChatDay.count += 1;
+    if (globalChatDay.count > GLOBAL_CHAT_DAILY_CAP) {
+      console.error(`[ratelimit] GLOBAL DAILY CHAT CAP HIT (${GLOBAL_CHAT_DAILY_CAP}). Refusing further chat calls today.`);
+      return res.status(429).json({
+        error: "The Concierge has reached its daily capacity. Please try again tomorrow, or use the 'Request a follow-up from the Institute' button below to reach a person directly.",
+        retryAfter: 3600
+      });
+    }
+    return next();
+  } catch (e) {
+    console.error("Global chat cap failed (failing open, request allowed):", e.message);
+    return next();
+  }
+}
+
+// A real conversation runs roughly six to fifteen turns, and several people can
+// share one IP behind a corporate NAT, so this is set well above normal use. It
+// is a ceiling on abuse, not a throttle on conversation.
+const chatLimiter = rateLimit({
+  name: "chat",
+  max: Number(process.env.CHAT_RATE_MAX || 45),
+  windowMs: 15 * 60 * 1000,
+  message: "You've sent a lot of messages in a short time. Please wait a few minutes and try again, or use the 'Request a follow-up from the Institute' button below to reach a person directly."
+});
+
+// Write endpoints that send email. Cheap in tokens, but abusable as a mail relay.
+const writeLimiter = rateLimit({
+  name: "write",
+  max: Number(process.env.WRITE_RATE_MAX || 12),
+  windowMs: 15 * 60 * 1000,
+  message: "Too many submissions from this connection. Please wait a few minutes and try again."
+});
 
 // The site root now serves index.html directly (via express.static above),
 // no redirect needed. This route just catches old bookmarks/links to the
@@ -570,15 +755,28 @@ app.get("/institute-prototype.html", (req, res) => {
 });
 
 app.get("/api/health", (req, res) => {
+  const alertCount = loadFunderAlerts().length;
+  const durable = Boolean(INSIGHTS_READ_URL) && Boolean(FUNDER_ALERTS_READ_URL);
   res.json({
     ok: true,
     hasApiKey: Boolean(API_KEY),
     hasEmail: Boolean(mailer),
     hasInsightsWebhook: Boolean(INSIGHTS_WEBHOOK_URL),
+    hasFunderAlertsWebhook: Boolean(FUNDER_ALERTS_WEBHOOK_URL),
     articles: corpus.articles.length,
     financiers: corpus.financiers.length,
     disputes: corpus.disputes.length,
-    model: MODEL
+    model: MODEL,
+    // Durability visibility. data/ is wiped on every Render deploy, so these
+    // counts dropping to zero after a push is the symptom to watch for. If
+    // durableStore is false, activeFunderAlerts is expected to be 0 after any
+    // deploy and Deal Alerts are NOT matching. See DURABILITY.md.
+    durableStore: durable,
+    activeFunderAlerts: alertCount,
+    insightRecords: loadInsightRecords().length,
+    durabilityWarning: durable
+      ? null
+      : "data/ is ephemeral on Render and is wiped on every deploy. Funder Deal Alerts will not match until INSIGHTS_READ_URL and FUNDER_ALERTS_READ_URL are configured. See DURABILITY.md."
   });
 });
 
@@ -604,7 +802,7 @@ app.get("/api/demand-brief", (req, res) => {
 // Funder registers Deal Alert criteria, matter categories, claim size
 // buckets, jurisdictions (any of these left empty means "any"). Stored
 // locally and matched against every subsequent tagged conversation.
-app.post("/api/funder-alert-signup", async (req, res) => {
+app.post("/api/funder-alert-signup", writeLimiter, async (req, res) => {
   const { name, firm, email, categories, claimSizeBuckets, jurisdictions, notes } = req.body || {};
   if (!email || !firm) {
     return res.status(400).json({ error: "Firm name and email are required." });
@@ -642,7 +840,7 @@ app.post("/api/funder-alert-signup", async (req, res) => {
   res.json({ ok: true });
 });
 
-app.post("/api/chat", async (req, res) => {
+app.post("/api/chat", globalChatCap, chatLimiter, async (req, res) => {
   if (!API_KEY) {
     return res.status(500).json({
       error: "No ANTHROPIC_API_KEY configured on the server. Copy .env.example to .env and add your key, then restart the server."
@@ -655,9 +853,29 @@ app.post("/api/chat", async (req, res) => {
   }
 
   const audience = typeof req.body.audience === "string" ? req.body.audience : null;
-  const system = audience
-    ? `${SYSTEM_PROMPT}\n\n=== CURRENT CONVERSATION CONTEXT ===\nThe interface already told you this user's role: "${audience}". Do not ask the role-detection question, go directly into the matching flow described above for that constituency.`
-    : SYSTEM_PROMPT;
+
+  // The system prompt is sent as an ARRAY of blocks, not one concatenated
+  // string, and this matters for cost. SYSTEM_PROMPT is ~48k tokens (the
+  // research, dispute, and financier corpora are interpolated into it) and is
+  // built once at boot, so it is identical on every request and is an ideal
+  // prompt-caching candidate: cache writes cost 1.25x base input, cache reads
+  // cost 0.1x. On a six-turn conversation that is roughly a 70% saving on the
+  // dominant cost component.
+  //
+  // The audience suffix MUST stay in its own trailing block. If it were
+  // concatenated onto SYSTEM_PROMPT (as it was originally) the cached prefix
+  // would differ per audience, splitting one shared cache entry into six and
+  // paying a fresh write for each. Keeping the big block byte-identical means
+  // every user, in every role, shares a single cache entry.
+  const system = [
+    { type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }
+  ];
+  if (audience) {
+    system.push({
+      type: "text",
+      text: `=== CURRENT CONVERSATION CONTEXT ===\nThe interface already told you this user's role: "${audience}". Do not ask the role-detection question, go directly into the matching flow described above for that constituency.`
+    });
+  }
 
   // One API call to the Messages endpoint. Shared by the initial attempt, the
   // empty-reply retry, and the max_tokens continuation below.
@@ -684,9 +902,28 @@ app.post("/api/chat", async (req, res) => {
       throw err;
     }
     const data = await response.json();
+
+    // Log cache performance so prompt caching can be verified in production
+    // rather than assumed. On a cold start expect cache_creation to be roughly
+    // the full system prompt and cache_read to be 0; on every subsequent turn
+    // within the cache window expect the reverse. If cache_read stays at 0
+    // across a multi-turn conversation, the cached prefix is being invalidated
+    // somewhere and the saving is not being realised.
+    const u = data.usage || {};
+    if (u.cache_creation_input_tokens || u.cache_read_input_tokens) {
+      console.log(
+        `[cache] write=${u.cache_creation_input_tokens || 0} read=${u.cache_read_input_tokens || 0} uncached_in=${u.input_tokens || 0} out=${u.output_tokens || 0}`
+      );
+    } else {
+      console.warn(
+        `[cache] NO CACHE ACTIVITY on this call (input=${u.input_tokens || 0}). Prompt caching may not be taking effect.`
+      );
+    }
+
     return {
       text: ((data.content || []).map(block => block.text || "").join("")).trim(),
-      stopReason: data.stop_reason || "unknown"
+      stopReason: data.stop_reason || "unknown",
+      usage: u
     };
   };
 
@@ -726,15 +963,25 @@ app.post("/api/chat", async (req, res) => {
     if (!reply) reply = "Sorry - my reply did not come through properly just now. Could you say continue, or ask that again?";
     res.json({ reply });
 
-    // Fire-and-forget: update the structured insights record for this session
-    // (upserted by session id, see summarizeInsights()). This never blocks or
-    // affects the response already sent above. Note: we deliberately no longer
-    // email a running transcript on every single turn here, that got noisy
-    // fast on any real conversation. See /api/end-session below, which the
-    // client calls once, when the conversation actually wraps up.
+    // Fire-and-forget insight tagging. This used to run on EVERY turn, which
+    // was pure waste: records upsert by session id, so a ten-turn conversation
+    // made ten Haiku calls against a growing transcript and threw nine of the
+    // results away. The authoritative tag is now written at /api/end-session,
+    // where the transcript is complete and the tags are most accurate.
+    //
+    // We still write ONE mid-conversation tag as a safety net, because
+    // end-session depends on the browser firing visibilitychange/beforeunload
+    // and that is not guaranteed (crashes, killed tabs, blockers). Waiting for
+    // the conversation to become substantive first means the tag has something
+    // real to work with rather than tagging "I have a legal matter" as unknown.
+    // It also gates funder Deal Alerts, which should not wait for end-session.
     const session = typeof req.body.session === "string" ? req.body.session : "unknown-session";
-    const fullTranscript = [...messages, { role: "assistant", content: reply }];
-    recordInsight(session, audience, fullTranscript);
+    const userTurns = messages.filter(m => m.role === "user").length;
+    if (userTurns >= 3 && !sessionMidTagged.has(session)) {
+      sessionMidTagged.add(session);
+      const fullTranscript = [...messages, { role: "assistant", content: reply }];
+      recordInsight(session, audience, fullTranscript);
+    }
   } catch (e) {
     console.error("Chat request failed:", e);
     res.status(500).json({ error: "Request to Anthropic API failed: " + e.message });
@@ -747,10 +994,18 @@ app.post("/api/chat", async (req, res) => {
 // tradeoff at this scale, same as the notifiedPairs guard above.
 const sessionEmailsSent = new Set();
 
+// Sessions that have already had one mid-conversation insight tag written.
+// See the note in /api/chat: tagging used to fire on EVERY turn, which meant a
+// ten-turn conversation made ten Haiku calls and discarded nine of them
+// (records upsert by session id). Now we tag once when a conversation becomes
+// substantive, as a safety net in case the browser never sends end-session,
+// and once more at end-session for the final, most complete picture.
+const sessionMidTagged = new Set();
+
 // Called once by the client when a chat conversation actually wraps up, the
 // tab closes/hides, or the user goes idle, rather than on every turn. Sends
 // ONE consolidated transcript email per session.
-app.post("/api/end-session", async (req, res) => {
+app.post("/api/end-session", writeLimiter, async (req, res) => {
   const session = typeof req.body.session === "string" ? req.body.session : null;
   const audience = typeof req.body.audience === "string" ? req.body.audience : null;
   const transcript = Array.isArray(req.body.transcript) ? req.body.transcript : [];
@@ -769,6 +1024,12 @@ app.post("/api/end-session", async (req, res) => {
   }
   sessionEmailsSent.add(dedupeKey);
 
+  // The authoritative insight tag for this conversation. The transcript is
+  // complete here, so these tags are the most accurate the system will get.
+  // Upserts by session id, overwriting any mid-conversation safety-net tag.
+  // Fire-and-forget: a tagging failure must never block the transcript email.
+  recordInsight(session, audience, transcript);
+
   await sendMail(
     `Litigation Finance Institute chat transcript, session ${session}`,
     `Audience: ${audience || "not yet identified"}\n\n${transcriptText(transcript)}`
@@ -777,7 +1038,7 @@ app.post("/api/end-session", async (req, res) => {
 });
 
 // A visitor has explicitly asked for a human follow-up and shared contact details.
-app.post("/api/lead", async (req, res) => {
+app.post("/api/lead", writeLimiter, async (req, res) => {
   const { name, email, phone, session, transcript } = req.body || {};
   if (!name || !email) {
     return res.status(400).json({ error: "Name and email are required." });
@@ -820,6 +1081,11 @@ app.post("/api/lead", async (req, res) => {
 app.listen(PORT, () => {
   console.log(`\nInstitute for Litigation Finance, local server running.`);
   console.log(`Open: http://localhost:${PORT}\n`);
+
+  // Rebuild the local data/ cache from the durable store. Deliberately fired
+  // after listen rather than awaited before it: a slow or failing remote store
+  // must never delay or prevent the site coming up.
+  rehydrateAll();
   if (!API_KEY) {
     console.log("WARNING: No ANTHROPIC_API_KEY set. The AI Concierge will fall back to scripted demo mode.");
     console.log("Copy .env.example to .env and add your key to enable live answers.\n");

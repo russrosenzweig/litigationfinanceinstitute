@@ -445,6 +445,14 @@ function wireLogic(){
       body: JSON.stringify({ messages: convo, audience: audience, session: sessionId })
     }).then(function(res){
       return res.json().then(function(data){
+        // 429 is a deliberate rate limit, not a failure. The server sends a
+        // human-readable explanation; show that verbatim rather than the
+        // generic error text, which would wrongly imply the site is broken.
+        if(res.status === 429){
+          var e = new Error(data.error || "You've sent a lot of messages in a short time. Please wait a few minutes and try again.");
+          e.isRateLimit = true;
+          throw e;
+        }
         if(!res.ok) throw new Error(data.error || 'Request failed');
         const parsed = stripCoverageTag(data.reply || '');
           const cleanReply = (parsed.clean || '').trim() ? parsed.clean : "Sorry - my reply did not come through properly just now. Could you say continue, or ask that again?";
@@ -454,7 +462,11 @@ function wireLogic(){
         if(parsed.coverage) updateCoverage(parsed.coverage);
       });
     }).catch(function(e){
-      typing.innerHTML = "Something went wrong reaching the live AI (" + e.message + "). Falling back to demo mode for this message.";
+      if(e && e.isRateLimit){
+        typing.innerHTML = formatMsg(e.message);
+      } else {
+        typing.innerHTML = "Something went wrong reaching the live AI (" + e.message + "). Falling back to demo mode for this message.";
+      }
       chLog.scrollTop = chLog.scrollHeight;
     }).finally(function(){
       setSendingUI(false);

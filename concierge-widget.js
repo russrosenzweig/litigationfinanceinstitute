@@ -211,7 +211,7 @@ function buildFloatingShell(hasExistingConvo){
     <div class="ch-head">
       <div class="who">AI Concierge</div>
       <div class="sub">Senior Fellow for Litigation Finance</div>
-      <div class="sub" id="chStatus" style="color:#7A869E; font-size:11px; margin-top:4px;">Demo mode, run the local server to activate live answers</div>
+      <div class="sub" id="chStatus" style="color:#7A869E; font-size:11px; margin-top:4px;">Grounded in the Institute's cited research library</div>
     </div>
     <div class="coverage-bar" id="coverageBar">
       <div class="cov-label">Assessment coverage</div>
@@ -372,9 +372,27 @@ function wireLogic(){
         statusEl.style.color = '#9BD6A8';
       }
     } else if(statusEl){
-      statusEl.textContent = 'Server running, but no API key set, see RUNNING_LOCALLY.md';
+      // No API key. In production this should never happen; locally it means
+      // the key is not set. Keep this non-technical: an end user must never be
+      // shown a developer instruction like a filename to go read.
+      statusEl.textContent = 'Reference mode, browse the libraries for grounded answers';
     }
-  }).catch(function(){ /* no server running, stay in demo mode, silently */ });
+
+    /* Self-updating corpus counts.
+       Every count printed on the site used to be hand-maintained, and every
+       one of them drifted: the homepage claimed 46 articles when there were
+       51, and 39 funders when there were 40. Any element with a data-count
+       attribute now gets its number from /api/health, so the figures cannot go
+       stale again. The hardcoded values stay in the HTML and must be kept
+       roughly right, because crawlers do not run this script and those static
+       values are what gets indexed. */
+    ['articles','financiers','disputes'].forEach(function(key){
+      if(typeof data[key] !== 'number') return;
+      document.querySelectorAll('[data-count="' + key + '"]').forEach(function(el){
+        el.textContent = data[key];
+      });
+    });
+  }).catch(function(){ /* no server reachable, leave the static copy as-is */ });
 
   /* ---------------- END-OF-CONVERSATION TRANSCRIPT EMAIL ----------------
      Rather than emailing a running transcript on every single turn (which
@@ -465,7 +483,7 @@ function wireLogic(){
       if(e && e.isRateLimit){
         typing.innerHTML = formatMsg(e.message);
       } else {
-        typing.innerHTML = "Something went wrong reaching the live AI (" + e.message + "). Falling back to demo mode for this message.";
+        typing.innerHTML = "Sorry, I couldn't reach the Institute's assistant just then. Please try that again in a moment. If it keeps happening, the 'Request a follow-up from the Institute' button below will reach a person directly.";
       }
       chLog.scrollTop = chLog.scrollHeight;
     }).finally(function(){
@@ -520,7 +538,7 @@ function wireLogic(){
     if(LIVE){ askLive(msg); return; }
     const typing = showTyping();
     setTimeout(function(){
-      finalizeAiReply(typing, "Happy to start. Tell me what happened, who's involved, roughly when, and what you're hoping to resolve. There's no form to fill out; I'll ask follow-ups as we go. (This is demo mode, run the local server, see RUNNING_LOCALLY.md, for a live, grounded assessment.)");
+      finalizeAiReply(typing, "Happy to start. Tell me what happened, who's involved, roughly when, and what you're hoping to resolve. There's no form to fill out; I'll ask follow-ups as we go.");
     }, 800);
   }
 
@@ -552,7 +570,7 @@ function wireLogic(){
       if(matched){
         finalizeAiReply(typing, demos[matched].reply);
       } else {
-        finalizeAiReply(typing, "I don't have a scripted answer for that specific question in demo mode, this prototype simulates a set of common topics until the live server is running (see RUNNING_LOCALLY.md), grounded in the full 33-article research library. Try asking about: what makes a case financeable, collectability, patent litigation, taxes, ethics, arbitration, mass torts, fees, timelines, returns, or a specific funder, or browse the <a href='/research.html' style=\"color:#D8BE85;\">Research Library</a> directly.");
+        finalizeAiReply(typing, "I can't give you a full answer on that one right now. I can help with: what makes a case financeable, collectability, patent litigation, taxes, ethics, arbitration, mass torts, fees, timelines, returns, or a specific funder. You can also browse the <a href='/research.html' style=\"color:#D8BE85;\">Research Library</a> directly, or use the 'Request a follow-up from the Institute' button below to reach a person.");
       }
     }, 900);
   }

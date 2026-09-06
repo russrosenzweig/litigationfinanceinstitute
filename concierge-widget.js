@@ -63,6 +63,15 @@ const ROLES = {
       {label:"Start a case assessment", action:"assessment"}
     ]
   },
+  lawfirm: {
+    audience: "a law firm owner or partner exploring outside capital, a management services organization (MSO), or the sale of the firm's business operations",
+    demoReply: "Good to have you here. My job is to help you assess whether your firm is a genuine candidate for outside capital through a management services organization, and if it is, to help the Institute prepare you for the right capital providers. Tell me about the firm the way you'd tell an experienced colleague: practice mix, roughly how many lawyers and staff, which states you're in, and what you're hoping outside capital would do for you. No form, I'll ask follow-ups as we go.",
+    followups: [
+      {label:"What exactly is a law firm MSO?", demo:"mso"},
+      {label:"Which states have restricted MSOs?", demo:"msoStates"},
+      {label:"Start my MSO readiness screen", action:"readiness"}
+    ]
+  },
   funder: {
     audience: "a representative of a litigation finance firm or funder, here to share investment criteria",
     demoReply: "Welcome, it's good to have you here. How can I help you today? (And whenever you're ready: one thing we do is try to send funders matters that actually fit what they're looking for, rather than shopping every deal to everyone. If you have about five minutes, I'd love to ask a few questions about your investment criteria so we can flag genuine fits for your firm, entirely up to you.)",
@@ -91,6 +100,10 @@ const ROLES = {
 };
 
 const demos = {
+  mso: {kw:["what is an mso","what is a law firm mso","management services organization","what exactly is a law firm mso","mso structure"],
+    reply:"In a management services organization structure the firm splits in two. Lawyers keep the legal practice: clients, files, fee agreements, professional judgment. A separate company, which nonlawyers may own, acquires the back office (intake, billing, HR, technology, marketing, leases) and runs it for a recurring fee. The capital buys business assets, not a stake in any case, which is what separates an MSO from litigation funding. The version that survives the new state rules earns a <strong>fixed, fair-market fee</strong> and profits by running operations more efficiently; the version being legislated away takes a percentage of what the lawyers bill. <a href='/research/what-is-a-law-firm-mso.html' style=\"color:#D8BE85;\">See: What Is a Law Firm MSO? &rarr;</a>"},
+  msoStates: {kw:["which states","restricted msos","texas 706","ab 931","colorado mso","illinois mso","state rules mso","mso law"],
+    reply:"Four states have acted since early 2025, and they converge on one line: an MSO may be paid for services at a fixed price, never on legal revenue. Texas Ethics Opinion 706 (February 2025) treats a percentage of revenue as fee-splitting. California AB 931 (signed October 2025) bars fee-sharing with out-of-state alternative business structures through 2030 and expressly exempts flat-fee contracts. Colorado HB26-1421 (effective August 2026) puts the ban in statute with a private right of action. Illinois Public Act 104-0801 (August 2026) targets private-equity-owned MSOs specifically. If your firm practices in more than one state, the most restrictive governs. <a href='/law-firm-capital.html' style=\"color:#D8BE85;\">See: Law Firm Capital &rarr;</a>"},
   manufacturing: {kw:["defendant won't pay","defendant wont pay","won arbitration","won't pay","wont pay","collect on my judgment","enforce my judgment","enforcement"],
     reply:"That's a well-suited profile for <strong>judgment enforcement financing</strong>, capital advanced against an award you've already won, used to fund collection: asset tracing, cross-border enforcement, local counsel. Funders favor this category because liability is already resolved; the open question becomes collectability. I'd want to know next: is the defendant solvent, where are its assets, and has an enforcement strategy been mapped out yet? <a href='/research.html' style=\"color:#D8BE85;\">See: Judgment Enforcement Financing &rarr;</a>"},
   collectability: {kw:["collectability","collectible","why does liability","strong case","win my case","case is strong"],
@@ -231,6 +244,7 @@ function buildFloatingShell(hasExistingConvo){
     <div class="prompts" id="promptRow">
       <div class="prompt-chip" data-role="claimant">I have a legal matter</div>
       <div class="prompt-chip" data-role="lawyer">I'm a lawyer</div>
+      <div class="prompt-chip" data-role="lawfirm">I own a law firm exploring outside capital</div>
       <div class="prompt-chip" data-role="funder">I represent a litigation finance firm</div>
       <div class="prompt-chip" data-role="researcher">I'm conducting research</div>
       <div class="prompt-chip" data-role="other">Something else</div>
@@ -283,6 +297,23 @@ function wireLogic(){
   function persist(){ saveState({ roleKey, convo, displayLog, coverage }); }
 
   const coverageBar = document.getElementById('coverageBar');
+
+  // The chip set depends on the audience: case conversations track the seven
+  // financeability dimensions; the law firm MSO readiness screen tracks six
+  // firm-level dimensions and emits a different COVERAGE tag (see server.js).
+  const COVERAGE_SETS = {
+    default: { label:'Assessment coverage', dims:[['liability','Liability'],['damages','Damages'],['collectability','Collectability'],['counsel','Counsel'],['duration','Duration'],['economics','Economics'],['portfolio','Portfolio']] },
+    lawfirm: { label:'Readiness coverage', dims:[['profile','Firm profile'],['economics','Economics'],['backoffice','Back office'],['jurisdiction','Jurisdiction'],['objective','Objective'],['structure','Structure']] }
+  };
+  function applyCoverageSet(key){
+    if(!coverageBar) return;
+    const set = key === 'lawfirm' ? COVERAGE_SETS.lawfirm : COVERAGE_SETS.default;
+    const label = coverageBar.querySelector('.cov-label');
+    const chips = coverageBar.querySelector('#covChips');
+    if(label) label.textContent = set.label;
+    if(chips) chips.innerHTML = set.dims.map(function(d){ return '<span class="cov-chip" data-dim="' + d[0] + '">' + d[1] + '</span>'; }).join('');
+  }
+  applyCoverageSet(roleKey);
 
   function renderCoverage(){
     if(!coverageBar) return;
@@ -511,6 +542,8 @@ function wireLogic(){
     if(!role) return;
     roleKey = key;
     audience = role.audience;
+    applyCoverageSet(roleKey);
+    renderCoverage();
     persist();
     addMsg('user', label);
     if(LIVE){ askLive(label); }
@@ -542,12 +575,25 @@ function wireLogic(){
     }, 800);
   }
 
+  function startReadiness(){
+    if(sending) return;
+    const msg = "I'd like to start my MSO readiness screen.";
+    addMsg('user', msg);
+    if(typeof trackEvent === 'function') trackEvent('lfc_readiness_start', { audience: audience || 'unspecified' });
+    if(LIVE){ askLive(msg); return; }
+    const typing = showTyping();
+    setTimeout(function(){
+      finalizeAiReply(typing, "Good. Let's start with the shape of the firm: practice areas and how you bill (contingency, hourly, flat), roughly how many lawyers and staff, how many offices, and which states you practice in. Then we'll get to the economics and the back office.");
+    }, 800);
+  }
+
   function wireChips(){
     document.querySelectorAll('.prompt-chip').forEach(function(btn){
       btn.addEventListener('click', function(){
         if(sending) return;
         if(btn.dataset.role){ selectRole(btn.dataset.role, btn.textContent); return; }
         if(btn.dataset.action === 'assessment'){ startAssessment(); return; }
+        if(btn.dataset.action === 'readiness'){ startReadiness(); return; }
         if(btn.dataset.demo){ runDemo(btn.dataset.demo, btn.textContent); return; }
       });
     });

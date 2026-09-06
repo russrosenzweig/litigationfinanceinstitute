@@ -56,6 +56,11 @@ compliance section below, this is not a stylistic preference.
   standalone pages, NOT parsed into the concierge corpus, so the system prompt
   references them explicitly instead. Update the prompt if either page changes
   substantially.
+- `law-firm-capital.html`, the Institute's second advisory desk: MSO readiness, structure
+  blueprint (handed to the firm's counsel), and curated introductions to law firm capital,
+  all flat-fee. Its CTA buttons open the concierge with the `lawfirm` role pre-selected
+  (same pattern as the Academy bridge). Not parsed into the corpus; the system prompt
+  carries the readiness flow directly.
 - `index.html`, `about.html`, `academy.html`, `for-funders.html`, `terms.html`,
   `privacy.html`, `russ-rosenzweig-executive-director.html`.
 - `data/`, runtime only, gitignored: `insights.jsonl` (anonymized conversation tags),
@@ -116,6 +121,17 @@ Behavioural rules currently encoded:
     under study since October 2024, and that consumer and commercial funding are distinct
     businesses whose rules should not be conflated. It points lawyers and funders to
     `/primary-sources.html` by name.
+14. **Fifth audience, `lawfirm`: the MSO readiness screen.** A law firm owner exploring
+    outside capital gets a distinct flow: purpose sentence, intake across six dimensions
+    (profile, economics, back office, jurisdiction, objective, structure), honest-fit
+    first (too-small firms told immediately; revenue-share proposals flagged against the
+    four state rules), the cost-side versus revenue-side lesson in every conversation, a
+    banded readiness read in one of four fixed forms, and, on "Likely ready", a short
+    reply that hands off to the Executive Director via the follow-up button. Emits its
+    own six-key `<!--COVERAGE:profile=...-->` tag; the widget swaps chip sets by role.
+    No legal advice, no naming a capital provider as having current appetite, no
+    documents into the chat, no fee numbers, and an honest answer on any leadership
+    conflict if asked.
 
 ## Compliance, non-negotiable
 
@@ -124,6 +140,13 @@ Behavioural rules currently encoded:
   Institute clear of broker-dealer and unregistered-finder exposure. Do not draft, publish,
   or let the bot suggest success fees, finder's fees, or percentage compensation.
 - The bot must always state it does not provide legal or investment advice.
+- Law Firm Capital follows the same fee rule. Additionally: the Institute forms no entities
+  and drafts no MSAs (counsel's work); it takes no equity, debt, or revenue share in any
+  firm or MSO; introduction terms get counsel review before the first compensated
+  introduction because MSO capital raises can be securities transactions; and any
+  leadership interest in an operator or capital provider must be disclosed in writing
+  before an engagement. If the Executive Director launches an operator venture, it lives
+  on a separate property, never on this site.
 - Never name Round Table Group or any other vendor in site copy or bot output.
 - `terms.html` is counsel-drafted (Arete & Associates, JAMS arbitration, Delaware
   governing law, Orange County venue). Do not edit its substance without counsel.

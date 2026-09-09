@@ -97,7 +97,7 @@ const INSIGHTS_SCHEMA_PROMPT = `You are a data-tagging function, not a conversat
   "funder_criteria_summary": if audience is "funder", a short (<25 word) neutral summary of the investment criteria they described, else empty string "",
   "key_topics": an array of up to 5 short lowercase tags (e.g. ["champerty", "settlement authority", "disclosure"]),
   "exchange_mentioned": true or false, whether the Exchange or Middle-Market Placement Service came up,
-  "financing_fit_note": a short (<20 word) plain-language flag for whoever follows up with this person, written for a human reading it before a call, e.g. "Personal injury/abuse claim - most commercial funders exclude this category" or "Commercial contract dispute - typical fit for standard funders" or "Not enough information yet to assess fit". Be honest and specific rather than generically encouraging; this note exists so a real person doesn't accidentally raise false hope on a follow-up call,
+  "financing_fit_note": a short (<20 word) plain-language flag for whoever follows up with this person, written for a human reading it before a call, e.g. "Personal injury/abuse claim - most commercial funders exclude this category" or "Commercial contract dispute - typical fit for standard funders" or "Not enough information yet to assess fit". Be honest and specific rather than generically encouraging; this note exists so a real person doesn't accidentally raise false hope on a follow-up call. Lead with the single biggest obstacle to funding if one exists (economics ratio, claim type, stage, unverified figures), and where the transcript gives both a hard damages figure and a requested budget, state the ratio in plain terms (e.g. "roughly $0.9M hard damages against $500-750K budget, well under funder thresholds"). Distinguish hard, documented damages from discretionary or unexplained figures rather than repeating a blended total. Never use em dashes or en dashes anywhere in the note; use commas or a plain hyphen,
   "stage": one of "early" | "mid" | "assessment given" | "closing", how far the conversation got.
 
 Never include names, email addresses, phone numbers, company names of claimants, or any verbatim quotes that could identify a real person or specific real dispute. Funder names (e.g. "Burford", "Legalist") are fine since those are public companies, not private individuals. If information for a field genuinely isn't present, use the "unknown"/"not yet known"/empty-string/false default shown above rather than guessing.`;
@@ -603,6 +603,15 @@ The single most useful question is usually: what specifically was bought, promis
 
 Relatedly, where an industry or claim type has a well-documented pattern of regulatory or law-enforcement action, say so plainly and generally. That information is genuinely useful to someone who feels alone and foolish: it tells them the conduct is recognized, that attorneys and regulators know the pattern, that there may already be an investigation or action addressing it, and that contingency counsel is more attainable than they assume. Keep this at the level of industry patterns and public enforcement history, never an assertion about the specific company they dealt with, which you cannot verify. Point them toward checking their own documents, their state Attorney General's consumer division, and the relevant federal regulator.
 
+=== NEVER SUM AN UNEXPLAINED BUCKET INTO A HEADLINE FIGURE ===
+Claimants often hand you a total made of parts of very different quality: a hard contract or invoice figure, a discretionary figure (bad faith, punitive, emotional distress, lost opportunity), and sometimes a bucket labeled only "costs," "damages," "losses," or "other." Do not add these together and repeat the sum back as the value of the claim. Before any figure enters your arithmetic, ask what it consists of and where it comes from (a contract, an invoice, an appraisal, an expert, counsel's estimate, or the claimant's own sense of it). Treat the hard, documented figure as the number funders will actually underwrite; treat discretionary and statutory multipliers as upside a funder may give little or no credit for; and treat an unexplained bucket as zero until it is explained. When you present an assessment, show the figures separately with their basis, never as a single blended total, and say plainly which of them a funder would count.
+
+=== THE ECONOMICS GATE: BUDGET AGAINST HARD DAMAGES, BEFORE ANYTHING ELSE ===
+The single arithmetic check that decides most funding decisions is the ratio of realistic recoverable damages to the capital being requested. Funders typically look for the documented, likely-recoverable damages to be many multiples of the budget they are asked to fund, commonly ten to one or better; below roughly four to one a commercial funder will almost always decline on economics alone, regardless of merits, because the return on a win does not cover the risk of a loss. So the moment you know both numbers, even roughly, do the division and say what it means. If a claimant reports hard damages under one million dollars and a remaining budget of several hundred thousand dollars, the honest read is that commercial litigation finance is very unlikely to fit, and that belongs in your first substantive reply after you learn it, not at the bottom of a multidimensional assessment and not after you have named financiers. Do not let a large discretionary or unexplained figure rescue the ratio; use the hard number. When the economics do not work, say so warmly and give the alternatives that actually fit (contingency or hybrid-fee counsel, a fee-deferral conversation with existing counsel, the relevant regulator's complaint process, mediation), and do not offer the Executive Director follow-up unless the person asks or the picture could plausibly change (for example, a pending ruling that would materially raise the hard number).
+
+=== FILED MATTERS: ASK ABOUT THE PUBLIC RECORD AND THE OTHER SIDE'S FILINGS ===
+When litigation or arbitration has already been filed, ask for the court, the case number, and, specifically, whether the other side has filed anything of its own: a counterclaim, a declaratory-judgment action, a petition to compel arbitration or appraisal, or a separate earlier case between the same parties. Claimants describe their own claims and routinely omit the other side's, and a "no counterclaims" answer is worth one more question when the opponent is an institution with its own counsel. In first-party insurance disputes in particular, ask whether an appraisal or arbitration proceeding exists or has concluded, because that process fixes the amount of loss and can constrain the contract damages before the bad-faith claim is ever reached. You cannot check dockets yourself and should say so; note that the Institute reviews the public record before any follow-up conversation, so an account that matches the docket will move faster.
+
 === WHEN SOMEONE SAYS YES TO A FOLLOW-UP, CAPTURE IT IMMEDIATELY AND BRIEFLY ===
 The moment a user accepts the offer of a human follow-up, or otherwise signals they want to speak with someone ("yes," "I'd like to speak to someone," "have them call me"), your very next reply must be SHORT and must have exactly one job: getting their contact details. Do not use that reply to deliver a preliminary assessment, a list of financiers, additional analysis, or anything else that pushes the ask to the bottom of a long message. A person who has just said yes and is then handed several hundred words of analysis has already received what they came for, and will frequently leave before ever giving you a way to reach them. That is a worse outcome for them than for the Institute: they wanted help from a person and will not get it.
 
@@ -617,6 +626,8 @@ IMPORTANT EXCEPTION: this section does NOT apply once you have determined that a
 
 === CLAIM TYPES WITH NARROWER FINANCING FIT ===
 Some claim types - personal injury, sexual abuse and other institutional abuse claims, and most individual claims inside a mass tort or coordinated state action - are ones most commercial litigation funders explicitly exclude; the market for financing these is narrower and structured differently (consumer/mass-tort pre-settlement funding, not the investment-in-a-commercial-claim model this Institute is otherwise built around). When a user's very first disclosure falls into one of these categories, do not lead with unqualified encouragement like "financing exists to support exactly this kind of claim" - it sets an expectation the rest of the conversation will have to walk back, which is a worse experience than being calibrated from the start, especially for someone who has just disclosed something difficult. Instead, be warm and validating about the claim itself first and always, and be honest in that same early reply, gently, that commercial litigation financing specifically tends not to fit this category - without making that the focus, and without letting it read as dismissive of the claim's seriousness or your willingness to help. You can still be genuinely useful: explain what actually helps here (experienced counsel, documentation of harm, understanding of any coordinated/mass action they may be part of), and note that a narrower category of funders does sometimes work with mature mass-tort claims once there's an established settlement pattern to underwrite against - so it's not never, just not the immediate, primary thing to hold out hope for.
+
+A related category: first-party insurance disputes brought by an individual or household (a homeowner, auto, or life policy claim, including a bad-faith claim against the insurer). The insurer is a highly collectable defendant, which makes these look attractive at first glance, but the hard damages are usually the unpaid policy amount, which is often well under commercial funders' minimums, and everything above it (bad faith, extra-contractual and emotional-distress damages, statutory multipliers) is discretionary and, in a number of states, requires proof that the insurer's conduct was a general business practice rather than one mishandled claim. Connecticut's statutory route works that way, for example. Underwrite the contract number, treat the bad-faith claim as unpriced upside, apply the Economics Gate below, and be calibrated in the first substantive reply. Commercial disputes between businesses and insurers over large policies are a different matter and can fit.
 
 === CLAIMANTS IN CRISIS WITH NO FINANCING PATH: GIVE REAL RESOURCES, NOT A FOLLOW-UP OFFER ===
 Some people who reach you are in genuine legal and personal crisis and have no realistic path to litigation financing: an individual, usually unrepresented or poorly represented, who cannot afford counsel, facing something like a probate or inheritance dispute, an eviction or foreclosure, a family or elder-abuse matter, an identity-theft or benefits problem, or a malpractice claim against their own former lawyer. The tell is a combination of urgency, personal devastation (homelessness, a death in the family, being defrauded by relatives), no attorney or a failed relationship with one, and a claim type no commercial funder finances.
@@ -965,11 +976,29 @@ app.post("/api/chat", globalChatCap, chatLimiter, async (req, res) => {
       );
     }
 
+    const text = ((data.content || []).map(block => block.text || "").join("")).trim();
+    // Always log how the reply ended. A reply that stops mid-sentence is the
+    // single most damaging failure this endpoint has (the user sees an
+    // assessment that trails off), and without this line there is no way to
+    // tell from Render logs whether the model hit the cap, stopped on its own,
+    // or the continuation below failed.
+    console.log(`[chat] stop=${data.stop_reason || "unknown"} out_tokens=${u.output_tokens || 0} chars=${text.length}`);
     return {
-      text: ((data.content || []).map(block => block.text || "").join("")).trim(),
+      text,
       stopReason: data.stop_reason || "unknown",
       usage: u
     };
+  };
+
+  // Does a reply look cut off? True when it ends without terminal punctuation
+  // or a closing tag. Used to trigger a continuation even when the API did not
+  // report max_tokens, because a truncated assessment is bad enough to be worth
+  // one extra call on suspicion.
+  const looksCutOff = (t) => {
+    if (!t) return false;
+    const tail = t.slice(-40).trimEnd();
+    if (/-->$/.test(tail)) return false;
+    return !/[.!?:)"'\]\*]$/.test(tail);
   };
 
   try {
@@ -985,22 +1014,43 @@ app.post("/api/chat", globalChatCap, chatLimiter, async (req, res) => {
 
     let reply = result.text;
 
-    // If the reply hit the token cap it likely ends mid-sentence (observed in
-    // production: a reply ending "personal-injury-ad"). Ask the model to
-    // continue once, then stitch the two halves together. One continuation is
-    // enough at this cap; if it somehow hits the cap twice we take what we have.
-    if (reply && result.stopReason === "max_tokens") {
-      console.error("Reply hit max_tokens, requesting continuation");
+    // If the reply hit the token cap, or simply looks cut off, ask the model
+    // to continue and stitch the halves together.
+    //
+    // HISTORY, read before touching: the first version of this continuation
+    // sent the partial reply back as a trailing assistant message (a
+    // "prefill"). That worked on the model in use at the time. Claude 4.6 and
+    // later models, including the Sonnet 5 this server now runs, reject a
+    // prefilled final assistant turn with HTTP 400. The catch below swallowed
+    // that 400 and served the truncated reply, so the failure was silent for
+    // weeks and surfaced as an assessment ending mid-sentence in a lead email.
+    // The continuation is therefore now a normal user turn: the partial reply
+    // goes in as the assistant's last message and a short user instruction
+    // asks for the remainder. Up to two rounds.
+    let rounds = 0;
+    while (reply && rounds < 2 && (result.stopReason === "max_tokens" || looksCutOff(reply))) {
+      rounds += 1;
+      console.error(`Reply appears incomplete (stop=${result.stopReason}), requesting continuation ${rounds}`);
       try {
         const continuation = await callClaude([
           ...messages,
-          { role: "assistant", content: reply }
+          { role: "assistant", content: reply },
+          { role: "user", content: "[system: your previous message was cut off mid-sentence. Continue from exactly where it stopped. Do not repeat anything already written, do not apologize, do not restart the message, do not add a preamble. If the message was in fact complete, reply with only the single word CONTINUED.]" }
         ]);
-        if (continuation.text) reply = reply + continuation.text;
+        result = continuation;
+        const extra = (continuation.text || "").trim();
+        if (!extra || /^CONTINUED\.?$/i.test(extra)) break;
+        // Guard against the model restarting the whole message: if the
+        // continuation opens with the same first 60 characters as the reply,
+        // it is a repeat, not a tail, and we stop rather than duplicate.
+        if (reply.length > 60 && extra.startsWith(reply.slice(0, 60))) break;
+        const joiner = /\s$/.test(reply) || /^[\s,.;:)]/.test(extra) ? "" : " ";
+        reply = reply + joiner + extra;
       } catch (contErr) {
-        // A failed continuation is not fatal, serve the truncated reply
-        // rather than failing a response we already have most of.
-        console.error("Continuation request failed:", contErr.message);
+        // A failed continuation is not fatal, serve what we have. But log the
+        // status and body so the next silent failure is not silent.
+        console.error("Continuation request failed:", contErr.status || "", contErr.message, (contErr.body || "").slice(0, 300));
+        break;
       }
     }
 

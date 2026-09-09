@@ -133,6 +133,25 @@ Behavioural rules currently encoded:
     documents into the chat, no fee numbers, and an honest answer on any leadership
     conflict if asked.
 
+15. **Never sum an unexplained bucket.** Hard documented damages, discretionary
+    damages (bad faith, punitive, distress), and unlabeled "costs" are shown
+    separately with their basis; an unexplained bucket counts as zero.
+16. **Economics gate.** The moment hard damages and requested budget are both known,
+    divide. Below roughly 4:1 commercial funders decline on economics alone; say so
+    in the first substantive reply after learning it, before naming financiers.
+17. **Filed matters: ask about the other side's filings** (counterclaims,
+    declaratory actions, petitions to compel appraisal or arbitration, earlier cases
+    between the same parties). The bot cannot check dockets and says so.
+18. **First-party household insurance disputes** are a narrower-fit category:
+    underwrite the contract number, treat bad faith as unpriced upside.
+
+**Continuation mechanics (server, not prompt).** Claude 4.6+ models, including the
+Sonnet 5 this server runs, return HTTP 400 for a prefilled final assistant turn. The
+mid-sentence continuation is therefore a normal user turn asking for the remainder,
+up to two rounds, and also fires on a "looks cut off" heuristic. Every chat call logs
+`[chat] stop=... out_tokens=... chars=...` so a truncation is visible in Render logs.
+Do not reintroduce prefill.
+
 ## Compliance, non-negotiable
 
 - Fees are **flat, agreed in advance, and never contingent** on funding being offered or

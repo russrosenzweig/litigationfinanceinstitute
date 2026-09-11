@@ -250,7 +250,7 @@ function buildFloatingShell(hasExistingConvo){
       <div class="prompt-chip" data-role="other">Something else</div>
     </div>
     <div class="ch-input">
-      <input id="chInput" type="text" placeholder="Ask a question, or tell your story..." />
+      <textarea id="chInput" rows="1" placeholder="Ask a question, or tell your story. Enter sends, Shift+Enter adds a line." aria-label="Message the Concierge"></textarea>
       <button id="chSend">Send</button>
     </div>
     <div class="ch-followup">
@@ -608,7 +608,7 @@ function wireLogic(){
     const val = chInput.value.trim();
     if(!val) return;
     addMsg('user', val);
-    chInput.value = '';
+    chInput.value = ''; chInput.style.height = 'auto';
     if(LIVE){ askLive(val); return; }
     const matched = findDemoMatch(val);
     const typing = showTyping();
@@ -621,7 +621,18 @@ function wireLogic(){
     }, 900);
   }
   if(chSend) chSend.addEventListener('click', sendCustom);
-  if(chInput) chInput.addEventListener('keydown', function(e){ if(e.key === 'Enter') sendCustom(); });
+  if(chInput){
+    // Enter sends, Shift+Enter inserts a newline. The box was a single-line
+    // input until September 2026; a visitor pasting a multi-paragraph story
+    // into it produced a fragment, then a second full paste, then confusion.
+    chInput.addEventListener('keydown', function(e){
+      if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); sendCustom(); }
+    });
+    // Auto-grow to the content, capped so the log stays visible.
+    function autosize(){ chInput.style.height = 'auto'; chInput.style.height = Math.min(chInput.scrollHeight, 160) + 'px'; }
+    chInput.addEventListener('input', autosize);
+    chInput.addEventListener('paste', function(){ setTimeout(autosize, 0); });
+  }
 
   const followupToggle = document.getElementById('followupToggle');
   const followupForm = document.getElementById('followupForm');

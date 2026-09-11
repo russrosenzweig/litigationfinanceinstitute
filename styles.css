@@ -135,14 +135,16 @@ nav{display:flex; align-items:center; justify-content:space-between; padding:18p
 }
 .prompt-chip:hover{background:rgba(255,255,255,.14);}
 .ch-input{border-top:1px solid rgba(255,255,255,.12); padding:10px 20px; display:flex; gap:10px; background:rgba(0,0,0,.12);}
-.ch-input input{
+.ch-input input, .ch-input textarea{
   flex:1; border:1px solid rgba(255,255,255,.18); border-radius:6px; padding:11px 14px; font-family:-apple-system,sans-serif;
   font-size:14px; background:rgba(255,255,255,.06); color:#fff;
 }
-.ch-input input::placeholder{color:#8996AC;}
+.ch-input input::placeholder, .ch-input textarea::placeholder{color:#8996AC;}
+.ch-input textarea{resize:none; line-height:1.4; max-height:160px; overflow-y:auto;}
+.ch-input{align-items:flex-end;}
 .ch-input button{
   background:var(--gold-light); color:var(--navy); border:none; padding:0 20px; border-radius:6px; font-family:-apple-system,sans-serif;
-  font-weight:700; font-size:13.5px; cursor:pointer;
+  font-weight:700; font-size:13.5px; cursor:pointer; padding:11px 20px; align-self:flex-end;
 }
 .typing{display:inline-flex; gap:4px; padding:11px 15px;}
 .typing span{width:5px; height:5px; background:#9FAAC0; border-radius:50%; animation:blink 1.2s infinite;}

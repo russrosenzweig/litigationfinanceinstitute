@@ -121,7 +121,13 @@ Behavioural rules currently encoded:
     under study since October 2024, and that consumer and commercial funding are distinct
     businesses whose rules should not be conflated. It points lawyers and funders to
     `/primary-sources.html` by name.
-14. **Fifth audience, `lawfirm`: the MSO readiness screen.** A law firm owner exploring
+14. **Fifth audience, `lawfirm`: triage first, then the MSO readiness screen.** "Outside
+    capital" is a fork, so the opening message states the purpose broadly and lays out
+    three branches: capital against cases (portfolio and law firm lending, handled as
+    ordinary litigation finance sized to the firm, and the branch most owners actually
+    want), capital for the business (the MSO), and an exit or succession. The MSO
+    readiness flow starts only once branch (b) or (c) is confirmed. No name ask and no
+    enumerated intake list in the first message. Then: a law firm owner exploring
     outside capital gets a distinct flow: purpose sentence, intake across six dimensions
     (profile, economics, back office, jurisdiction, objective, structure), honest-fit
     first (too-small firms told immediately; revenue-share proposals flagged against the

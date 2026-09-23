@@ -150,6 +150,21 @@ Behavioural rules currently encoded:
     between the same parties). The bot cannot check dockets and says so.
 18. **First-party household insurance disputes** are a narrower-fit category:
     underwrite the contract number, treat bad faith as unpriced upside.
+19. **Run the gate even without a budget figure.** Hard damages of a few hundred
+    thousand or less cannot pay for contested litigation; say so in the first
+    substantive reply rather than asking four more questions first.
+20. **Lost profits from a business that never opened** are a forecast, not evidence.
+    Courts are hostile to them and funders discount them to zero; the recoverable
+    number is usually money actually spent or actually owed.
+21. **Co-owner disputes:** a diverted-opportunity claim usually belongs to the company,
+    so the defendant owner shares in any recovery; the operating agreement's buy-sell
+    mechanism is cheaper than suit; look for leverage outside the lawsuit (guaranties,
+    leases); individual owners are weak collectability (homestead, retirement,
+    protected settlement proceeds).
+22. **When the claimant's own counsel recommends settlement,** treat that as evidence
+    about the merits. Never speculate about counsel's motives or suggest the client
+    needs a more aggressive lawyer. No funder finances a case the claimant's own
+    lawyer thinks should settle. Offer a second opinion via the state bar instead.
 
 **Continuation mechanics (server, not prompt).** Claude 4.6+ models, including the
 Sonnet 5 this server runs, return HTTP 400 for a prefilled final assistant turn. The

@@ -49,7 +49,7 @@ compliance section below, this is not a stylistic preference.
   out of this file by `server.js` at boot and becomes part of the concierge corpus. Same
   pattern for `research.html` (`const articles`) and `disputes.html` (`const disputes`).
   **Editing these HTML files updates the bot's knowledge. There is no separate corpus.**
-- `research/`, 54 research library articles. `disputes/`, 50 dispute pages.
+- `research/`, 55 research library articles. `disputes/`, 50 dispute pages.
   `financiers/`, funder detail pages.
 - `scholarship.html`, an annotated bibliography of the academic literature, and
   `primary-sources.html`, the official government/court/bar documents. Both are

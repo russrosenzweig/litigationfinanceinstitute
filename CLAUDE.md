@@ -236,6 +236,15 @@ Funder exclusion clauses ("no mass tort") are stripped before matching so a fund
 never linked to work it refuses; short funder names that are ordinary words (Balance,
 Validity) only count as a mention when the full name appears.
 
+**Content Desk drafts install with one command:** `node scripts/install-draft.js draft.json`
+(`--check` validates without changing anything). It writes the page from the site
+template, appends the entry to the corpus array, adds the hub card and sitemap URL, bumps
+the counts in index.html, llms.txt and this file, and reruns build-related.js. Drafts are
+produced weekly by the private Content Desk scheduled task and staged outside the repo;
+nothing is installed until the Executive Director approves it. The validator rejects em or
+en dashes, HTML tags, a named vendor, missing sources, non-https sources, fewer than 350
+words, duplicate titles, and unknown article categories.
+
 `GET /api/health` reports corpus counts, API key presence, and mailer status.
 `GET /api/insights-summary` and `GET /api/demand-brief` expose aggregate conversation data.
 

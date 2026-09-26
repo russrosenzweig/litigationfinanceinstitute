@@ -145,7 +145,15 @@ for (const f of funders) {
 }
 for (const d of disputes) {
   const named = funders.filter(f => f.aliases.some(al => d.funders.toLowerCase().includes(al)));
-  plan.set(d.url, { doc: d, sections: [["Funder Profiles", named.slice(0, 4)]] });
+  const sections = [["Funder Profiles", named.slice(0, 4)]];
+  // The original 50 dispute pages carry hand-curated related blocks. Pages added later
+  // (scripts/install-draft.js) do not, so generate them there and only there.
+  const html = fs.readFileSync(path.join(ROOT, d.url), "utf8");
+  if (!html.includes('<div class="st">Related Research Library Articles</div>')) {
+    sections.unshift(["Related Disputes", top(d, disputes, 3, 0.07, o => (o.cat === d.cat ? 0.04 : 0))]);
+    sections.unshift(["Related Research", top(d, articles, 4, 0.06)]);
+  }
+  plan.set(d.url, { doc: d, sections });
 }
 
 // ---------- render ----------

@@ -58,7 +58,7 @@ const problems = [];
 const warn = [];
 const raw = JSON.stringify(draft);
 
-if (/[–—]/.test(raw)) problems.push("contains an em dash or en dash (house style forbids both; use a comma, a new sentence, parentheses, or a plain hyphen)");
+if (/[\u2013\u2014]/.test(raw)) problems.push("contains an em dash or en dash (house style forbids both; use a comma, a new sentence, parentheses, or a plain hyphen)");
 if (/round\s*table/i.test(raw)) problems.push("names Round Table Group (never named in site copy)");
 if (/success fee|finder'?s fee|percentage of (the )?(funding|recovery)/i.test(raw)) warn.push("mentions success/finder fees or percentage compensation; confirm it is describing the market, not the Institute");
 if (/<[a-z/][^>]*>/i.test(raw)) problems.push("contains HTML tags; drafts are plain text");
@@ -250,7 +250,7 @@ ${sourcesBlock(draft.sources)}    <div class="neutral-block" style="margin-top:2
   write(`disputes/${slug}.html`, page);
   write("disputes.html", appendToArray("disputes.html", "disputes", disputeLiteral(e)));
   write("disputes.html", insertCard("disputes.html",
-    `<a class="article" href="/disputes/${slug}.html" data-cat="${esc(e.cat)}" data-idx="${idx}"><span class="tag">${esc(e.cat)}</span><h4>${esc(e.name)}</h4><p>${esc(clip(e.holding, 120).replace(/\.\.\.$/, "…"))}</p></a>`));
+    `<a class="article" href="/disputes/${slug}.html" data-cat="${esc(e.cat)}" data-idx="${idx}"><span class="tag">${esc(e.cat)}</span><h4>${esc(e.name)}</h4><p>${esc(clip(e.holding, 120).replace(/\.\.\.$/, "\u2026"))}</p></a>`));
 }
 
 // sitemap
@@ -280,7 +280,7 @@ const after = type === "article" ? loadArray("research.html", "articles") : load
 const last = after[after.length - 1];
 const ok = type === "article" ? last.title === e.title : last.name === e.name;
 const pageHtml = read(`${dir}/${slug}.html`);
-const dashFree = !/[–—]/.test(pageHtml);
+const dashFree = !/[\u2013\u2014]/.test(pageHtml);
 const ldOk = [...pageHtml.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].every(m => { try { JSON.parse(m[1]); return true; } catch { return false; } });
 console.log(`${ok ? "OK  " : "FAIL"}  corpus array now has ${after.length} entries, last is the new one`);
 console.log(`${dashFree ? "OK  " : "FAIL"}  page is dash-free`);

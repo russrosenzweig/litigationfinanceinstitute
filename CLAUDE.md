@@ -225,6 +225,17 @@ After editing `financiers.html`, `research.html`, or `disputes.html`, confirm th
 still parses the way `server.js` reads it (find `const X = [`, read to the line that is
 exactly `];`, eval). A malformed array silently empties the bot's corpus.
 
+**Rerun `node scripts/build-related.js` after adding or editing any article, dispute,
+or funder.** It is the site's internal concordance: TF-IDF related-content blocks on
+every research, dispute, and funder page; BreadcrumbList JSON-LD on every detail page;
+CollectionPage/ItemList/BreadcrumbList JSON-LD on the hubs and the other bare pages;
+and it syncs the article/dispute/funder counts in the hub titles and meta descriptions.
+Everything it writes sits between `RELATED`, `BREADCRUMB`, and `HUBSCHEMA` marker
+comments and is replaced on each run, so it is safe to rerun. `--dry` prints the plan.
+Funder exclusion clauses ("no mass tort") are stripped before matching so a funder is
+never linked to work it refuses; short funder names that are ordinary words (Balance,
+Validity) only count as a mention when the full name appears.
+
 `GET /api/health` reports corpus counts, API key presence, and mailer status.
 `GET /api/insights-summary` and `GET /api/demand-brief` expose aggregate conversation data.
 

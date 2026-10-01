@@ -165,6 +165,19 @@ Behavioural rules currently encoded:
     about the merits. Never speculate about counsel's motives or suggest the client
     needs a more aggressive lawyer. No funder finances a case the claimant's own
     lawyer thinks should settle. Offer a second opinion via the state bar instead.
+23. **Never re-ask what the user already said.** When a later message contradicts an
+    earlier one, name the tension and ask one question that resolves it.
+24. **An unpaid award or judgment is an enforcement problem.** Ask amount, debtor
+    solvency, challenge status, and enforcement status first; against a solvent debtor
+    it is counsel's enforcement job, not a funding matter. Overrides the injury-claim
+    calibration until resolved.
+25. **Match the financing answer to the claimant's country.** Never name US-only
+    funders to a non-US claimant; UK and Commonwealth injury claims run on conditional
+    fees plus ATE insurance; flag the short maritime limitation period as a question
+    for the solicitor.
+26. **Second-language users:** short replies, one or two questions, no repeated
+    explanations, one offer to switch languages. Grounding rule now also covers what a
+    named company's contracts or tickets say.
 
 **Continuation mechanics (server, not prompt).** Claude 4.6+ models, including the
 Sonnet 5 this server runs, return HTTP 400 for a prefilled final assistant turn. The

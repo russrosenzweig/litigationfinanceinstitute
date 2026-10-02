@@ -223,6 +223,69 @@
   </div>
 </section>
 
+<section id="introduction" style="padding-top:0;">
+  <style>
+    .ed-grid{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.2fr); gap:28px; align-items:center;}
+    .ed-frame{position:relative; width:100%; aspect-ratio:16/9; background:#0b1220; border:1px solid var(--line); border-radius:6px; overflow:hidden;}
+    .ed-frame iframe{position:absolute; inset:0; width:100%; height:100%; border:0;}
+    .ed-play{position:absolute; inset:0; width:100%; height:100%; padding:0; border:0; background:#0b1220; cursor:pointer; display:block;}
+    .ed-play img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block;}
+    .ed-play .ed-btn{position:absolute; left:50%; top:50%; width:64px; height:64px; margin:-32px 0 0 -32px; border-radius:50%; background:rgba(11,31,58,.86); display:flex; align-items:center; justify-content:center; transition:transform .15s ease, background .15s ease;}
+    .ed-play .ed-btn svg{width:26px; height:26px; margin-left:4px; fill:#fff;}
+    .ed-play:hover .ed-btn, .ed-play:focus-visible .ed-btn{transform:scale(1.06); background:var(--gold);}
+    .ed-play .ed-dur{position:absolute; right:10px; bottom:10px; background:rgba(11,31,58,.86); color:#fff; font-family:-apple-system,sans-serif; font-size:12.5px; font-weight:600; padding:3px 8px; border-radius:4px;}
+    @media (max-width:640px){.ed-grid{grid-template-columns:1fr; gap:18px;}}
+  </style>
+  <div class="wrap-narrow">
+    <div class="ed-grid">
+      <div>
+        <div class="eyebrow">A brief introduction</div>
+        <h2 style="margin:6px 0 10px;">A brief introduction from the Executive Director</h2>
+        <p style="font-family:-apple-system,sans-serif; font-size:14.5px; color:var(--muted); line-height:1.7; margin:0 0 14px;">Ninety seconds on why the Institute exists, what the Senior Fellow does, and how the flat fee works.</p>
+        <p style="font-family:-apple-system,sans-serif; font-size:14px; margin:0;"><a href="about.html#introduction-video" style="color:var(--navy); font-weight:600;">Watch the full interview and read the transcript &rarr;</a></p>
+      </div>
+      <div class="ed-frame">
+        <button class="ed-play" type="button" data-yt="mj3-jEETAIk" aria-label="Play: An Introduction to the Institute for Litigation Finance (90 seconds)">
+          <img src="https://i.ytimg.com/vi/mj3-jEETAIk/maxresdefault.jpg" alt="" width="1280" height="720" loading="lazy">
+          <span class="ed-btn" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
+          <span class="ed-dur" aria-hidden="true">1:29</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@type": "VideoObject",
+ "name": "An Introduction to the Institute for Litigation Finance (90 seconds)",
+ "description": "Ninety seconds from Executive Director Russ Rosenzweig on why the Institute exists, what the Senior Fellow does, and how the flat fee works.",
+ "thumbnailUrl": "https://i.ytimg.com/vi/mj3-jEETAIk/maxresdefault.jpg",
+ "uploadDate": "2026-09-29",
+ "duration": "PT1M29S",
+ "embedUrl": "https://www.youtube-nocookie.com/embed/mj3-jEETAIk",
+ "contentUrl": "https://youtu.be/mj3-jEETAIk",
+ "publisher": {
+  "@type": "Organization",
+  "name": "Institute for Litigation Finance",
+  "url": "https://litigationfinanceinstitute.com/"
+ }
+}
+  </script>
+  <script>
+    document.querySelectorAll('#introduction .ed-play').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var f = document.createElement('iframe');
+        f.src = 'https://www.youtube-nocookie.com/embed/' + b.getAttribute('data-yt') + '?autoplay=1&rel=0';
+        f.title = b.getAttribute('aria-label');
+        f.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
+        f.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+        f.setAttribute('allowfullscreen', '');
+        b.parentNode.replaceChild(f, b);
+      });
+    });
+  </script>
+</section>
+
 <section style="padding-top:0;">
   <div class="wrap-narrow">
     <h2 style="margin-bottom:6px;">Frequently Asked Questions</h2>

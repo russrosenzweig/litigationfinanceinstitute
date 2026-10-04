@@ -178,6 +178,20 @@ Behavioural rules currently encoded:
 26. **Second-language users:** short replies, one or two questions, no repeated
     explanations, one offer to switch languages. Grounding rule now also covers what a
     named company's contracts or tickets say.
+27. **Net the ratio against what the claimant owes.** A conceded contract balance,
+    retainage or counterclaim comes off the hard damages before the economics gate is
+    run; the reply and the fit note state both the gross and the net.
+28. **Match the funder to the size of the ask, not the claim.** Never name a funder
+    whose published minimum is above the request; under $500K only Legalist and
+    Greybridge reach it per the directory. No "institutional funders find this
+    attractive" for a sub-$1M request.
+29. **A short runway is an obstacle.** Trial or need within about two months means new
+    funding is unlikely to close in time; name the ruling or report a funder would wait
+    for. Never score the time horizon favorable because trial is near.
+30. **Insurance limits are not coverage.** A contractor's general liability policy often
+    excludes the cost of fixing its own work, and intentional torts are commonly
+    excluded; raise both as questions for counsel and rest collectability on the
+    defendant's own assets until answered.
 
 **Continuation mechanics (server, not prompt).** Claude 4.6+ models, including the
 Sonnet 5 this server runs, return HTTP 400 for a prefilled final assistant turn. The

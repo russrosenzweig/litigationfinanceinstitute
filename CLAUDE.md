@@ -211,6 +211,13 @@ which produced at least two transcripts built on a false fact (the MSC cruise cl
 and a Wyoming injury claimant). It now reads "What if I won but can't collect?". Never
 write a suggestion chip that asserts a fact about the user's case.
 
+Law firm role, 5 Oct 2026: the widget's fallback opener and its three suggestion chips
+were MSO-only, contradicting rule 14's three-way triage. The opener now lays out the
+three branches and a "Can a firm borrow against its cases?" chip leads the list. The
+prompt no longer says a multi-state firm "is governed by the most restrictive state"
+(it is a planning assumption; which rules apply is a choice-of-law question for ethics
+counsel) and tells the bot not to flatten the four state measures into one rule.
+
 **Continuation mechanics (server, not prompt).** Claude 4.6+ models, including the
 Sonnet 5 this server runs, return HTTP 400 for a prefilled final assistant turn. The
 mid-sentence continuation is therefore a normal user turn asking for the remainder,

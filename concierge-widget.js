@@ -49,7 +49,7 @@ const ROLES = {
     audience: "a business owner, claimant, or law firm with a legal matter seeking assessment",
     demoReply: "Thank you, my job is to help you assess the likelihood of securing litigation financing, and where it fits, help connect you with the most suitable financier. I have a few questions that will help me understand the legal and financial characteristics of this matter. Tell me what happened: who's involved, roughly when, and what you're hoping to resolve. There's no form to fill out, just tell me the story, and I'll ask follow-ups as we go.",
     followups: [
-      {label:"We won arbitration. The defendant won't pay.", demo:"manufacturing"},
+      {label:"What if I won but can't collect?", demo:"manufacturing"},
       {label:"Why does collectability matter more than liability?", demo:"collectability"},
       {label:"Start my case assessment", action:"assessment"}
     ]
@@ -92,7 +92,7 @@ const ROLES = {
     audience: "someone exploring the site generally, role not yet specified",
     demoReply: "No problem, ask me anything about litigation finance, or tell me what brought you here, and I'll take it from there.",
     followups: [
-      {label:"We won arbitration. The defendant won't pay.", demo:"manufacturing"},
+      {label:"What if I won but can't collect?", demo:"manufacturing"},
       {label:"Why does collectability matter more than liability?", demo:"collectability"},
       {label:"How is patent litigation finance different?", demo:"patent"}
     ]
@@ -104,7 +104,7 @@ const demos = {
     reply:"In a management services organization structure the firm splits in two. Lawyers keep the legal practice: clients, files, fee agreements, professional judgment. A separate company, which nonlawyers may own, acquires the back office (intake, billing, HR, technology, marketing, leases) and runs it for a recurring fee. The capital buys business assets, not a stake in any case, which is what separates an MSO from litigation funding. The version that survives the new state rules earns a <strong>fixed, fair-market fee</strong> and profits by running operations more efficiently; the version being legislated away takes a percentage of what the lawyers bill. <a href='/research/what-is-a-law-firm-mso.html' style=\"color:#D8BE85;\">See: What Is a Law Firm MSO? &rarr;</a>"},
   msoStates: {kw:["which states","restricted msos","texas 706","ab 931","colorado mso","illinois mso","state rules mso","mso law"],
     reply:"Four states have acted since early 2025, and they converge on one line: an MSO may be paid for services at a fixed price, never on legal revenue. Texas Ethics Opinion 706 (February 2025) treats a percentage of revenue as fee-splitting. California AB 931 (signed October 2025) bars fee-sharing with out-of-state alternative business structures through 2030 and expressly exempts flat-fee contracts. Colorado HB26-1421 (effective August 2026) puts the ban in statute with a private right of action. Illinois Public Act 104-0801 (August 2026) targets private-equity-owned MSOs specifically. If your firm practices in more than one state, the most restrictive governs. <a href='/law-firm-capital.html' style=\"color:#D8BE85;\">See: Law Firm Capital &rarr;</a>"},
-  manufacturing: {kw:["defendant won't pay","defendant wont pay","won arbitration","won't pay","wont pay","collect on my judgment","enforce my judgment","enforcement"],
+  manufacturing: {kw:["can't collect","cant collect","defendant won't pay","defendant wont pay","won arbitration","won't pay","wont pay","collect on my judgment","enforce my judgment","enforcement"],
     reply:"That's a well-suited profile for <strong>judgment enforcement financing</strong>, capital advanced against an award you've already won, used to fund collection: asset tracing, cross-border enforcement, local counsel. Funders favor this category because liability is already resolved; the open question becomes collectability. I'd want to know next: is the defendant solvent, where are its assets, and has an enforcement strategy been mapped out yet? <a href='/research.html' style=\"color:#D8BE85;\">See: Judgment Enforcement Financing &rarr;</a>"},
   collectability: {kw:["collectability","collectible","why does liability","strong case","win my case","case is strong"],
     reply:"Because a favorable ruling that can't be collected is worth zero to a funder. Liability tells you whether you're right; collectability tells you whether you'll ever see the money. Funders will often pass on a near-certain win against an insolvent, judgment-proof defendant, and take real interest in a messier liability picture against a defendant with clear, reachable assets. <a href='/research.html' style=\"color:#D8BE85;\">See: Collectability Matters More Than Liability &rarr;</a>"},

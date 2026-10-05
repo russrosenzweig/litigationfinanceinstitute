@@ -192,6 +192,24 @@ Behavioural rules currently encoded:
     excludes the cost of fixing its own work, and intentional torts are commonly
     excluded; raise both as questions for counsel and rest collectability on the
     defendant's own assets until answered.
+31. **Read the date on anything pasted.** Today's date is in the per-request context
+    block; a past motion in a case already in discovery is history, never a deadline.
+32. **Settled means settled.** Once the user says an issue is agreed or decided (for
+    example, both sides accept they were not an employee), stop raising it.
+33. **Attribute statements correctly.** A defendant's inconsistent account to its
+    insurer is the defendant's, not the carrier's, and creates no bad-faith claim.
+34. **Limits are a ceiling, not a value.** Never call policy limits the claimant's asset
+    or repeat a stacking theory; ask for medical bills, wage loss and future care.
+35. **Self-represented, no financing path.** Crisis-section treatment even without a
+    crisis: state bar lawyer referral service, contingency counsel, no Executive
+    Director offer unless asked. Contact requests are capped: after a name and one
+    contact method, ask for another at most once.
+
+The claimant and "other" widget menus used to offer a chip reading "We won arbitration.
+The defendant won't pay." Tapping it sent that sentence as the user's own message,
+which produced at least two transcripts built on a false fact (the MSC cruise claimant
+and a Wyoming injury claimant). It now reads "What if I won but can't collect?". Never
+write a suggestion chip that asserts a fact about the user's case.
 
 **Continuation mechanics (server, not prompt).** Claude 4.6+ models, including the
 Sonnet 5 this server runs, return HTTP 400 for a prefilled final assistant turn. The

@@ -20,7 +20,23 @@ const path = require("path");
 try { require("dotenv").config(); } catch (e) { /* no .env support, that's fine */ }
 
 const PORT = process.env.PORT || 3000;
-const MODEL = process.env.CLAUDE_MODEL || "claude-sonnet-5";
+const MODEL = process.env.CLAUDE_MODEL || "claude-opus-5-5";
+// Claude Opus 5.5 always thinks before it answers, and effort is the one control
+// over how much: it sets quality, latency and cost together. The API default is
+// "medium"; it is set explicitly here so a change of model never moves it
+// silently. Override per deploy with CLAUDE_EFFORT (low | medium | high).
+const EFFORT = process.env.CLAUDE_EFFORT || "medium";
+// Thinking counts against max_tokens even though its text is never returned, so
+// the ceiling has to hold the thinking plus the reply. 4000 was sized for a
+// reply alone and would cut answers off or return them empty.
+const MAX_TOKENS = 16000;
+// Haiku-class models reject output_config.effort; everything else takes it.
+const SENDS_EFFORT = !/haiku/.test(MODEL);
+// Opus 5 and later run safety classifiers that can decline a request (HTTP 200,
+// stop_reason "refusal"). Server-side fallback re-runs a declined request on
+// the model Anthropic recommends for that category, so a false positive does
+// not surface to a claimant as an error.
+const SENDS_FALLBACK = /^claude-(opus-5|fable-5)/.test(MODEL);
 // Insight extraction runs on every message, so it defaults to a cheaper/faster
 // model than the main conversation, this is a small structured-tagging task,
 // not a place that needs the flagship model.
@@ -1020,11 +1036,14 @@ app.post("/api/chat", globalChatCap, chatLimiter, async (req, res) => {
       headers: {
         "content-type": "application/json",
         "x-api-key": API_KEY,
-        "anthropic-version": "2023-06-01"
+        "anthropic-version": "2023-06-01",
+        ...(SENDS_FALLBACK ? { "anthropic-beta": "server-side-fallback-2026-07-01" } : {})
       },
       body: JSON.stringify({
         model: MODEL,
-        max_tokens: 4000,
+        max_tokens: MAX_TOKENS,
+        ...(SENDS_EFFORT ? { output_config: { effort: EFFORT } } : {}),
+        ...(SENDS_FALLBACK ? { fallbacks: "default" } : {}),
         system: system,
         messages: msgs.map(m => ({ role: m.role, content: m.content }))
       })
@@ -1061,7 +1080,7 @@ app.post("/api/chat", globalChatCap, chatLimiter, async (req, res) => {
     // assessment that trails off), and without this line there is no way to
     // tell from Render logs whether the model hit the cap, stopped on its own,
     // or the continuation below failed.
-    console.log(`[chat] stop=${data.stop_reason || "unknown"} out_tokens=${u.output_tokens || 0} chars=${text.length}`);
+    console.log(`[chat] model=${data.model || MODEL} stop=${data.stop_reason || "unknown"} out_tokens=${u.output_tokens || 0} chars=${text.length}`);
     return {
       text,
       stopReason: data.stop_reason || "unknown",
@@ -1086,6 +1105,12 @@ app.post("/api/chat", globalChatCap, chatLimiter, async (req, res) => {
     // showing the user an apology when a simple retry usually succeeds is a
     // worse experience than a moment's extra wait.
     let result = await callClaude(messages);
+    if (result.stopReason === "refusal") {
+      // Declined by a safety classifier even after the server-side fallback.
+      // Retrying the same request cannot help; say so plainly instead.
+      console.error("[chat] request declined (stop_reason: refusal)");
+      return res.json({ reply: "I'm not able to help with that particular request. If you have a legal matter you would like assessed for financing, tell me about it and I'll take it from there." });
+    }
     if (!result.text) {
       console.error("Empty reply from Anthropic API (stop_reason: " + result.stopReason + "), retrying once");
       result = await callClaude(messages);
@@ -1099,7 +1124,7 @@ app.post("/api/chat", globalChatCap, chatLimiter, async (req, res) => {
     // HISTORY, read before touching: the first version of this continuation
     // sent the partial reply back as a trailing assistant message (a
     // "prefill"). That worked on the model in use at the time. Claude 4.6 and
-    // later models, including the Sonnet 5 this server now runs, reject a
+    // later models, including the Opus 5.5 this server now runs, reject a
     // prefilled final assistant turn with HTTP 400. The catch below swallowed
     // that 400 and served the truncated reply, so the failure was silent for
     // weeks and surfaced as an assessment ending mid-sentence in a lead email.

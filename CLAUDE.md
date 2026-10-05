@@ -218,8 +218,17 @@ prompt no longer says a multi-state firm "is governed by the most restrictive st
 (it is a planning assumption; which rules apply is a choice-of-law question for ethics
 counsel) and tells the bot not to flatten the four state measures into one rule.
 
+**Model (5 Oct 2026).** The concierge runs on `claude-opus-5-5` (was `claude-sonnet-5`),
+effort `medium`, `max_tokens` 16000. On this model thinking cannot be turned off and
+counts against `max_tokens`; effort (`CLAUDE_EFFORT`) is the control for quality,
+latency and cost together, so lower effort before adding "be brief" instructions.
+Requests send `fallbacks: "default"` (beta `server-side-fallback-2026-07-01`) so a
+safety-classifier refusal is re-run on a fallback model; a refusal that survives gets a
+plain message and is not retried. Never add `temperature`, `thinking: disabled`,
+`budget_tokens` or a forced `tool_choice` to this call: all four return a 400.
+
 **Continuation mechanics (server, not prompt).** Claude 4.6+ models, including the
-Sonnet 5 this server runs, return HTTP 400 for a prefilled final assistant turn. The
+Opus 5.5 this server runs, return HTTP 400 for a prefilled final assistant turn. The
 mid-sentence continuation is therefore a normal user turn asking for the remainder,
 up to two rounds, and also fires on a "looks cut off" heuristic. Every chat call logs
 `[chat] stop=... out_tokens=... chars=...` so a truncation is visible in Render logs.

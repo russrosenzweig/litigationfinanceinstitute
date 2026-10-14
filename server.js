@@ -793,7 +793,21 @@ const app = express();
 app.set("trust proxy", 1);
 
 app.use(express.json({ limit: "2mb" }));
-app.use(express.static(__dirname));
+// express.static serves the whole repository directory, so without this guard
+// the runtime data/ folder (conversation tags), the server source and the
+// working notes were all downloadable. Found 14 Oct 2026: /data/insights.jsonl
+// was public. Anything not meant for visitors is refused before static runs.
+const PRIVATE_PATHS = /^\/(data|scripts|netlify|node_modules)(\/|$)|^\/(server\.js|package(-lock)?\.json|gen_strategy_doc\.js|netlify\.toml)$|\.(md|tmp)$|^\/\./i;
+app.use((req, res, next) => {
+  let p = req.path;
+  try { p = decodeURIComponent(p); } catch (e) { return res.status(400).send("Bad request"); }
+  // Normalise before testing: "//data/x", "/./data/x" and "\\data\\x" all
+  // resolve to the same file in express.static.
+  p = path.posix.normalize("/" + p.replace(/\\/g, "/")).replace(/\/{2,}/g, "/");
+  if (PRIVATE_PATHS.test(p)) return res.status(404).send("Not found");
+  next();
+});
+app.use(express.static(__dirname, { dotfiles: "deny" }));
 
 // ============================================================================
 // RATE LIMITING

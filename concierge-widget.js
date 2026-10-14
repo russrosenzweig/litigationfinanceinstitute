@@ -152,7 +152,7 @@ function findDemoMatch(text){
 }
 
 /* ---------------- PERSISTENCE (sessionStorage) ---------------- */
-const SK = { role:'lfi_role_key', convo:'lfi_convo', display:'lfi_display', session:'lfi_session_id', engaged:'lfi_engaged_tracked', coverage:'lfi_coverage' };
+const SK = { role:'lfi_role_key', convo:'lfi_convo', display:'lfi_display', session:'lfi_session_id', engaged:'lfi_engaged_tracked', coverage:'lfi_coverage', assist:'lfi_assist' };
 
 function loadState(){
   try{
@@ -299,6 +299,45 @@ function wireLogic(){
 
   function persist(){ saveState({ roleKey, convo, displayLog, coverage }); }
 
+  /* ---- Other Ways to Get Help (assistance pathway) ----
+     Present only when the server reports assistPathway:true. In this mode the
+     widget sends no analytics events, hides the commercial follow-up form,
+     and tells the server so the conversation is not tagged or emailed. */
+  let ASSIST_ON = false;
+  let assistMode = false;
+  try{ assistMode = sessionStorage.getItem(SK.assist) === '1'; }catch(e){}
+  const ASSIST_CHIP = { label:'Other ways to get help', action:'assist' };
+  function assistRoleFits(){ return !roleKey || roleKey === 'claimant' || roleKey === 'other'; }
+  function setAssistMode(on){
+    assistMode = on;
+    try{ if(on) sessionStorage.setItem(SK.assist, '1'); }catch(e){}
+    if(on){
+      const t = document.getElementById('followupToggle');
+      const f = document.getElementById('followupForm');
+      if(t) t.style.display = 'none';
+      if(f) f.style.display = 'none';
+    }
+  }
+  function addHelpLink(){
+    const box = document.querySelector('.ch-followup');
+    if(!box || box.querySelector('.ch-helplink')) return;
+    const a = document.createElement('a');
+    a.className = 'ch-helplink';
+    a.href = '/help.html';
+    a.textContent = 'Other ways to get help, at no charge';
+    a.style.cssText = 'display:block;margin-top:6px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:13px;color:#D8BE85;text-decoration:underline;text-underline-offset:2px;';
+    box.appendChild(a);
+  }
+  function addAssistChip(){
+    if(!promptRow || promptRow.querySelector('[data-action="assist"]')) return;
+    const chip = document.createElement('div');
+    chip.className = 'prompt-chip';
+    chip.textContent = ASSIST_CHIP.label;
+    chip.dataset.action = 'assist';
+    promptRow.appendChild(chip);
+    wireChips();
+  }
+
   const coverageBar = document.getElementById('coverageBar');
 
   // The chip set depends on the audience: case conversations track the seven
@@ -399,6 +438,12 @@ function wireLogic(){
 
   const statusEl = document.getElementById('chStatus');
   fetch('/api/health').then(function(r){ return r.ok ? r.json() : Promise.reject(); }).then(function(data){
+    if(data.assistPathway){
+      ASSIST_ON = true;
+      addHelpLink();
+      if(assistRoleFits()) addAssistChip();
+      if(assistMode) setAssistMode(true);
+    }
     if(data.hasApiKey){
       LIVE = true;
       if(statusEl){
@@ -440,7 +485,7 @@ function wireLogic(){
 
   function sendEndSession(useBeacon){
     if(!convo || convo.length === 0) return;
-    const payload = JSON.stringify({ session: sessionId, audience: audience, transcript: convo });
+    const payload = JSON.stringify(assistMode ? { session: sessionId, audience: audience, transcript: convo, pathway: 'assist' } : { session: sessionId, audience: audience, transcript: convo });
     try{
       if(useBeacon && navigator.sendBeacon){
         navigator.sendBeacon('/api/end-session', new Blob([payload], {type:'application/json'}));
@@ -485,7 +530,7 @@ function wireLogic(){
     persist();
     resetIdleTimer();
     try{
-      if(!sessionStorage.getItem(SK.engaged)){
+      if(!assistMode && !sessionStorage.getItem(SK.engaged)){
         sessionStorage.setItem(SK.engaged, '1');
         trackEvent('qualify_lead', { audience: audience || 'unspecified' });
       }
@@ -494,7 +539,7 @@ function wireLogic(){
     return fetch('/api/chat', {
       method:'POST',
       headers:{'content-type':'application/json'},
-      body: JSON.stringify({ messages: convo, audience: audience, session: sessionId })
+      body: JSON.stringify(assistMode ? { messages: convo, audience: audience, session: sessionId, pathway: 'assist' } : { messages: convo, audience: audience, session: sessionId })
     }).then(function(res){
       return res.json().then(function(data){
         // 429 is a deliberate rate limit, not a failure. The server sends a
@@ -506,6 +551,7 @@ function wireLogic(){
           throw e;
         }
         if(!res.ok) throw new Error(data.error || 'Request failed');
+        if(ASSIST_ON && data.pathway === 'assist' && !assistMode) setAssistMode(true);
         const parsed = stripCoverageTag(data.reply || '');
           const cleanReply = (parsed.clean || '').trim() ? parsed.clean : "Sorry - my reply did not come through properly just now. Could you say continue, or ask that again?";
           finalizeAiReply(typing, formatMsg(cleanReply));
@@ -536,7 +582,20 @@ function wireLogic(){
       if(f.demo) chip.dataset.demo = f.demo;
       promptRow.appendChild(chip);
     });
+    if(ASSIST_ON && assistRoleFits()) addAssistChip();
     wireChips();
+  }
+
+  function startAssist(){
+    if(sending) return;
+    setAssistMode(true);
+    const msg = "I'm looking for other kinds of help, not funding.";
+    addMsg('user', msg);
+    if(LIVE){ askLive(msg); return; }
+    const typing = showTyping();
+    setTimeout(function(){
+      finalizeAiReply(typing, "You can find a short list of places to start, including legal help, community resources and crisis lines, on the <a href='/help.html'>Other ways to get help</a> page.");
+    }, 600);
   }
 
   function selectRole(key, label){
@@ -592,11 +651,16 @@ function wireLogic(){
 
   function wireChips(){
     document.querySelectorAll('.prompt-chip').forEach(function(btn){
+      // Wire each chip once, so calling this again never stacks a second
+      // listener on a chip that is already live.
+      if(btn.dataset.wired) return;
+      btn.dataset.wired = '1';
       btn.addEventListener('click', function(){
         if(sending) return;
         if(btn.dataset.role){ selectRole(btn.dataset.role, btn.textContent); return; }
         if(btn.dataset.action === 'assessment'){ startAssessment(); return; }
         if(btn.dataset.action === 'readiness'){ startReadiness(); return; }
+        if(btn.dataset.action === 'assist'){ startAssist(); return; }
         if(btn.dataset.demo){ runDemo(btn.dataset.demo, btn.textContent); return; }
       });
     });
@@ -667,10 +731,10 @@ function wireLogic(){
       fetch('/api/lead', {
         method:'POST',
         headers:{'content-type':'application/json'},
-        body: JSON.stringify({ name: name, email: email, phone: phone, session: sessionId, transcript: convo })
+        body: JSON.stringify(assistMode ? { name: name, email: email, phone: phone, session: sessionId, pathway: 'assist' } : { name: name, email: email, phone: phone, session: sessionId, transcript: convo })
       }).then(function(res){ return res.json(); }).then(function(data){
         if(data.ok){
-          trackEvent('close_convert_lead', { audience: audience || 'unspecified' });
+          if(!assistMode) trackEvent('close_convert_lead', { audience: audience || 'unspecified' });
           finalizeAiReply(typing, "Thank you, I've passed this along. The Institute's Executive Director will be in touch soon.");
         } else {
           finalizeAiReply(typing, "Thanks for sharing that. " + (data.message || "This didn't reach anyone yet since email notifications aren't configured on this server, but nothing was lost."));

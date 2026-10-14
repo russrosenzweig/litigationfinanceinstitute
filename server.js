@@ -42,6 +42,20 @@ const SENDS_FALLBACK = /^claude-(opus-5|fable-5)/.test(MODEL);
 // not a place that needs the flagship model.
 const INSIGHTS_MODEL = process.env.INSIGHTS_MODEL || "claude-haiku-4-5-20251001";
 const API_KEY = process.env.ANTHROPIC_API_KEY;
+// Base URL for the Messages API. Production never sets this; local tests point
+// it at a stub so the plumbing can be checked without spending model tokens.
+const ANTHROPIC_BASE = (process.env.ANTHROPIC_BASE_URL || "https://api.anthropic.com").replace(/\/$/, "");
+
+// Compassionate Assistance Pathway (visitors see "Other Ways to Get Help").
+// OFF unless ASSIST_PATHWAY=on. With it off, every request, page and email is
+// exactly what it was before the feature existed. Rollback = unset the variable.
+const ASSIST_ENABLED = process.env.ASSIST_PATHWAY === "on";
+const { buildAssistBlock, auditReply } = require("./lib/assist-pathway");
+const ASSIST_BLOCK = ASSIST_ENABLED ? buildAssistBlock() : null;
+const ASSIST_MARKER = /\s*<!--PATHWAY:assist-->\s*/g;
+// Sessions that entered the pathway. In memory only (a restart forgets them),
+// which is why the widget also sends pathway:"assist" with every later call.
+const assistSessions = new Set();
 const OWNER_EMAIL = process.env.OWNER_EMAIL;
 // Optional: a Google Apps Script Web App URL that appends/updates a row in a
 // Google Sheet per conversation. If not set, insights are still captured to a
@@ -62,7 +76,11 @@ const mailer = Boolean(RESEND_API_KEY && OWNER_EMAIL);
 
 async function sendMail(subject, text, to) {
   const recipient = to || OWNER_EMAIL;
-  if (!RESEND_API_KEY || !recipient) return { skipped: true };
+  if (!RESEND_API_KEY || !recipient) {
+    // Local tests only: show what would have been sent, without sending it.
+    if (process.env.MAIL_DRYRUN_LOG === "1") console.log(`[mail:dryrun] subject="${subject}" chars=${String(text).length} body_starts="${String(text).slice(0, 60).replace(/\n/g, " ")}"`);
+    return { skipped: true };
+  }
   try {
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -122,7 +140,7 @@ async function extractInsights(messages, audience) {
   if (!API_KEY) return null;
   try {
     const convoText = transcriptText(messages).slice(0, 12000); // cap input size
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
+    const response = await fetch(`${ANTHROPIC_BASE}/v1/messages`, {
       method: "POST",
       headers: {
         "content-type": "application/json",
@@ -797,7 +815,7 @@ app.use(express.json({ limit: "2mb" }));
 // the runtime data/ folder (conversation tags), the server source and the
 // working notes were all downloadable. Found 14 Oct 2026: /data/insights.jsonl
 // was public. Anything not meant for visitors is refused before static runs.
-const PRIVATE_PATHS = /^\/(data|scripts|netlify|node_modules)(\/|$)|^\/(server\.js|package(-lock)?\.json|gen_strategy_doc\.js|netlify\.toml)$|\.(md|tmp)$|^\/\./i;
+const PRIVATE_PATHS = /^\/(data|scripts|netlify|node_modules|lib)(\/|$)|^\/(server\.js|package(-lock)?\.json|gen_strategy_doc\.js|netlify\.toml)$|\.(md|tmp)$|^\/\./i;
 app.use((req, res, next) => {
   let p = req.path;
   try { p = decodeURIComponent(p); } catch (e) { return res.status(400).send("Bad request"); }
@@ -805,6 +823,7 @@ app.use((req, res, next) => {
   // resolve to the same file in express.static.
   p = path.posix.normalize("/" + p.replace(/\\/g, "/")).replace(/\/{2,}/g, "/");
   if (PRIVATE_PATHS.test(p)) return res.status(404).send("Not found");
+  if (!ASSIST_ENABLED && /^\/help(\.html|-directory\.json)?$/i.test(p)) return res.status(404).send("Not found");
   next();
 });
 app.use(express.static(__dirname, { dotfiles: "deny" }));
@@ -921,6 +940,7 @@ app.get("/api/health", (req, res) => {
   res.json({
     ok: true,
     hasApiKey: Boolean(API_KEY),
+    assistPathway: ASSIST_ENABLED,
     hasEmail: Boolean(mailer),
     hasInsightsWebhook: Boolean(INSIGHTS_WEBHOOK_URL),
     hasFunderAlertsWebhook: Boolean(FUNDER_ALERTS_WEBHOOK_URL),
@@ -1014,6 +1034,8 @@ app.post("/api/chat", globalChatCap, chatLimiter, async (req, res) => {
   }
 
   const audience = typeof req.body.audience === "string" ? req.body.audience : null;
+  const chatSession = typeof req.body.session === "string" ? req.body.session : "unknown-session";
+  const assistRequested = ASSIST_ENABLED && (req.body.pathway === "assist" || assistSessions.has(chatSession));
 
   // The system prompt is sent as an ARRAY of blocks, not one concatenated
   // string, and this matters for cost. SYSTEM_PROMPT is ~48k tokens (the
@@ -1031,6 +1053,9 @@ app.post("/api/chat", globalChatCap, chatLimiter, async (req, res) => {
   const system = [
     { type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }
   ];
+  // The pathway block is stable, so it carries its own cache breakpoint and
+  // never disturbs the SYSTEM_PROMPT cache entry.
+  if (ASSIST_BLOCK) system.push({ type: "text", text: ASSIST_BLOCK, cache_control: { type: "ephemeral" } });
   // Today's date rides in the small per-request block, never in the cached
   // prompt, so the cache entry stays byte-identical across days. The model
   // needs it to tell a pasted past filing from a live deadline.
@@ -1039,13 +1064,15 @@ app.post("/api/chat", globalChatCap, chatLimiter, async (req, res) => {
     type: "text",
     text: `=== CURRENT CONVERSATION CONTEXT ===\nToday's date is ${todayIso}.` + (audience
       ? `\nThe interface already told you this user's role: "${audience}". Do not ask the role-detection question, go directly into the matching flow described above for that constituency.`
+      : "") + (assistRequested
+      ? `\nThis visitor is in the "Other Ways to Get Help" pathway. Follow that section: no funding intake, no follow-up offer, no paid services unless they ask.`
       : "")
   });
 
   // One API call to the Messages endpoint. Shared by the initial attempt, the
   // empty-reply retry, and the max_tokens continuation below.
   const callClaude = async (msgs) => {
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
+    const response = await fetch(`${ANTHROPIC_BASE}/v1/messages`, {
       method: "POST",
       headers: {
         "content-type": "application/json",
@@ -1174,7 +1201,25 @@ app.post("/api/chat", globalChatCap, chatLimiter, async (req, res) => {
 
     if (!reply) console.error("Empty reply from Anthropic API after retry");
     if (!reply) reply = "Sorry - my reply did not come through properly just now. Could you say continue, or ask that again?";
-    res.json({ reply });
+    let inAssist = assistRequested;
+    if (ASSIST_ENABLED) {
+      if (ASSIST_MARKER.test(reply)) inAssist = true;
+      ASSIST_MARKER.lastIndex = 0;
+      reply = reply.replace(ASSIST_MARKER, "\n").trim();
+      if (inAssist && !assistSessions.has(chatSession)) {
+        assistSessions.add(chatSession);
+        console.log(`[assist] session ${chatSession} entered the pathway`);
+      }
+      if (inAssist) {
+        // Counts and resource ids only; the reply itself is never logged.
+        const a = auditReply(reply);
+        console.log(`[assist] reply audit session=${chatSession} named=${a.named.join(",") || "none"} unlisted_numbers=${a.unlistedNumbers} unlisted_links=${a.unlistedLinks}`);
+        if (a.unlistedNumbers || a.unlistedLinks) console.error(`[assist] ALERT unlisted contact in a pathway reply (session ${chatSession}): pause condition, review the directory and prompt`);
+      }
+    } else {
+      reply = reply.replace(ASSIST_MARKER, "\n").trim();
+    }
+    res.json(inAssist ? { reply, pathway: "assist" } : { reply });
 
     // Fire-and-forget insight tagging. This used to run on EVERY turn, which
     // was pure waste: records upsert by session id, so a ten-turn conversation
@@ -1190,7 +1235,8 @@ app.post("/api/chat", globalChatCap, chatLimiter, async (req, res) => {
     // It also gates funder Deal Alerts, which should not wait for end-session.
     const session = typeof req.body.session === "string" ? req.body.session : "unknown-session";
     const userTurns = messages.filter(m => m.role === "user").length;
-    if (userTurns >= 3 && !sessionMidTagged.has(session)) {
+    // Pathway conversations are never tagged: no insights row, no webhook.
+    if (!inAssist && userTurns >= 3 && !sessionMidTagged.has(session)) {
       sessionMidTagged.add(session);
       const fullTranscript = [...messages, { role: "assistant", content: reply }];
       recordInsight(session, audience, fullTranscript);
@@ -1237,6 +1283,18 @@ app.post("/api/end-session", writeLimiter, async (req, res) => {
   }
   sessionEmailsSent.add(dedupeKey);
 
+  // Pathway conversations: no insight tag, and the transcript is withheld from
+  // the notification email by design. The owner gets a one-line notice so the
+  // pathway's use can be counted without anyone's story leaving the session.
+  if (ASSIST_ENABLED && (req.body.pathway === "assist" || assistSessions.has(session))) {
+    console.log(`[assist] session ${session} ended; transcript withheld, not tagged`);
+    await sendMail(
+      `Litigation Finance Institute: an Other Ways to Get Help conversation ended`,
+      `A visitor used the assistance pathway (${transcript.length} messages).\n\nThe transcript is withheld by design and was not tagged or stored. Session ${session}.`
+    );
+    return res.json({ ok: true });
+  }
+
   // The authoritative insight tag for this conversation. The transcript is
   // complete here, so these tags are the most accurate the system will get.
   // Upserts by session id, overwriting any mid-conversation safety-net tag.
@@ -1263,6 +1321,17 @@ app.post("/api/lead", writeLimiter, async (req, res) => {
   // financing conversation, for claim types (personal injury, abuse, mass
   // tort) that most commercial funders exclude. Best-effort: if this fails
   // or there's no transcript yet, the lead email still sends normally.
+  const leadAssist = ASSIST_ENABLED && (req.body.pathway === "assist" || assistSessions.has(session));
+  if (leadAssist) {
+    console.log(`[assist] contact request from pathway session ${session}; transcript withheld`);
+    const r = await sendMail(`Litigation Finance Institute contact request (Other Ways to Get Help) from ${name}`, [
+      `Name: ${name}`, `Email: ${email}`, `Phone: ${phone || "(not provided)"}`, `Session: ${session || "unknown-session"}`, ``,
+      `This visitor was in the assistance pathway. The conversation is withheld by design; reply only about what they asked, and do not add them to any outreach.`
+    ].join("\n"));
+    if (r && r.skipped) return res.status(200).json({ ok: false, message: "Email isn't configured on this server yet, so this request wasn't sent anywhere." });
+    return res.json({ ok: true });
+  }
+
   let fitNote = "Not yet assessed, see conversation below.";
   try {
     if (Array.isArray(transcript) && transcript.length > 0) {

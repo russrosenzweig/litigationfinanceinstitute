@@ -3,7 +3,7 @@
 // Runs the real server.js twice (flag off, flag on) against a local stub of
 // the Anthropic Messages API, so no model tokens are spent and nothing is
 // emailed. Checks gating, the extra system block, marker stripping, that
-// pathway conversations are never tagged or emailed with their transcript,
+// pathway conversations are emailed in full but never tagged,
 // that the private-file guard holds, and that a client cannot claim any
 // pathway value other than "assist".
 //   node scripts/test-assist-plumbing.js
@@ -128,25 +128,28 @@ const longConvo = (session) => [
   check("on: audit raises an alert for an invented number and link", /reply audit session=audit-bad named=none unlisted_numbers=1 unlisted_links=1/.test(s.getLog()) && /ALERT unlisted contact in a pathway reply \(session audit-bad\)/.test(s.getLog()), (s.getLog().match(/reply audit session=audit-bad[^\n]*/) || [""])[0]);
   check("on: audit log carries no reply text", !/555-0199|texasfreehelp/.test(s.getLog()));
 
-  // End of session: no tags, notice only.
+  // End of session: full transcript emailed with the contact check, no tags.
   const before = insightSessions().filter(x => x === "on-assist").length;
   r = await post(4473, "/api/end-session", { session: "on-assist", audience: "claimant", transcript: longConvo("on-assist") });
   await wait(400);
   let log = s.getLog();
-  check("on: assist end-session withholds the transcript", /\[assist\] session on-assist ended; transcript withheld/.test(log));
-  check("on: assist notice email carries no transcript", /\[mail:dryrun\] subject="Litigation Finance Institute: an Other Ways to Get Help conversation ended" chars=\d+ body_starts="A visitor used the assistance pathway/.test(log) && !/\[mail:dryrun\] subject="Litigation Finance Institute chat transcript, session on-assist"/.test(log));
+  check("on: assist end-session emails the transcript, untagged", /\[assist\] session on-assist ended; transcript emailed, not tagged, alerts=0/.test(log));
+  check("on: assist transcript email opens with a clean contact check", /\[mail:dryrun\] subject="Litigation Finance Institute chat transcript \(Other Ways to Get Help\), session on-assist" chars=\d+ body_starts="Contact check: every phone number/.test(log));
+  r = await post(4473, "/api/end-session", { session: "audit-bad", audience: "claimant", transcript: longConvo("audit-bad") });
+  await wait(300);
+  check("on: a session with an unlisted contact is flagged in the subject and first line", /\[mail:dryrun\] subject="CHECK: Litigation Finance Institute chat transcript \(Other Ways to Get Help\), session audit-bad" chars=\d+ body_starts="Contact check: 1 reply gave/.test(s.getLog()));
   check("on: no insights row written for the assist session", insightSessions().filter(x => x === "on-assist").length === before);
 
   // A restart forgets the session; the widget's flag still protects it.
   r = await post(4473, "/api/end-session", { session: "fresh-after-restart", audience: "claimant", transcript: longConvo("x"), pathway: "assist" });
   await wait(300);
-  check("on: client pathway flag alone also withholds", /\[assist\] session fresh-after-restart ended; transcript withheld/.test(s.getLog()));
+  check("on: client pathway flag alone also skips tagging", /\[assist\] session fresh-after-restart ended; transcript emailed, not tagged/.test(s.getLog()));
 
   // Contact request from a pathway session.
   r = await post(4473, "/api/lead", { name: "Test Person", email: "t@example.com", session: "on-assist", transcript: longConvo("on-assist") });
   await wait(300);
   log = s.getLog();
-  check("on: pathway contact request sent without the conversation", /\[assist\] contact request from pathway session on-assist; transcript withheld/.test(log) && /subject="Litigation Finance Institute contact request \(Other Ways to Get Help\) from Test Person"/.test(log));
+  check("on: pathway contact request includes the conversation", /\[assist\] contact request from pathway session on-assist; transcript included/.test(log) && /subject="Litigation Finance Institute contact request \(Other Ways to Get Help\) from Test Person"/.test(log));
 
   // Ordinary session is unaffected: transcript email and tagging still happen.
   r = await post(4473, "/api/end-session", { session: "on-commercial", audience: "claimant", transcript: longConvo("c") });

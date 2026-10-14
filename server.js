@@ -56,6 +56,14 @@ const ASSIST_MARKER = /\s*<!--PATHWAY:assist-->\s*/g;
 // Sessions that entered the pathway. In memory only (a restart forgets them),
 // which is why the widget also sends pathway:"assist" with every later call.
 const assistSessions = new Set();
+// Pathway replies that named a phone number or link not in the directory,
+// counted per session so the transcript email can say so at the top.
+const assistAlerts = new Map();
+function assistCheckLine(alerts) {
+  return alerts
+    ? `Contact check: ${alerts} ${alerts === 1 ? "reply" : "replies"} gave a phone number or link that is not on the verified list. Please read those replies.`
+    : "Contact check: every phone number and link came from the verified list.";
+}
 const OWNER_EMAIL = process.env.OWNER_EMAIL;
 // Optional: a Google Apps Script Web App URL that appends/updates a row in a
 // Google Sheet per conversation. If not set, insights are still captured to a
@@ -1214,6 +1222,7 @@ app.post("/api/chat", globalChatCap, chatLimiter, async (req, res) => {
         // Counts and resource ids only; the reply itself is never logged.
         const a = auditReply(reply);
         console.log(`[assist] reply audit session=${chatSession} named=${a.named.join(",") || "none"} unlisted_numbers=${a.unlistedNumbers} unlisted_links=${a.unlistedLinks}`);
+        if (a.unlistedNumbers || a.unlistedLinks) assistAlerts.set(chatSession, (assistAlerts.get(chatSession) || 0) + 1);
         if (a.unlistedNumbers || a.unlistedLinks) console.error(`[assist] ALERT unlisted contact in a pathway reply (session ${chatSession}): pause condition, review the directory and prompt`);
       }
     } else {
@@ -1283,14 +1292,15 @@ app.post("/api/end-session", writeLimiter, async (req, res) => {
   }
   sessionEmailsSent.add(dedupeKey);
 
-  // Pathway conversations: no insight tag, and the transcript is withheld from
-  // the notification email by design. The owner gets a one-line notice so the
-  // pathway's use can be counted without anyone's story leaving the session.
+  // Pathway conversations: emailed in full like every other conversation
+  // (Russ reads them all), but never tagged, so no story reaches the insights
+  // file or the Sheet. The email opens with the reply audit's result.
   if (ASSIST_ENABLED && (req.body.pathway === "assist" || assistSessions.has(session))) {
-    console.log(`[assist] session ${session} ended; transcript withheld, not tagged`);
+    const alerts = assistAlerts.get(session) || 0;
+    console.log(`[assist] session ${session} ended; transcript emailed, not tagged, alerts=${alerts}`);
     await sendMail(
-      `Litigation Finance Institute: an Other Ways to Get Help conversation ended`,
-      `A visitor used the assistance pathway (${transcript.length} messages).\n\nThe transcript is withheld by design and was not tagged or stored. Session ${session}.`
+      `${alerts ? "CHECK: " : ""}Litigation Finance Institute chat transcript (Other Ways to Get Help), session ${session}`,
+      `${assistCheckLine(alerts)}\nNot tagged and not added to the insights file.\n\nAudience: ${audience || "not yet identified"}\n\n${transcriptText(transcript)}`
     );
     return res.json({ ok: true });
   }
@@ -1323,10 +1333,12 @@ app.post("/api/lead", writeLimiter, async (req, res) => {
   // or there's no transcript yet, the lead email still sends normally.
   const leadAssist = ASSIST_ENABLED && (req.body.pathway === "assist" || assistSessions.has(session));
   if (leadAssist) {
-    console.log(`[assist] contact request from pathway session ${session}; transcript withheld`);
+    console.log(`[assist] contact request from pathway session ${session}; transcript included`);
     const r = await sendMail(`Litigation Finance Institute contact request (Other Ways to Get Help) from ${name}`, [
       `Name: ${name}`, `Email: ${email}`, `Phone: ${phone || "(not provided)"}`, `Session: ${session || "unknown-session"}`, ``,
-      `This visitor was in the assistance pathway. The conversation is withheld by design; reply only about what they asked, and do not add them to any outreach.`
+      `This visitor was in the assistance pathway. Reply only about what they asked, and do not add them to any outreach.`,
+      assistCheckLine(assistAlerts.get(session) || 0), ``,
+      Array.isArray(transcript) && transcript.length ? transcriptText(transcript) : "(No conversation was sent with this request.)"
     ].join("\n"));
     if (r && r.skipped) return res.status(200).json({ ok: false, message: "Email isn't configured on this server yet, so this request wasn't sent anywhere." });
     return res.json({ ok: true });

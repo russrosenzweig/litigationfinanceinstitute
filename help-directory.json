@@ -509,6 +509,50 @@
    "verified": true,
    "verification_note": "Fetched GOV.UK contact-police page and NHS 'When to call 999' page on 2026-10-14; NHS says 999 is for life-threatening emergencies. police.uk returned 403.",
    "checked": "2026-10-14"
+  },
+  {
+   "id": "ut-court-self-help",
+   "name": "Utah State Courts Self-Help Center",
+   "tier": "state",
+   "jurisdiction": "Utah",
+   "category": "court-self-help",
+   "service": "Free legal help for people who do not have a lawyer: questions about the law and court process, forms and help completing them, by phone, text or email.",
+   "contact": {
+    "url": "https://www.utcourts.gov/en/self-help/services/contact.html",
+    "phone": "888-683-0009",
+    "text": "801-742-1898 (801-SHC-1TXT)",
+    "other": "Email selfhelp@utcourts.gov. Phone, text and email Monday to Friday, 11:00 a.m. to 5:00 p.m. The page notes the help line is often busy."
+   },
+   "eligibility_known": "For people who do not have a lawyer. The page says the Center cannot give legal advice or represent you in court, and its attorney is not your lawyer.",
+   "unknown": "Wait times, and how much help it gives on trust disputes specifically.",
+   "cost_note": "Free.",
+   "source_url": "https://www.utcourts.gov/en/self-help/services/contact.html",
+   "source_quote": "provides free legal help to people who do not have a lawyer",
+   "verified": true,
+   "verification_note": "Fetched 2026-10-14; phone, text, email and hours read from the courts' own contact page.",
+   "checked": "2026-10-14"
+  },
+  {
+   "id": "ut-bar-get-legal-help",
+   "name": "Utah State Bar - Get Legal Help",
+   "tier": "state",
+   "jurisdiction": "Utah",
+   "category": "lawyer-referral",
+   "service": "The Bar's page for finding a lawyer, including its LicensedLawyer directory of Utah lawyers in good standing, a virtual legal clinic, and links to free legal help.",
+   "contact": {
+    "url": "https://www.utahbar.org/get-legal-help/",
+    "phone": null,
+    "text": null,
+    "other": "The Bar's Modest Means reduced-rate referral program page says it is temporarily paused and not accepting new applications."
+   },
+   "eligibility_known": "Reduced-rate options require income qualification, per the page.",
+   "unknown": "Whether the Modest Means program has reopened (its page still says paused, with a reopening date that has passed), and any consultation fees.",
+   "cost_note": null,
+   "source_url": "https://www.utahbar.org/get-legal-help/",
+   "source_quote": "a variety of services to help you get the legal help you need, including a range of low and no-cost options",
+   "verified": true,
+   "verification_note": "Fetched 2026-10-14. The Modest Means page (utahbar.org/accesstojustice/modest-means/) says: temporarily paused and not accepting new applications; anticipate reopening in Fall 2025. The Bar's site shows no general lawyer referral phone line.",
+   "checked": "2026-10-14"
   }
  ]
 }

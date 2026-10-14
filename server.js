@@ -47,9 +47,11 @@ const API_KEY = process.env.ANTHROPIC_API_KEY;
 const ANTHROPIC_BASE = (process.env.ANTHROPIC_BASE_URL || "https://api.anthropic.com").replace(/\/$/, "");
 
 // Compassionate Assistance Pathway (visitors see "Other Ways to Get Help").
-// OFF unless ASSIST_PATHWAY=on. With it off, every request, page and email is
-// exactly what it was before the feature existed. Rollback = unset the variable.
-const ASSIST_ENABLED = process.env.ASSIST_PATHWAY === "on";
+// ON unless ASSIST_PATHWAY=off. With it off, every request and email is
+// exactly what it was before the feature existed. Rollback = set it to off in
+// Render, or revert the commit that turned it on. It lives inside the concierge
+// conversation only: no button, no separate page.
+const ASSIST_ENABLED = process.env.ASSIST_PATHWAY !== "off";
 const { buildAssistBlock, auditReply } = require("./lib/assist-pathway");
 const ASSIST_BLOCK = ASSIST_ENABLED ? buildAssistBlock() : null;
 const ASSIST_MARKER = /\s*<!--PATHWAY:assist-->\s*/g;
@@ -831,7 +833,7 @@ app.use((req, res, next) => {
   // resolve to the same file in express.static.
   p = path.posix.normalize("/" + p.replace(/\\/g, "/")).replace(/\/{2,}/g, "/");
   if (PRIVATE_PATHS.test(p)) return res.status(404).send("Not found");
-  if (!ASSIST_ENABLED && /^\/help(\.html|-directory\.json)?$/i.test(p)) return res.status(404).send("Not found");
+  if (/^\/help-directory\.json$/i.test(p)) return res.status(404).send("Not found");
   next();
 });
 app.use(express.static(__dirname, { dotfiles: "deny" }));

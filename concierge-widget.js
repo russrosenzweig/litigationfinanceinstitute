@@ -300,14 +300,13 @@ function wireLogic(){
   function persist(){ saveState({ roleKey, convo, displayLog, coverage }); }
 
   /* ---- Other Ways to Get Help (assistance pathway) ----
-     Present only when the server reports assistPathway:true. In this mode the
-     widget sends no analytics events, hides the commercial follow-up form,
-     and tells the server so the conversation is not tagged or emailed. */
+     Lives inside the conversation: the concierge enters it itself, and the
+     server marks the reply pathway:"assist". From then on the widget sends no
+     analytics events, hides the commercial follow-up form, and tells the
+     server so the conversation is not tagged. */
   let ASSIST_ON = false;
   let assistMode = false;
   try{ assistMode = sessionStorage.getItem(SK.assist) === '1'; }catch(e){}
-  const ASSIST_CHIP = { label:'Other ways to get help', action:'assist' };
-  function assistRoleFits(){ return !roleKey || roleKey === 'claimant' || roleKey === 'other'; }
   function setAssistMode(on){
     assistMode = on;
     try{ if(on) sessionStorage.setItem(SK.assist, '1'); }catch(e){}
@@ -317,25 +316,6 @@ function wireLogic(){
       if(t) t.style.display = 'none';
       if(f) f.style.display = 'none';
     }
-  }
-  function addHelpLink(){
-    const box = document.querySelector('.ch-followup');
-    if(!box || box.querySelector('.ch-helplink')) return;
-    const a = document.createElement('a');
-    a.className = 'ch-helplink';
-    a.href = '/help.html';
-    a.textContent = 'Other ways to get help, at no charge';
-    a.style.cssText = 'display:block;margin-top:6px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:13px;color:#D8BE85;text-decoration:underline;text-underline-offset:2px;';
-    box.appendChild(a);
-  }
-  function addAssistChip(){
-    if(!promptRow || promptRow.querySelector('[data-action="assist"]')) return;
-    const chip = document.createElement('div');
-    chip.className = 'prompt-chip';
-    chip.textContent = ASSIST_CHIP.label;
-    chip.dataset.action = 'assist';
-    promptRow.appendChild(chip);
-    wireChips();
   }
 
   const coverageBar = document.getElementById('coverageBar');
@@ -440,8 +420,6 @@ function wireLogic(){
   fetch('/api/health').then(function(r){ return r.ok ? r.json() : Promise.reject(); }).then(function(data){
     if(data.assistPathway){
       ASSIST_ON = true;
-      addHelpLink();
-      if(assistRoleFits()) addAssistChip();
       if(assistMode) setAssistMode(true);
     }
     if(data.hasApiKey){
@@ -582,20 +560,7 @@ function wireLogic(){
       if(f.demo) chip.dataset.demo = f.demo;
       promptRow.appendChild(chip);
     });
-    if(ASSIST_ON && assistRoleFits()) addAssistChip();
     wireChips();
-  }
-
-  function startAssist(){
-    if(sending) return;
-    setAssistMode(true);
-    const msg = "I'm looking for other kinds of help, not funding.";
-    addMsg('user', msg);
-    if(LIVE){ askLive(msg); return; }
-    const typing = showTyping();
-    setTimeout(function(){
-      finalizeAiReply(typing, "You can find a short list of places to start, including legal help, community resources and crisis lines, on the <a href='/help.html'>Other ways to get help</a> page.");
-    }, 600);
   }
 
   function selectRole(key, label){
@@ -660,7 +625,6 @@ function wireLogic(){
         if(btn.dataset.role){ selectRole(btn.dataset.role, btn.textContent); return; }
         if(btn.dataset.action === 'assessment'){ startAssessment(); return; }
         if(btn.dataset.action === 'readiness'){ startReadiness(); return; }
-        if(btn.dataset.action === 'assist'){ startAssist(); return; }
         if(btn.dataset.demo){ runDemo(btn.dataset.demo, btn.textContent); return; }
       });
     });

@@ -65,8 +65,8 @@ const longConvo = (session) => [
   const backup = fs.existsSync(insightsFile) ? fs.readFileSync(insightsFile) : null;
 
   // ---------------- flag OFF ----------------
-  let s = await startServer(4472, { ASSIST_PATHWAY: "" });
-  check("off: /help.html is 404", (await get(4472, "/help.html")).status === 404);
+  let s = await startServer(4472, { ASSIST_PATHWAY: "off" });
+  check("off: /help.html is 404 (removed)", (await get(4472, "/help.html")).status === 404);
   check("off: /help-directory.json is 404", (await get(4472, "/help-directory.json")).status === 404);
   check("off: /lib/assist-pathway.js is 404", (await get(4472, "/lib/assist-pathway.js")).status === 404);
   check("off: /data/insights.jsonl is 404", (await get(4472, "/data/insights.jsonl")).status === 404);
@@ -82,15 +82,11 @@ const longConvo = (session) => [
   s.child.kill(); await wait(300);
 
   // ---------------- flag ON ----------------
-  s = await startServer(4473, { ASSIST_PATHWAY: "on" });
-  check("on: /help.html is 200", (await get(4473, "/help.html")).status === 200);
-  const dirResp = await get(4473, "/help-directory.json");
-  check("on: /help-directory.json is 200", dirResp.status === 200);
+  s = await startServer(4473, { ASSIST_PATHWAY: "" });
+  check("on: no separate help page (the pathway lives in the conversation)", (await get(4473, "/help.html")).status === 404);
+  check("on: /help-directory.json is not served", (await get(4473, "/help-directory.json")).status === 404);
   check("on: /lib/assist-pathway.js still 404", (await get(4473, "/lib/assist-pathway.js")).status === 404);
   check("on: health reports assistPathway true", JSON.parse((await get(4473, "/api/health")).text).assistPathway === true);
-  const helpHtml = (await get(4473, "/help.html")).text;
-  check("on: help page loads no analytics or widget", !/googletagmanager|gtag\(|concierge-widget\.js/.test(helpHtml));
-  check("on: help page has no form that submits anywhere", !/<form[^>]*action=/i.test(helpHtml));
 
   // Ordinary commercial chat, no marker.
   captured.length = 0; nextReply = "Tell me about the matter.";
@@ -100,7 +96,7 @@ const longConvo = (session) => [
   check("on: pathway block has its own cache breakpoint", sysOn[1] && sysOn[1].cache_control && sysOn[1].cache_control.type === "ephemeral");
   check("on: big prompt block unchanged in position and caching", sysOn[0] && sysOn[0].cache_control && sysOn[0].text.length > 10000);
   check("on: ordinary reply has no pathway field", r.json && r.json.pathway === undefined);
-  const verifiedCount = (JSON.parse(dirResp.text).entries || []).filter(e => e.verified === true).length;
+  const verifiedCount = (JSON.parse(require("fs").readFileSync(require("path").join(__dirname, "..", "help-directory.json"), "utf8")).entries || []).filter(e => e.verified === true).length;
   const listed = (sysOn[1]?.text.match(/^- \[/gm) || []).length;
   check("on: model sees only verified directory entries", listed === verifiedCount, `listed=${listed} verified=${verifiedCount}`);
 

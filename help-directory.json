@@ -1,5 +1,5 @@
 {
- "checked": "2026-10-14",
+ "checked": "2026-10-21",
  "review_by": "2027-01-12",
  "owner": "UNASSIGNED (see launch decision sheet)",
  "note": "Verified resource list for Other Ways to Get Help. Every field comes from the organization's own or an official page fetched on the checked date. Run scripts/check-help-directory.js before any change and at least every 90 days.",
@@ -113,6 +113,50 @@
    "verified": true,
    "verification_note": "Fetched 2026-10-14 (www.211.org redirects to 211.org). No text-message option is printed on the homepage, so text is null.",
    "checked": "2026-10-14"
+  },
+  {
+   "id": "liheap",
+   "name": "Low Income Home Energy Assistance Program (LIHEAP), Energy Assistance Hotline and office search",
+   "tier": "national-us",
+   "jurisdiction": "United States",
+   "category": "community-resources",
+   "service": "Federal program, run by each state, that can help pay heating or cooling bills, give priority help to households that have lost or are about to lose heat or cooling, and help with weatherization and equipment repair. The hotline and search tool find the local LIHEAP office.",
+   "contact": {
+    "url": "https://acf.gov/ocs/programs-services/liheap",
+    "phone": "1-866-674-6327",
+    "text": null,
+    "other": "Energy Assistance Hotline (NEAR), toll free; representatives weekdays 10:00am to 6:00pm Eastern. Email energyassistance@ncat.org with city, county and state. The LIHEAP office search is at liheapch.acf.gov, and application information at Energyhelp.us."
+   },
+   "eligibility_known": "Eligibility varies by state and is based on household size, income, and other benefits received.",
+   "unknown": "Whether the person's state has funds open now, its income limits, waiting times, and whether it can stop a disconnection already scheduled.",
+   "cost_note": "LIHEAP does not charge a fee for receiving a benefit and does not give direct grants to individuals; a message offering a LIHEAP grant for a fee is a scam.",
+   "source_url": "https://acf.gov/ocs/programs-services/liheap",
+   "source_quote": "You may also contact the National Energy Assistance Referral (NEAR) number at 1-866-674-6327.",
+   "verified": true,
+   "verification_note": "Fetched 2026-10-21: the HHS ACF LIHEAP page (number and fee notice) and the LIHEAP Clearinghouse search tool page (hours, email, eligibility sentence). USAGov's energy bills page links the same office search.",
+   "checked": "2026-10-21"
+  },
+  {
+   "id": "lifeline-phone-internet",
+   "name": "Lifeline (FCC program run by USAC), phone and internet discount",
+   "tier": "national-us",
+   "jurisdiction": "United States",
+   "category": "community-resources",
+   "service": "A monthly discount of up to $9.25 on phone, internet, or bundled service for people who qualify (up to $34.25 on qualifying Tribal lands).",
+   "contact": {
+    "url": "https://www.lifelinesupport.org/",
+    "phone": "(800) 234-9473",
+    "text": null,
+    "other": "Lifeline support line open every day 9 a.m. to 9 p.m. Eastern; email LifelineSupport@usac.org. Applications start at https://getinternet.gov/apply?id=nv_home."
+   },
+   "eligibility_known": "A person may qualify through income or through taking part in a government assistance program such as SNAP or Medicaid.",
+   "unknown": "The person's exact income limit, which phone or internet companies near them take part, and how long approval takes.",
+   "cost_note": null,
+   "source_url": "https://www.lifelinesupport.org/",
+   "source_quote": "If you qualify, you can get a monthly discount of up to $9.25 on phone, internet, or bundled service.",
+   "verified": true,
+   "verification_note": "Fetched 2026-10-21 from USAC's Lifeline consumer site, which the FCC's Lifeline page points consumers to.",
+   "checked": "2026-10-21"
   },
   {
    "id": "988-lifeline",

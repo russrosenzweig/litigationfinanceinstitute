@@ -37,6 +37,13 @@ const SENDS_EFFORT = !/haiku/.test(MODEL);
 // the model Anthropic recommends for that category, so a false positive does
 // not surface to a claimant as an error.
 const SENDS_FALLBACK = /^claude-(opus-5|fable-5)/.test(MODEL);
+// Fast mode (research preview, Claude API only): the same model at up to 2.5x
+// the output speed, at twice the per-token price. On by default since 22 Oct
+// 2026 (Russ: visitors write a line at a time and leave during long pauses).
+// Set CLAUDE_SPEED=standard in Render to turn it off. Only Opus 5, Opus 5.5
+// and Opus 4.8 accept it. Fast mode has its own rate limit; a 429 on a fast
+// request is retried once at standard speed so a visitor never sees an error.
+const FAST_MODE = (process.env.CLAUDE_SPEED || "fast") === "fast" && /^claude-opus-(5|5-5|4-8)$/.test(MODEL);
 // Insight extraction runs on every message, so it defaults to a cheaper/faster
 // model than the main conversation, this is a small structured-tagging task,
 // not a place that needs the flagship model.
@@ -1095,24 +1102,34 @@ app.post("/api/chat", globalChatCap, chatLimiter, async (req, res) => {
 
   // One API call to the Messages endpoint. Shared by the initial attempt, the
   // empty-reply retry, and the max_tokens continuation below.
-  const callClaude = async (msgs) => {
+  const callClaude = async (msgs, fast = FAST_MODE) => {
+    const betas = [
+      ...(SENDS_FALLBACK ? ["server-side-fallback-2026-07-01"] : []),
+      ...(fast ? ["fast-mode-2026-02-01"] : [])
+    ];
+    const started = Date.now();
     const response = await fetch(`${ANTHROPIC_BASE}/v1/messages`, {
       method: "POST",
       headers: {
         "content-type": "application/json",
         "x-api-key": API_KEY,
         "anthropic-version": "2023-06-01",
-        ...(SENDS_FALLBACK ? { "anthropic-beta": "server-side-fallback-2026-07-01" } : {})
+        ...(betas.length ? { "anthropic-beta": betas.join(",") } : {})
       },
       body: JSON.stringify({
         model: MODEL,
         max_tokens: MAX_TOKENS,
         ...(SENDS_EFFORT ? { output_config: { effort: EFFORT } } : {}),
         ...(SENDS_FALLBACK ? { fallbacks: "default" } : {}),
+        ...(fast ? { speed: "fast" } : {}),
         system: system,
         messages: msgs.map(m => ({ role: m.role, content: m.content }))
       })
     });
+    if (fast && response.status === 429) {
+      console.warn("[speed] fast mode rate-limited; retrying this reply at standard speed");
+      return callClaude(msgs, false);
+    }
     if (!response.ok) {
       const errText = await response.text();
       const err = new Error(`Anthropic API error (${response.status})`);
@@ -1145,7 +1162,7 @@ app.post("/api/chat", globalChatCap, chatLimiter, async (req, res) => {
     // assessment that trails off), and without this line there is no way to
     // tell from Render logs whether the model hit the cap, stopped on its own,
     // or the continuation below failed.
-    console.log(`[chat] model=${data.model || MODEL} stop=${data.stop_reason || "unknown"} out_tokens=${u.output_tokens || 0} chars=${text.length}`);
+    console.log(`[chat] model=${data.model || MODEL} speed=${u.speed || (fast ? "fast" : "standard")} ms=${Date.now() - started} stop=${data.stop_reason || "unknown"} out_tokens=${u.output_tokens || 0} chars=${text.length}`);
     return {
       text,
       stopReason: data.stop_reason || "unknown",

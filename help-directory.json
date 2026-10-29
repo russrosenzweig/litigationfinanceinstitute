@@ -1,5 +1,5 @@
 {
- "checked": "2026-10-21",
+ "checked": "2026-10-29",
  "review_by": "2027-01-12",
  "owner": "UNASSIGNED (see launch decision sheet)",
  "note": "Verified resource list for Other Ways to Get Help. Every field comes from the organization's own or an official page fetched on the checked date. Run scripts/check-help-directory.js before any change and at least every 90 days.",
@@ -421,6 +421,50 @@
    "verified": true,
    "verification_note": "Fetched 2026-10-14; phone, hours and quote confirmed in downloaded page.",
    "checked": "2026-10-14"
+  },
+  {
+   "id": "nc-legal-aid",
+   "name": "Legal Aid of North Carolina - Legal Aid NC Helpline",
+   "tier": "state",
+   "jurisdiction": "North Carolina",
+   "category": "legal-aid-finder",
+   "service": "Free civil legal help for low-income North Carolinians in matters involving basic needs such as shelter, safety and income, including evictions and foreclosures, consumer and debt problems, and government benefits.",
+   "contact": {
+    "url": "https://legalaidnc.org/apply/",
+    "phone": "1-866-219-5262",
+    "text": null,
+    "other": "Toll-free helpline, also written 1 (866) 219-LANC; 9:00 AM to 3:00 PM, Monday to Friday. Online applications through the JusticeHub portal linked from the same page. Local offices are listed on the site."
+   },
+   "eligibility_known": "Serves low-income North Carolinians in civil (non-criminal) cases involving basic human needs.",
+   "unknown": "Whether the person qualifies, whether a given problem (for example a property tax foreclosure) is one they will take, and wait times.",
+   "cost_note": "Free for those who qualify.",
+   "source_url": "https://legalaidnc.org/apply/",
+   "source_quote": "Legal Aid NC Helpline Toll-Free: 1 (866) 219-LANC (5262) 9:00 AM - 3:00 PM, Monday - Friday",
+   "verified": true,
+   "verification_note": "Fetched 2026-10-29 from Legal Aid of North Carolina's Apply and Get Help pages; the Get Help page lists foreclosures under Housing.",
+   "checked": "2026-10-29"
+  },
+  {
+   "id": "nc-lawyer-referral",
+   "name": "North Carolina Bar Association Lawyer Referral Service",
+   "tier": "state",
+   "jurisdiction": "North Carolina",
+   "category": "lawyer-referral",
+   "service": "Bar-run service that refers members of the public to a North Carolina attorney.",
+   "contact": {
+    "url": "https://www.ncbar.org/members/benefits/lawyer-referral-service/",
+    "phone": "919-677-8574",
+    "text": null,
+    "other": "LRS call center, also written 919.677.8574."
+   },
+   "eligibility_known": "Open to anyone seeking a referral to a North Carolina attorney.",
+   "unknown": "Consultation fees, hours, and whether a referred lawyer will take the case.",
+   "cost_note": null,
+   "source_url": "https://www.ncbar.org/members/benefits/lawyer-referral-service/",
+   "source_quote": "If you are seeking a referral to a North Carolina attorney, please contact the LRS call center at 919.677.8574.",
+   "verified": true,
+   "verification_note": "Fetched 2026-10-29 from the NCBA Lawyer Referral Service page (public instruction on the member-benefits page).",
+   "checked": "2026-10-29"
   },
   {
    "id": "wy-lawyer-referral",

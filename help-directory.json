@@ -467,6 +467,28 @@
    "checked": "2026-10-29"
   },
   {
+   "id": "in-legal-aid",
+   "name": "Indiana Legal Services",
+   "tier": "state",
+   "jurisdiction": "Indiana",
+   "category": "legal-aid-finder",
+   "service": "Free civil (non-criminal) legal advice or representation for Indiana residents, generally targeted to low-income clients; apply by phone or online.",
+   "contact": {
+    "url": "https://www.indianalegalservices.org/applyonline/",
+    "phone": "1-844-243-8570",
+    "text": null,
+    "other": "Apply by phone Monday to Thursday, 10:00 a.m. to 2:00 p.m. Eastern; online application also available Monday to Thursday. Main office line 317-631-9410 (1200 Madison Ave, Suite 300, Indianapolis)."
+   },
+   "eligibility_known": "Assistance is generally targeted to low-income clients with a non-criminal legal problem in Indiana.",
+   "unknown": "Whether the person qualifies, whether a given problem will be taken, and wait times.",
+   "cost_note": "Free for those who qualify.",
+   "source_url": "https://www.indianalegalservices.org/applyonline/",
+   "source_quote": "Apply by phone: Monday - Thursday 10:00a.m. -2:00p.m. EST 1-844-243-8570",
+   "verified": true,
+   "verification_note": "Fetched 2026-10-29 from Indiana Legal Services' Apply Online page and site footer.",
+   "checked": "2026-10-29"
+  },
+  {
    "id": "wy-lawyer-referral",
    "name": "Wyoming State Bar - Lawyer Search and Referral",
    "tier": "state",

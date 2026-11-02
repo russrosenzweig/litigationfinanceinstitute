@@ -18,7 +18,7 @@ const path = require("path");
 const file = process.argv.find(a => a.endsWith(".json")) || path.join(__dirname, "..", "help-directory.json");
 const offline = process.argv.includes("--offline");
 const TIERS = new Set(["national-us", "state", "uk"]);
-const CATS = new Set(["legal-aid-finder", "lawyer-referral", "court-self-help", "free-legal-answers", "community-resources", "crisis", "emergency"]);
+const CATS = new Set(["legal-aid-finder", "lawyer-referral", "court-self-help", "free-legal-answers", "community-resources", "crisis", "emergency", "tax"]);
 const MAX_AGE_DAYS = 90;
 // En and em dash, built from character codes so this file passes the dash sweep.
 const DASHES = new RegExp("[" + String.fromCharCode(0x2013, 0x2014) + "]");

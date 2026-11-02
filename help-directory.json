@@ -663,6 +663,50 @@
    "verified": true,
    "verification_note": "Fetched 2026-10-14. The Modest Means page (utahbar.org/accesstojustice/modest-means/) says: temporarily paused and not accepting new applications; anticipate reopening in Fall 2025. The Bar's site shows no general lawyer referral phone line.",
    "checked": "2026-10-14"
+  },
+  {
+   "id": "irs-litc",
+   "name": "Low Income Taxpayer Clinics (LITC), Taxpayer Advocate Service",
+   "tier": "national-us",
+   "jurisdiction": "United States",
+   "category": "tax",
+   "service": "Independent clinics, partly funded by the IRS, that can represent eligible taxpayers before the IRS or in court on audits, appeals, tax collection matters (such as an offer in compromise, a lien or a levy) and other tax disputes, for free or for a small fee. Publication 4134 lists the clinics by state and the languages each offers.",
+   "contact": {
+    "url": "https://www.irs.gov/advocate/low-income-taxpayer-clinics",
+    "phone": "800-829-3676",
+    "text": null,
+    "other": "The phone number is IRS 800-TAX-FORM, for ordering Publication 4134 (the clinic list) by mail; the list is also on the page."
+   },
+   "eligibility_known": "Generally the taxpayer's income must be below a set threshold, and the amount in dispute with the IRS is usually less than $50,000.",
+   "unknown": "Whether a clinic near the person has capacity, its exact income limit, and whether it takes state tax matters.",
+   "cost_note": "Free or a small fee.",
+   "source_url": "https://www.irs.gov/advocate/low-income-taxpayer-clinics",
+   "source_quote": "LITCs can represent you before the IRS or in court on audits, appeals, tax collection matters, and other tax disputes. Services are provided for free or for a small fee.",
+   "verified": true,
+   "verification_note": "Fetched 2026-11-02: IRS LITC page (services, free or small fee, income threshold, usually under $50,000 in dispute, Publication 4134, 800-TAX-FORM).",
+   "checked": "2026-11-02"
+  },
+  {
+   "id": "taxpayer-advocate-service",
+   "name": "Taxpayer Advocate Service (TAS)",
+   "tier": "national-us",
+   "jurisdiction": "United States",
+   "category": "tax",
+   "service": "An independent organization within the IRS that helps taxpayers whose IRS problem is causing financial difficulty or has not been resolved through normal IRS channels. Calling opens a case with an advocate.",
+   "contact": {
+    "url": "https://www.taxpayeradvocate.irs.gov/contact-us/",
+    "phone": "1-877-777-4778",
+    "text": null,
+    "other": "Toll free. The site has a qualifier tool to check whether TAS can take the issue."
+   },
+   "eligibility_known": "For federal tax problems with the IRS; whether TAS takes a case depends on the issue, which its qualifier tool checks.",
+   "unknown": "Whether it will accept this person's case and how long it will take.",
+   "cost_note": "Free.",
+   "source_url": "https://www.taxpayeradvocate.irs.gov/contact-us/",
+   "source_quote": "When you call the TAS toll-free number, 1-877-777-4778, you will be connected with an advocate who is your first point of contact with the Taxpayer Advocate Service.",
+   "verified": true,
+   "verification_note": "Fetched 2026-11-02: TAS contact page (toll-free number, advocate opens the case, qualifier tool).",
+   "checked": "2026-11-02"
   }
  ]
 }

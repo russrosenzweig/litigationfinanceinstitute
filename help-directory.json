@@ -707,6 +707,94 @@
    "verified": true,
    "verification_note": "Fetched 2026-11-02: TAS contact page (toll-free number, advocate opens the case, qualifier tool).",
    "checked": "2026-11-02"
+  },
+  {
+   "id": "wa-homeownership-hotline",
+   "name": "Washington Homeownership Resource Center hotline",
+   "tier": "state",
+   "jurisdiction": "Washington",
+   "category": "community-resources",
+   "service": "A free statewide hotline for Washington homeowners, including those facing foreclosure or struggling with mortgage payments; it connects callers with housing counseling and other homeowner resources.",
+   "contact": {
+    "url": "https://www.homeownership-wa.org/",
+    "phone": "877-894-4663",
+    "text": null,
+    "other": "The site also offers a message form."
+   },
+   "eligibility_known": "For Washington homeowners; the home page states no income test.",
+   "unknown": "Whether a counselor can change a particular loan's terms, and what a servicer will agree to.",
+   "cost_note": "Free.",
+   "source_url": "https://www.homeownership-wa.org/",
+   "source_quote": "Facing Foreclosure? Help is available! Call 877-894-4663 or message us.",
+   "verified": true,
+   "verification_note": "Fetched 2026-11-20: home page (free hotline, foreclosure help, number).",
+   "checked": "2026-11-20"
+  },
+  {
+   "id": "wa-insurance-commissioner-consumer",
+   "name": "Washington State Office of the Insurance Commissioner, Consumer Advocacy",
+   "tier": "state",
+   "jurisdiction": "Washington",
+   "category": "community-resources",
+   "service": "The state insurance regulator's consumer line: help understanding an insurance policy issued in Washington, including auto coverage such as personal injury protection (PIP), and a way to file a complaint about an insurer.",
+   "contact": {
+    "url": "https://www.insurance.wa.gov/complaints-appeals-fraud/complaints/how-we-can-help-you-your-complaint",
+    "phone": "800-562-6900",
+    "text": null,
+    "other": "Monday to Friday, 8:30 a.m. to 4:30 p.m. The office's PIP explainer is at https://www.insurance.wa.gov/personal-injury-protection-pip"
+   },
+   "eligibility_known": "For insurance policies issued or business conducted in Washington.",
+   "unknown": "It cannot force an insurer to pay a claim, and it does not give legal advice.",
+   "cost_note": null,
+   "source_url": "https://www.insurance.wa.gov/complaints-appeals-fraud/complaints/how-we-can-help-you-your-complaint",
+   "source_quote": "Consumer Advocacy Call: 800-562-6900 (8:30 a.m. to 4:30 p.m., Monday - Friday)",
+   "verified": true,
+   "verification_note": "Fetched 2026-11-20: complaints help page (number, hours) and the PIP page (insurers must offer PIP; rejection must be in writing).",
+   "checked": "2026-11-20"
+  },
+  {
+   "id": "wa-clear-legal-aid",
+   "name": "Northwest Justice Project CLEAR intake line",
+   "tier": "state",
+   "jurisdiction": "Washington",
+   "category": "legal-aid-finder",
+   "service": "Free civil legal aid intake for people with low incomes whose legal issue is outside King County; it connects callers to self-help resources and free legal services. For a legal issue in King County, NJP says to start with 211.",
+   "contact": {
+    "url": "https://nwjustice.org/get-legal-help",
+    "phone": "1-888-201-1014",
+    "text": null,
+    "other": "For people under 60, Monday to Friday, 9:15 a.m. to 12:15 p.m. People 60 and over use CLEAR*Senior, 1-888-387-7111."
+   },
+   "eligibility_known": "Low income, a civil (not criminal) problem, and a legal issue outside King County.",
+   "unknown": "Whether a caller qualifies or will be assigned a lawyer; wait times.",
+   "cost_note": "NJP does not charge for its services; some case costs, such as filing fees, may apply.",
+   "source_url": "https://nwjustice.org/get-legal-help",
+   "source_quote": "a toll-free legal intake line for people with low incomes facing legal issues outside of King County in Washington State.",
+   "verified": true,
+   "verification_note": "Fetched 2026-11-20: NJP Get Legal Help page (CLEAR and CLEAR*Senior numbers, hours, King County goes to 211).",
+   "checked": "2026-11-20"
+  },
+  {
+   "id": "wa-washingtonlawhelp",
+   "name": "WashingtonLawHelp.org",
+   "tier": "state",
+   "jurisdiction": "Washington",
+   "category": "court-self-help",
+   "service": "A free library of plain-language legal information, forms and self-help guides for Washington, maintained by the Northwest Justice Project.",
+   "contact": {
+    "url": "https://www.washingtonlawhelp.org/",
+    "phone": null,
+    "text": null,
+    "other": null
+   },
+   "eligibility_known": "Open to anyone; no eligibility stated.",
+   "unknown": "It is information, not advice about a specific case.",
+   "cost_note": "Free.",
+   "source_url": "https://www.washingtonlawhelp.org/",
+   "source_quote": "Washington Law Help is a public library of free legal information in Washington State.",
+   "verified": true,
+   "verification_note": "Fetched 2026-11-20: home page.",
+   "checked": "2026-11-20"
   }
  ]
 }
